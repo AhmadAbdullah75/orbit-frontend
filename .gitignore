@@ -3,3 +3,13 @@ node_modules/
 .env.local
 dist/
 .vite/
+*.log
+*.txt
+*.json.bak
+fix_*.py
+check_*.js
+*_lint*
+*_utf8*
+board_lint*
+eslint_output*
+final_lint*
