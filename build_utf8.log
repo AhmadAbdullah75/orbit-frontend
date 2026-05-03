@@ -1,0 +1,113 @@
+﻿
+> project-manager-frontend@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 29 modules transformed.
+node.exe : 
+[31mΓ£ù[39m Build 
+failed in 326ms
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ([31mΓ£ù[   
+ 39m Build failed     
+in 326ms:String)     
+[], RemoteExcepti    
+on
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+[31merror during 
+build:
+[31m[vite:esbuild] 
+Transform failed with 
+1 error:
+C:/Users/alfat/saas-pr
+oject-manager/project-
+manager-frontend/src/p
+ages/BoardPage.jsx:239
+8:9: ERROR: The 
+symbol "ConfirmModal" 
+has already been 
+declared[31m
+file: [36mC:/Users/al
+fat/saas-project-manag
+er/project-manager-fro
+ntend/src/pages/BoardP
+age.jsx:2398:9[31m
+[33m
+[33mThe symbol 
+"ConfirmModal" has 
+already been 
+declared[33m
+2396 |  }
+2397 |  
+2398 |  function 
+ConfirmModal({
+     |           ^
+2399 |    isDark, 
+title, message,
+2400 |    confirmText 
+= 'Confirm',
+[31m
+    at 
+failureErrorWithLog (C
+:\Users\alfat\saas-pro
+ject-manager\project-m
+anager-frontend\node_m
+odules\esbuild\lib\mai
+n.js:1467:15)
+    at C:\Users\alfat\
+saas-project-manager\p
+roject-manager-fronten
+d\node_modules\esbuild
+\lib\main.js:736:50
+    at responseCallbac
+ks.<computed> (C:\User
+s\alfat\saas-project-m
+anager\project-manager
+-frontend\node_modules
+\esbuild\lib\main.js:6
+03:9)
+    at 
+handleIncomingPacket (
+C:\Users\alfat\saas-pr
+oject-manager\project-
+manager-frontend\node_
+modules\esbuild\lib\ma
+in.js:658:12)
+    at 
+Socket.readFromStdout 
+(C:\Users\alfat\saas-p
+roject-manager\project
+-manager-frontend\node
+_modules\esbuild\lib\m
+ain.js:581:7)
+    at Socket.emit 
+(node:events:508:20)
+    at addChunk (node:
+internal/streams/reada
+ble:564:12)
+    at readableAddChun
+kPushByteMode (node:in
+ternal/streams/readabl
+e:515:3)
+    at Readable.push (
+node:internal/streams/
+readable:395:5)
+    at 
+Pipe.onStreamRead (nod
+e:internal/stream_base
+_commons:189:23)[39m

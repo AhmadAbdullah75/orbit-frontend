@@ -1,0 +1,20 @@
+﻿555:  task, columns, members, isDark,
+826:                {members.map(m => {
+1308:  members, boardId, projectId, orgId,
+1722:              {showAssignPicker && members.length > 0 && (
+1730:                    {members.map(m => {
+1836:        `/organizations/${orgId}/projects/${projectId}/members`,
+1857:            `/organizations/${orgId}/projects/${projectId}/members/${userId}`
+1965:                No members yet
+2049:        Project members appear in task assignee dropdowns.
+2063:  const [members, setMembers] = useState([])
+2174:      // Fetch PROJECT members for task assignment
+2177:        `/organizations/${orgId}/projects/${projectId}/members`
+2182:          projMembersRes.data?.data?.members || []
+2186:      // Fetch ALL org members for "Add to project" panel
+2188:        `/organizations/${orgId}/members`
+2190:      setOrgMembers(orgMembersRes.data?.data?.members || [])
+2521:            projectMembers={members}
+2561:              {members.length} members ΓÇó {totalTasks} tasks
+2695:            members={members}
+2710:          members={members}
