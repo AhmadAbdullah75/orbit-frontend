@@ -21,6 +21,7 @@ const LoginPage = () => {
       useState(false)
     const [forgotMsg, setForgotMsg] = useState('')
     const [forgotError, setForgotError] = useState('')
+    const [forgotResetUrl, setForgotResetUrl] = useState(null)
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -53,10 +54,23 @@ const LoginPage = () => {
                 '/auth/forgot-password',
                 { email: forgotEmail.trim() }
             )
-            setForgotMsg(
-                res.data?.message ||
-                'Check your email for a reset link'
-            )
+
+            // If email was sent normally
+            if (res.data.emailSent) {
+                setForgotMsg('✅ Reset link sent! Check your inbox.')
+                setForgotResetUrl(null)
+            } else if (res.data.resetUrl) {
+                // Email failed — show direct link
+                setForgotMsg(
+                    '⚠️ Email could not be delivered. ' +
+                    'Click the link below to reset your password:'
+                )
+                setForgotResetUrl(res.data.resetUrl)
+            } else {
+                setForgotMsg(res.data.message ||
+                    'Check your email for a reset link.')
+                setForgotResetUrl(null)
+            }
         } catch (err) {
             setForgotError(
                 err.response?.data?.message ||
@@ -339,29 +353,88 @@ const LoginPage = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div style={{ textAlign: 'center' }}>
+                                    <div style={{ textAlign: 'left' }}>
                                         <div style={{
                                             fontSize: '40px',
                                             marginBottom: '12px',
+                                            textAlign: 'center'
                                         }}>
-                                            📧
+                                            {forgotResetUrl ? '⚠️' : '📧'}
                                         </div>
                                         <p style={{
-                                            color: '#10b981',
-                                            fontSize: '14px',
+                                            color: forgotResetUrl ? '#f59e0b' : '#10b981',
+                                            fontSize: '13px',
                                             fontWeight: 600,
                                             marginBottom: '16px',
+                                            lineHeight: 1.5,
                                         }}>
                                             {forgotMsg}
                                         </p>
+
+                                        {/* Show direct link if email failed */}
+                                        {forgotResetUrl && (
+                                            <div style={{
+                                                background: 'rgba(99,102,241,0.1)',
+                                                border: '1px solid rgba(99,102,241,0.3)',
+                                                borderRadius: '10px',
+                                                padding: '12px',
+                                                marginBottom: '12px',
+                                            }}>
+                                                <p style={{
+                                                    fontSize: '11px',
+                                                    color: '#94a3b8',
+                                                    marginBottom: '8px',
+                                                }}>
+                                                    Password Reset Link:
+                                                </p>
+                                                <a
+                                                    href={forgotResetUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        color: '#6366f1',
+                                                        fontSize: '12px',
+                                                        wordBreak: 'break-all',
+                                                        textDecoration: 'underline',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    Click here to reset your password
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(forgotResetUrl)
+                                                        alert('Link copied!')
+                                                    }}
+                                                    style={{
+                                                        display: 'block',
+                                                        marginTop: '8px',
+                                                        padding: '6px 14px',
+                                                        borderRadius: '8px',
+                                                        background: '#6366f1',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        fontSize: '12px',
+                                                        cursor: 'pointer',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    Copy Reset Link
+                                                </button>
+                                            </div>
+                                        )}
+
                                         <button
                                             type="button"
                                             onClick={() => {
                                                 setShowForgot(false)
                                                 setForgotEmail('')
                                                 setForgotMsg('')
+                                                setForgotResetUrl(null)
                                             }}
                                             style={{
+                                                width: '100%',
                                                 padding: '10px 24px',
                                                 borderRadius: '10px',
                                                 background: '#6366f1',
