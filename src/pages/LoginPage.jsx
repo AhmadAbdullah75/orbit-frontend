@@ -392,7 +392,7 @@ const LoginPage = () => {
 
                     {/* Google Button */}
                     <a
-                        href="http://localhost:5000/api/auth/google"
+                        href={`${import.meta.env.VITE_SOCKET_URL}/api/auth/google`}
                         className={`w-full flex items-center justify-center gap-3 
     py-2.5 rounded-lg border transition-all duration-200
     font-medium text-sm
