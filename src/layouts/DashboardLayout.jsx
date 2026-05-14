@@ -32,6 +32,7 @@ export default function DashboardLayout() {
 
   // 3. useState calls
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [orgs, setOrgs] = useState([])
   const [showOrgDropdown, setShowOrgDropdown] = useState(false)
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
@@ -232,7 +233,23 @@ export default function DashboardLayout() {
     <div className="flex h-screen overflow-hidden font-sans">
 
       {/* ── SIDEBAR ── */}
-      <aside className="hidden md:flex flex-col w-[240px] flex-shrink-0 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[rgba(255,255,255,0.06)] z-20 transition-colors duration-150">
+      <aside 
+        className="flex flex-col flex-shrink-0 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[rgba(255,255,255,0.06)] z-20 transition-colors duration-150"
+        style={{
+          width: '240px',
+          flexShrink: 0,
+          display: window.innerWidth < 768
+            ? (mobileMenuOpen ? 'flex' : 'none')
+            : 'flex',
+          position: window.innerWidth < 768
+            ? 'fixed'
+            : 'relative',
+          zIndex: window.innerWidth < 768 ? 100 : 'auto',
+          top: 0,
+          left: 0,
+          bottom: 0,
+        }}
+      >
 
         {/* Logo */}
         <div className="p-6 flex items-center gap-3">
@@ -425,11 +442,34 @@ export default function DashboardLayout() {
         {/* Header */}
         <header className="sticky top-0 z-30 h-[60px] flex items-center justify-between px-6 lg:px-8 bg-white/90 dark:bg-[#0f0f0f]/90 backdrop-blur-md border-b border-slate-200 dark:border-[rgba(255,255,255,0.06)] transition-colors duration-150 flex-shrink-0">
 
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm text-slate-400 dark:text-slate-500">Workspace</span>
-            <span className="material-symbols-outlined text-[16px] text-slate-300 dark:text-slate-700">chevron_right</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageName}</span>
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg"
+              style={{
+                background: isDark
+                  ? 'rgba(255,255,255,0.06)'
+                  : '#f1f5f9',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <span className="material-symbols-outlined"
+                style={{
+                  color: isDark ? '#e2e8f0' : '#1e293b',
+                  fontSize: '20px',
+                }}>
+                {mobileMenuOpen ? 'close' : 'menu'}
+              </span>
+            </button>
+
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-1.5 hidden md:flex">
+              <span className="text-sm text-slate-400 dark:text-slate-500">Workspace</span>
+              <span className="material-symbols-outlined text-[16px] text-slate-300 dark:text-slate-700">chevron_right</span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">{pageName}</span>
+            </div>
           </div>
 
           {/* Right side */}
