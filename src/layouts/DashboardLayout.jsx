@@ -46,11 +46,14 @@ export default function DashboardLayout() {
   const [searchResults, setSearchResults] = useState([])
   const [showResults, setShowResults] = useState(false)
   const [searching, setSearching] = useState(false)
+  const [orgsLoaded, setOrgsLoaded] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   // 4. useRef calls
   const notifRef = useRef(null)
   const searchRef = useRef(null)
   const orgDropdownRef = useRef(null)
+  const profileMenuRef = useRef(null)
 
   const timeAgo = (date) => {
     const diff = Date.now() - new Date(date);
@@ -92,6 +95,7 @@ export default function DashboardLayout() {
           return 0
         })
         setOrgs(sorted);
+        setOrgsLoaded(true);
 
         // Auto-select first org if activeOrgId doesn't exist in the list
         if (activeOrgId) {
@@ -107,6 +111,7 @@ export default function DashboardLayout() {
         }
       } catch (err) {
         console.error('Fetch orgs error:', err);
+        setOrgsLoaded(true);
       }
     };
     fetchOrgs();
@@ -123,6 +128,9 @@ export default function DashboardLayout() {
       }
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setShowNotifications(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
       }
     };
     document.addEventListener('mousedown', handler);
@@ -278,7 +286,7 @@ export default function DashboardLayout() {
               </div>
               <span className="text-sm font-medium truncate
                                text-slate-700 dark:text-slate-300">
-                {orgDisplayName}
+                {orgsLoaded ? orgDisplayName : '...'}
               </span>
             </div>
             <span className="material-symbols-outlined text-[16px]
@@ -335,7 +343,7 @@ export default function DashboardLayout() {
               </div>
               <div className="border-t border-slate-100
                               dark:border-[rgba(255,255,255,0.06)] p-2">
-                {perms.canCreateOrg && (
+                {(orgs.length === 0 || userRole === 'owner') && (
                   <button
                     onClick={() => {
                       setShowOrgDropdown(false);
@@ -622,10 +630,217 @@ export default function DashboardLayout() {
             </div>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-[#6764f2] flex items-center justify-center text-sm font-semibold text-white overflow-hidden flex-shrink-0 ml-1">
-              {user?.avatar
-                ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                : userInitial}
+            <div
+              ref={profileMenuRef}
+              style={{ position: 'relative' }}
+            >
+              {/* Clickable Avatar Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setShowProfileMenu(p => !p)
+                }
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: `2px solid ${showProfileMenu
+                    ? '#6366f1'
+                    : 'transparent'}`,
+                  cursor: 'pointer',
+                  background: '#6366f1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: 'white',
+                  padding: 0,
+                  transition: 'border-color 150ms',
+                }}>
+                {user?.avatar
+                  ? <img
+                      src={user.avatar}
+                      style={{ width: '100%',
+                               height: '100%',
+                               objectFit: 'cover' }}
+                      alt="Profile"
+                    />
+                  : (user?.name?.charAt(0) || 'U')
+                       .toUpperCase()
+                }
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {showProfileMenu && (
+                <div style={{
+                  position: 'absolute',
+                  top: '42px',
+                  right: 0,
+                  width: '220px',
+                  background: isDark ? '#1a1a1a' : '#ffffff',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.08)'
+                    : '#e2e8f0'}`,
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                  zIndex: 100,
+                  overflow: 'hidden',
+                }}>
+                  {/* User info header */}
+                  <div style={{
+                    padding: '14px 16px',
+                    borderBottom: `1px solid ${isDark
+                      ? 'rgba(255,255,255,0.06)'
+                      : '#f1f5f9'}`,
+                  }}>
+                    <div style={{ display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px' }}>
+                      <div style={{
+                        width: '36px', height: '36px',
+                        borderRadius: '50%',
+                        background: '#6366f1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        color: 'white',
+                        flexShrink: 0,
+                        overflow: 'hidden',
+                      }}>
+                        {user?.avatar
+                          ? <img src={user.avatar}
+                              style={{ width: '100%',
+                                       height: '100%',
+                                       objectFit: 'cover' }}
+                            />
+                          : (user?.name?.charAt(0) ||
+                             'U').toUpperCase()
+                        }
+                      </div>
+                      <div style={{ overflow: 'hidden' }}>
+                        <p style={{
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          color: isDark ? '#f1f5f9' : '#0f172a',
+                          margin: 0,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}>
+                          {user?.name || 'User'}
+                        </p>
+                        <p style={{
+                          fontSize: '11px',
+                          color: isDark ? '#475569' : '#94a3b8',
+                          margin: 0,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}>
+                          {user?.email || ''}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu items */}
+                  <div style={{ padding: '6px' }}>
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false)
+                        navigate('/settings')
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: isDark ? '#94a3b8' : '#64748b',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '17px' }}>
+                        settings
+                      </span>
+                      Settings
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false)
+                        navigate('/settings')
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: isDark ? '#94a3b8' : '#64748b',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '17px' }}>
+                        person
+                      </span>
+                      Profile
+                    </button>
+
+                    <div style={{
+                      height: '1px',
+                      background: isDark
+                        ? 'rgba(255,255,255,0.06)'
+                        : '#f1f5f9',
+                      margin: '4px 0',
+                    }} />
+
+                    <button
+                      onClick={async () => {
+                        setShowProfileMenu(false)
+                        try {
+                          await api.post('/auth/logout')
+                        } catch {}
+                        dispatch(logout())
+                        navigate('/login')
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: '#ef4444',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '17px' }}>
+                        logout
+                      </span>
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>

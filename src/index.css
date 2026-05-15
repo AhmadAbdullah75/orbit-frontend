@@ -343,3 +343,52 @@ button:disabled,
     padding-right: 12px !important;
   }
 }
+
+/* Mobile bottom navigation bar and board responsive fixes */
+@media (max-width: 768px) {
+  /* Ensure modals don't go behind bottom nav */
+  .modal-overlay {
+    padding-bottom: 80px !important;
+  }
+
+  /* Board horizontal scroll on mobile */
+  .board-columns-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 12px !important;
+    padding-bottom: 16px;
+  }
+
+  /* Each column snaps on mobile */
+  .board-column {
+    scroll-snap-align: start;
+    min-width: 280px !important;
+    max-width: 85vw !important;
+  }
+
+  /* Task cards full width */
+  .task-card {
+    width: 100% !important;
+  }
+
+  /* Fix iOS input zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Table list view on mobile */
+  .projects-table th:nth-child(3),
+  .projects-table td:nth-child(3),
+  .projects-table th:nth-child(4),
+  .projects-table td:nth-child(4) {
+    display: none;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+}

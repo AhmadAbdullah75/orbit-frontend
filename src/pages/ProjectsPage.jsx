@@ -585,8 +585,32 @@ const ProjectsPage = () => {
 
       {/* CREATE MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-[15vh] px-4">
-          <div className="bg-white dark:bg-[#141414] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          padding: '16px',
+          paddingTop: 'max(16px, env(safe-area-inset-top))',
+          overflowY: 'auto',
+        }}>
+          <div className="p-6" style={{
+            width: '100%',
+            maxWidth: '520px',
+            maxHeight: 'calc(100vh - 32px)',
+            overflowY: 'auto',
+            borderRadius: '16px',
+            background: isDark ? '#141414' : '#ffffff',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.08)'
+              : '#e2e8f0'}`,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+            WebkitOverflowScrolling: 'touch',
+          }}>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create New Project</h2>
             <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">Set up a new space for your team to collaborate.</p>
             

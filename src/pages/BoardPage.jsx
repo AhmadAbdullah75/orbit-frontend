@@ -3649,7 +3649,7 @@ export default function BoardPage() {
   const [targetColumnId, setTargetColumnId] = useState(null)
   const [taskAttachments, setTaskAttachments] = useState({})
 
-  const [showAddColumn, setShowAddColumn] =
+  const [showAddColumnModal, setShowAddColumnModal] =
     useState(false)
   const [newColumnName, setNewColumnName] =
     useState('')
@@ -3965,11 +3965,15 @@ export default function BoardPage() {
     })
   }, [tasksByColumn, columns])
 
-  const handleAddColumn = async () => {
-    const newColumnName = window.prompt('Enter column name:')
-    if (!newColumnName) return
+  const handleAddColumn = () => {
+    setShowAddColumnModal(true)
+    setNewColumnName('')
+  }
+
+  const handleAddColumnSubmit = async () => {
+    if (!newColumnName.trim()) return
+    setAddingColumn(true)
     try {
-      // CORRECT: POST /api/boards/:boardId/columns
       const res = await api.post(
         `/boards/${board._id}/columns`,
         { name: newColumnName.trim() }
@@ -3978,12 +3982,19 @@ export default function BoardPage() {
       if (newCol) {
         setColumns(prev => [...prev, newCol])
         setTasksByColumn(prev => ({
-          ...prev,
-          [newCol._id]: []
+          ...prev, [newCol._id]: []
         }))
       }
+      setShowAddColumnModal(false)
+      setNewColumnName('')
+      showToast('Column added!', 'success')
     } catch (err) {
-      console.error('Column create error:', err)
+      showToast(
+        err.response?.data?.message ||
+        'Failed to add column', 'error'
+      )
+    } finally {
+      setAddingColumn(false)
     }
   }
 
@@ -4505,6 +4516,119 @@ export default function BoardPage() {
           />
         )}
       </AnimatePresence>
+
+      {showAddColumnModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}
+        onClick={() => setShowAddColumnModal(false)}
+        >
+          <div style={{
+            width: '100%',
+            maxWidth: '400px',
+            background: isDark ? '#111827' : '#ffffff',
+            borderRadius: '16px',
+            padding: '24px',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.08)'
+              : '#e2e8f0'}`,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+          }}
+          onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: isDark ? '#f1f5f9' : '#0f172a',
+              marginBottom: '6px',
+            }}>
+              Add Column
+            </h3>
+            <p style={{
+              fontSize: '13px',
+              color: isDark ? '#64748b' : '#94a3b8',
+              marginBottom: '16px',
+            }}>
+              Give your new column a name
+            </p>
+            <input
+              autoFocus
+              type="text"
+              placeholder="e.g. Backlog, Testing, Deployed..."
+              value={newColumnName}
+              onChange={e => setNewColumnName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleAddColumnSubmit()
+                if (e.key === 'Escape') setShowAddColumnModal(false)
+              }}
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.12)'
+                  : '#e2e8f0'}`,
+                background: isDark ? '#1e293b' : '#f8fafc',
+                color: isDark ? '#f1f5f9' : '#0f172a',
+                fontSize: '14px',
+                outline: 'none',
+                boxSizing: 'border-box',
+                marginBottom: '16px',
+              }}
+            />
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'flex-end',
+            }}>
+              <button
+                type="button"
+                onClick={() => setShowAddColumnModal(false)}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '10px',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.1)'
+                    : '#e2e8f0'}`,
+                  background: 'transparent',
+                  color: isDark ? '#64748b' : '#94a3b8',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddColumnSubmit}
+                disabled={addingColumn ||
+                  !newColumnName.trim()}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: '#6366f1',
+                  color: 'white',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: addingColumn
+                    ? 'not-allowed' : 'pointer',
+                  opacity: addingColumn ? 0.7 : 1,
+                }}>
+                {addingColumn ? 'Adding...' : 'Add Column'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
