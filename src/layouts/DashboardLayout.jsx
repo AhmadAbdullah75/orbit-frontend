@@ -46,7 +46,6 @@ export default function DashboardLayout() {
   const [searchResults, setSearchResults] = useState([])
   const [showResults, setShowResults] = useState(false)
   const [searching, setSearching] = useState(false)
-  const [orgsLoaded, setOrgsLoaded] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   // 4. useRef calls
@@ -95,7 +94,6 @@ export default function DashboardLayout() {
           return 0
         })
         setOrgs(sorted);
-        setOrgsLoaded(true);
 
         // Auto-select first org if activeOrgId doesn't exist in the list
         if (activeOrgId) {
@@ -111,7 +109,6 @@ export default function DashboardLayout() {
         }
       } catch (err) {
         console.error('Fetch orgs error:', err);
-        setOrgsLoaded(true);
       }
     };
     fetchOrgs();
@@ -286,7 +283,7 @@ export default function DashboardLayout() {
               </div>
               <span className="text-sm font-medium truncate
                                text-slate-700 dark:text-slate-300">
-                {orgsLoaded ? orgDisplayName : '...'}
+                {orgDisplayName}
               </span>
             </div>
             <span className="material-symbols-outlined text-[16px]
@@ -343,22 +340,35 @@ export default function DashboardLayout() {
               </div>
               <div className="border-t border-slate-100
                               dark:border-[rgba(255,255,255,0.06)] p-2">
+                {/* Create org - visible to owners
+                    OR users with no orgs */}
                 {(orgs.length === 0 || userRole === 'owner') && (
                   <button
                     onClick={() => {
                       setShowOrgDropdown(false);
                       setShowCreateOrgModal(true);
                     }}
-                    className="w-full flex items-center gap-2
-                               px-3 py-2 rounded-lg text-sm
-                               text-slate-500 dark:text-slate-400
-                               hover:bg-slate-50 dark:hover:bg-white/5
-                               transition-colors"
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#6366f1',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
                   >
-                    <span className="material-symbols-outlined text-[16px]">
+                    <span className="material-symbols-outlined"
+                      style={{ fontSize: '16px' }}>
                       add
                     </span>
-                    New Organization
+                    Create Organization
                   </button>
                 )}
               </div>
