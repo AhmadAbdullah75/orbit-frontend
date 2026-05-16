@@ -33,8 +33,18 @@ export default function DashboardLayout() {
   // 3. useState calls
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [orgs, setOrgs] = useState([])
+  const [orgs, setOrgs] = useState(() => {
+    try {
+      const cached = localStorage.getItem('orbit_orgs_cache')
+      return cached ? JSON.parse(cached) : []
+    } catch { return [] }
+  })
   const [showOrgDropdown, setShowOrgDropdown] = useState(false)
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [currentPath.pathname])
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
   const [newOrgName, setNewOrgName] = useState('')
   const [creatingOrg, setCreatingOrg] = useState(false)
@@ -73,46 +83,41 @@ export default function DashboardLayout() {
   }[currentPath.pathname] || 'Dashboard';
 
   // Current org name
-  const activeOrg = orgs.find(o => o._id === activeOrgId);
-  const orgDisplayName = activeOrg?.name
-    || user?.organization?.name
-    || 'My Workspace';
-  const orgInitial = orgDisplayName.charAt(0).toUpperCase();
-  const userRole = activeOrg?.role || activeOrg?.userRole || 'viewer';
+  const displayedOrg = React.useMemo(() => {
+    if (orgs.length === 0) return null
+    return orgs.find(o => o._id === activeOrgId) || orgs[0]
+  }, [orgs, activeOrgId])
+
+  const userRole = displayedOrg?.role || displayedOrg?.userRole || 'viewer';
   const perms = getPermissions(userRole);
 
   // Fetch orgs on mount
   useEffect(() => {
     const fetchOrgs = async () => {
       try {
-        const res = await api.get('/organizations');
-        const data = res.data?.data?.organizations || [];
-        const sorted = data.sort((a, b) => {
-          // Owner's orgs first
-          if (a.role === 'owner' && b.role !== 'owner') return -1
-          if (b.role === 'owner' && a.role !== 'owner') return 1
-          return 0
-        })
-        setOrgs(sorted);
+        const res = await api.get('/organizations')
+        const data = res.data?.data?.organizations || []
+        // Write to cache FIRST
+        localStorage.setItem(
+          'orbit_orgs_cache',
+          JSON.stringify(data)
+        )
+        // Then update state
+        setOrgs(data)
 
-        // Auto-select first org if activeOrgId doesn't exist in the list
-        if (activeOrgId) {
-          const exists = sorted.find(o => o._id === activeOrgId)
-          if (!exists && sorted.length > 0) {
-            dispatch(setActiveOrg(sorted[0]._id))
-          }
-        } else if (sorted.length > 0) {
-          const defaultOrg = sorted.find(
-            o => o._id === user?.organization?._id
-          ) || sorted[0];
-          dispatch(setActiveOrg(defaultOrg._id));
+        // Fix active org if not in list
+        if (data.length > 0 && !data.find(
+          o => o._id === activeOrgId
+        )) {
+          dispatch(setActiveOrg(data[0]._id))
         }
       } catch (err) {
-        console.error('Fetch orgs error:', err);
+        console.error('Fetch orgs error:', err)
+        // Keep showing cached orgs on error
       }
-    };
+    }
     fetchOrgs();
-  }, [activeOrgId, dispatch, user?.organization?._id]);
+  }, [activeOrgId, dispatch]);
 
   // Click outside handlers
   useEffect(() => {
@@ -239,20 +244,19 @@ export default function DashboardLayout() {
 
       {/* ── SIDEBAR ── */}
       <aside 
-        className="flex flex-col flex-shrink-0 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[rgba(255,255,255,0.06)] z-20 transition-colors duration-150"
+        className="flex flex-col flex-shrink-0 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[rgba(255,255,255,0.06)] z-50 transition-colors duration-150"
         style={{
           width: '240px',
           flexShrink: 0,
-          display: window.innerWidth < 768
-            ? (mobileMenuOpen ? 'flex' : 'none')
-            : 'flex',
-          position: window.innerWidth < 768
-            ? 'fixed'
-            : 'relative',
-          zIndex: window.innerWidth < 768 ? 100 : 'auto',
+          height: '100vh',
+          position: 'fixed',
           top: 0,
           left: 0,
-          bottom: 0,
+          zIndex: 50,
+          transform: mobileMenuOpen || window.innerWidth >= 768
+            ? 'translateX(0)'
+            : 'translateX(-100%)',
+          transition: 'transform 250ms ease',
         }}
       >
 
@@ -279,11 +283,11 @@ export default function DashboardLayout() {
               <div className="size-6 rounded bg-indigo-600
                               flex items-center justify-center
                               text-white text-xs font-bold shrink-0">
-                {orgInitial}
+                {(displayedOrg?.name || 'W').charAt(0).toUpperCase()}
               </div>
               <span className="text-sm font-medium truncate
                                text-slate-700 dark:text-slate-300">
-                {orgDisplayName}
+                {displayedOrg?.name || 'Workspace'}
               </span>
             </div>
             <span className="material-symbols-outlined text-[16px]
@@ -310,43 +314,80 @@ export default function DashboardLayout() {
                 <div className="p-2 space-y-0.5">
                   {orgs.map(org => (
                     <button
-                    key={org._id}
-                    onClick={() => {
-                      dispatch(setActiveOrg(org._id))
-                      setShowOrgDropdown(false)
-                    }}
-                    className={`w-full flex items-center gap-2
-                               px-3 py-2 rounded-lg text-sm
-                               transition-colors text-left
-                               ${activeOrgId === org._id
-                                 ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600'
-                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
-                               }`}
-                  >
-                    <div className="size-6 rounded bg-indigo-600
-                                    flex items-center justify-center
-                                    text-white text-xs font-bold shrink-0">
-                      {org.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="truncate">{org.name}</span>
-                    {activeOrgId === org._id && (
-                      <span className="material-symbols-outlined
-                                       text-[16px] ml-auto">
-                        check
+                      key={org._id}
+                      onClick={() => {
+                        dispatch(setActiveOrg(org._id))
+                        setShowOrgDropdown(false)
+                        navigate('/dashboard')
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 12px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        background: org._id === activeOrgId
+                          ? isDark
+                            ? 'rgba(99,102,241,0.12)'
+                            : 'rgba(99,102,241,0.08)'
+                          : 'transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}>
+                      <div style={{
+                        width: '24px', height: '24px',
+                        borderRadius: '6px',
+                        background: '#6366f1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        color: 'white',
+                        flexShrink: 0,
+                      }}>
+                        {org.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span style={{
+                        flex: 1,
+                        fontSize: '13px',
+                        fontWeight: org._id === activeOrgId ? 600 : 400,
+                        color: org._id === activeOrgId
+                          ? '#6366f1'
+                          : isDark ? '#e2e8f0' : '#1e293b',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {org.name}
                       </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              <div className="border-t border-slate-100
-                              dark:border-[rgba(255,255,255,0.06)] p-2">
-                {/* Create org - visible to owners
-                    OR users with no orgs */}
-                {(orgs.length === 0 || userRole === 'owner') && (
+                      {org._id === activeOrgId && (
+                        <span className="material-symbols-outlined"
+                          style={{ fontSize: '16px',
+                                   color: '#6366f1' }}>
+                          check
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="p-2">
+                  {/* Separator */}
+                  <div style={{
+                    height: '1px',
+                    background: isDark
+                      ? 'rgba(255,255,255,0.06)'
+                      : '#f1f5f9',
+                    margin: '4px 0',
+                  }} />
+
+                  {/* Create Org — visible to ALL users */}
                   <button
                     onClick={() => {
-                      setShowOrgDropdown(false);
-                      setShowCreateOrgModal(true);
+                      setShowOrgDropdown(false)
+                      setShowCreateOrgModal(true)
                     }}
                     style={{
                       width: '100%',
@@ -354,24 +395,38 @@ export default function DashboardLayout() {
                       alignItems: 'center',
                       gap: '8px',
                       padding: '8px 12px',
-                      borderRadius: '8px',
                       border: 'none',
+                      borderRadius: '8px',
                       background: 'transparent',
-                      color: '#6366f1',
-                      fontSize: '12px',
-                      fontWeight: 600,
                       cursor: 'pointer',
                       textAlign: 'left',
-                    }}
-                  >
-                    <span className="material-symbols-outlined"
-                      style={{ fontSize: '16px' }}>
-                      add
+                    }}>
+                    <div style={{
+                      width: '24px', height: '24px',
+                      borderRadius: '6px',
+                      border: `1.5px dashed ${isDark
+                        ? 'rgba(99,102,241,0.4)'
+                        : 'rgba(99,102,241,0.3)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '14px',
+                                 color: '#6366f1' }}>
+                        add
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      color: '#6366f1',
+                    }}>
+                      Create Organization
                     </span>
-                    Create Organization
                   </button>
-                )}
-              </div>
+                </div>
             </motion.div>
           )}
           </AnimatePresence>
@@ -454,8 +509,25 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
+      {/* Mobile backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 40,
+            display: window.innerWidth < 768
+              ? 'block' : 'none',
+          }}
+        />
+      )}
+
       {/* ── MAIN AREA ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{
+        marginLeft: window.innerWidth >= 768 ? '240px' : '0',
+      }}>
 
         {/* Header */}
         <header className="sticky top-0 z-30 h-[60px] flex items-center justify-between px-6 lg:px-8 bg-white/90 dark:bg-[#0f0f0f]/90 backdrop-blur-md border-b border-slate-200 dark:border-[rgba(255,255,255,0.06)] transition-colors duration-150 flex-shrink-0">
@@ -463,20 +535,26 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg"
+              onClick={() => setMobileMenuOpen(p => !p)}
               style={{
+                display: window.innerWidth < 768 ? 'flex' : 'none',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                border: 'none',
                 background: isDark
                   ? 'rgba(255,255,255,0.06)'
                   : '#f1f5f9',
-                border: 'none',
                 cursor: 'pointer',
+                flexShrink: 0,
               }}
             >
               <span className="material-symbols-outlined"
                 style={{
-                  color: isDark ? '#e2e8f0' : '#1e293b',
                   fontSize: '20px',
+                  color: isDark ? '#e2e8f0' : '#1e293b',
                 }}>
                 {mobileMenuOpen ? 'close' : 'menu'}
               </span>
@@ -868,7 +946,7 @@ export default function DashboardLayout() {
             <Outlet />
           </motion.main>
         </div>
-      </div>
+      </main>
 
       {/* ── MOBILE BOTTOM NAV ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-[#0f0f0f] border-t border-slate-200 dark:border-[rgba(255,255,255,0.06)] flex items-center justify-around px-2 z-50 transition-colors duration-150">
