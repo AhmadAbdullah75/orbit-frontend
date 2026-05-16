@@ -598,7 +598,12 @@ const DashboardPage = () => {
         </motion.section>
 
         {/* BOTTOM GRID */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '16px',
+          marginTop: '24px',
+        }}>
           {/* Getting Started */}
           <div className="col-span-1 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
@@ -621,7 +626,7 @@ const DashboardPage = () => {
                       <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-[12px]">lock</span>
                     ) : null}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className={`text-sm font-semibold transition-colors ${
                       item.done 
                         ? 'line-through text-slate-400 dark:text-slate-600' 

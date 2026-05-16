@@ -27,9 +27,17 @@ const ProjectsPage = () => {
     return localStorage.getItem('projectsViewMode') || 'grid'
   })
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
+
   useEffect(() => {
     localStorage.setItem('projectsViewMode', viewMode)
   }, [viewMode])
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({
     name: '', description: '', color: '#6366f1', members: []
@@ -376,7 +384,7 @@ const ProjectsPage = () => {
           <p className="text-slate-500 dark:text-slate-400">No projects match your search.</p>
         </div>
       ) : (
-        viewMode === 'grid' ? (
+        (viewMode === 'grid' || isMobile) ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((project) => (
               <div 
