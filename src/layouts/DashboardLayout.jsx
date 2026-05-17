@@ -105,12 +105,27 @@ export default function DashboardLayout() {
         // Then update state
         setOrgs(data)
 
-        // Fix active org if not in list
-        if (data.length > 0 && !data.find(
+      if (data.length > 0) {
+        // Check if activeOrgId is valid
+        const currentValid = data.find(
           o => o._id === activeOrgId
-        )) {
-          dispatch(setActiveOrg(data[0]._id))
+        )
+
+        if (!currentValid) {
+          // Try to restore last used org
+          const lastOrgId = localStorage.getItem(
+            'orbit_last_org_id'
+          )
+          const lastOrg = lastOrgId
+            ? data.find(o => o._id === lastOrgId)
+            : null
+
+          // Use last org OR first org
+          dispatch(setActiveOrg(
+            lastOrg ? lastOrg._id : data[0]._id
+          ))
         }
+      }
       } catch (err) {
         console.error('Fetch orgs error:', err)
         // Keep showing cached orgs on error
@@ -840,7 +855,37 @@ export default function DashboardLayout() {
                     <button
                       onClick={() => {
                         setShowProfileMenu(false)
-                        navigate('/settings')
+                        navigate('/settings', {
+                          state: { section: 'profile' }
+                        })
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: isDark ? '#94a3b8' : '#64748b',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '17px' }}>
+                        person
+                      </span>
+                      My Profile
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false)
+                        navigate('/settings', {
+                          state: { section: 'workspace' }
+                        })
                       }}
                       style={{
                         width: '100%',
@@ -861,32 +906,6 @@ export default function DashboardLayout() {
                         settings
                       </span>
                       Settings
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false)
-                        navigate('/settings')
-                      }}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '9px 10px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: 'transparent',
-                        color: isDark ? '#94a3b8' : '#64748b',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}>
-                      <span className="material-symbols-outlined"
-                        style={{ fontSize: '17px' }}>
-                        person
-                      </span>
-                      Profile
                     </button>
 
                     <div style={{

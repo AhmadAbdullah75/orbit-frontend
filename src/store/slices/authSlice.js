@@ -23,6 +23,13 @@ const authSlice = createSlice({
             localStorage.setItem('token', token);
         },
   logout: (state) => {
+    // Save last org before clearing
+    if (state.activeOrgId) {
+      localStorage.setItem(
+        'orbit_last_org_id',
+        state.activeOrgId
+      )
+    }
     state.user = null
     state.token = null
     state.activeOrgId = null

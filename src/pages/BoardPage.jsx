@@ -3462,12 +3462,22 @@ function FilterPanel({
   members, onClose
 }) {
   return (
-    <div className={`absolute top-11 left-0 z-30
-      w-72 rounded-xl shadow-2xl border
-      ${isDark
-        ? 'bg-[#1a1a1a] border-[rgba(255,255,255,0.08)]'
-        : 'bg-white border-slate-200'
-      }`}>
+    <div style={{
+      position: 'fixed',
+      top: '120px',
+      right: '16px',
+      width: '320px',
+      maxHeight: 'calc(100vh - 140px)',
+      overflowY: 'auto',
+      background: isDark ? '#111827' : '#ffffff',
+      border: `1px solid ${isDark
+        ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+      borderRadius: '14px',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+      zIndex: 40,
+      scrollbarWidth: 'thin',
+      WebkitOverflowScrolling: 'touch',
+    }}>
 
       {/* Header */}
       <div className={`flex items-center justify-between
@@ -3652,6 +3662,8 @@ export default function BoardPage() {
   const [showAddColumnModal, setShowAddColumnModal] =
     useState(false)
   const [newColumnName, setNewColumnName] =
+    useState('')
+  const [columnNameError, setColumnNameError] =
     useState('')
   const [addingColumn, setAddingColumn] =
     useState(false)
@@ -3972,7 +3984,23 @@ export default function BoardPage() {
 
   const handleAddColumnSubmit = async () => {
     if (!newColumnName.trim()) return
+
+    // Check for duplicate name
+    const duplicate = columns.find(
+      c => c.name.toLowerCase().trim() ===
+           newColumnName.toLowerCase().trim()
+    )
+    if (duplicate) {
+      // Show error in the modal
+      setColumnNameError(
+        `A column named "${newColumnName.trim()}" ` +
+        `already exists in this board.`
+      )
+      return
+    }
+
     setAddingColumn(true)
+    setColumnNameError('')
     try {
       const res = await api.post(
         `/boards/${board._id}/columns`,
@@ -4379,7 +4407,7 @@ export default function BoardPage() {
       >
         <div className={`flex-1 overflow-x-auto overflow-y-hidden
           ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5f7]'}`}
-          style={{ height: 'calc(100vh - 64px - 64px - 60px)' }}>
+          style={{ height: 'calc(100vh - 64px - 64px - 60px)', touchAction: 'pan-x pan-y' }}>
           <div className="flex gap-3 h-full px-4 py-3"
                style={{ minWidth: 'max-content', alignItems: 'stretch' }}>
             {columns.map(column => (
@@ -4559,12 +4587,28 @@ export default function BoardPage() {
             }}>
               Give your new column a name
             </p>
+            {columnNameError && (
+              <p style={{
+                fontSize: '12px',
+                color: '#ef4444',
+                marginBottom: '10px',
+                padding: '8px 12px',
+                background: 'rgba(239,68,68,0.08)',
+                borderRadius: '8px',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}>
+                ⚠ {columnNameError}
+              </p>
+            )}
             <input
               autoFocus
               type="text"
               placeholder="e.g. Backlog, Testing, Deployed..."
               value={newColumnName}
-              onChange={e => setNewColumnName(e.target.value)}
+              onChange={e => {
+                setNewColumnName(e.target.value)
+                setColumnNameError('')
+              }}
               onKeyDown={e => {
                 if (e.key === 'Enter') handleAddColumnSubmit()
                 if (e.key === 'Escape') setShowAddColumnModal(false)

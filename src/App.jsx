@@ -19,6 +19,8 @@ const SettingsPage          = lazy(() => import('./pages/SettingsPage'))
 const ActivityPage          = lazy(() => import('./pages/ActivityPage'))
 const BoardPage             = lazy(() => import('./pages/BoardPage'))
 const AcceptInvitePage      = lazy(() => import('./pages/AcceptInvitePage'))
+const TermsPage             = lazy(() => import('./pages/TermsPage'))
+const PrivacyPage           = lazy(() => import('./pages/PrivacyPage'))
 
 // DO NOT import OrganizationPage or BoardPage — they do not exist yet
 
@@ -64,6 +66,8 @@ export default function App() {
             element={<GoogleAuthSuccessPage />} />
           <Route path="/invite/accept"
             element={<AcceptInvitePage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           <Route element={
             <ProtectedRoute><DashboardLayout /></ProtectedRoute>

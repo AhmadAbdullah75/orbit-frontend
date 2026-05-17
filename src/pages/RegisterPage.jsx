@@ -53,6 +53,10 @@ const RegisterPage = () => {
             setError('Please agree to terms');
             return;
         }
+        if (password.trim() !== password) {
+            setError('Password cannot contain leading or trailing spaces');
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -191,6 +195,9 @@ const RegisterPage = () => {
                                     </span>
                                 )}
                                 <p className={`text-[11px] ${isDark ? 'text-neutral-600' : 'text-gray-400'}`}>Min 8 characters required</p>
+                                {password !== password.trim() && (
+                                    <p className="text-[11px] text-yellow-500 mt-1">⚠ Warning: Password contains leading or trailing spaces</p>
+                                )}
                             </div>
 
                             {/* Confirm Password Field */}
@@ -236,7 +243,7 @@ const RegisterPage = () => {
                                     className="mt-1 w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-500 cursor-pointer"
                                 />
                                 <label htmlFor="terms" className={`text-xs cursor-pointer leading-relaxed ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>
-                                    I agree to Orbit's <a href="#" className="text-indigo-400 hover:underline">Terms of Service</a> and <a href="#" className="text-indigo-400 hover:underline">Privacy Policy</a>
+                                    I agree to Orbit's <Link to="/terms" className="text-indigo-400 hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-indigo-400 hover:underline">Privacy Policy</Link>
                                 </label>
                             </div>
 
@@ -326,9 +333,9 @@ const RegisterPage = () => {
 
                 <footer className="mt-8 text-center">
                     <div className={`flex items-center justify-center gap-4 text-[11px] ${isDark ? 'text-neutral-600' : 'text-gray-400'}`}>
-                        <a href="#" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Privacy Policy</a>
+                        <Link to="/privacy" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Privacy Policy</Link>
                         <span>·</span>
-                        <a href="#" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Terms of Service</a>
+                        <Link to="/terms" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Terms of Service</Link>
                         <span>·</span>
                         <a href="#" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Support</a>
                     </div>

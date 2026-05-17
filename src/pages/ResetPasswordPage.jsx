@@ -15,6 +15,10 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
 
   const handleReset = async () => {
+    if (password.trim() !== password) {
+      setError('Password cannot contain leading or trailing spaces')
+      return
+    }
     if (!password || password.length < 6) {
       setError('Password must be at least 6 chars')
       return
@@ -121,6 +125,11 @@ export default function ResetPasswordPage() {
                 placeholder="At least 6 characters"
                 style={inputStyle}
               />
+              {password !== password.trim() && (
+                <div style={{ color: '#eab308', fontSize: '11px', marginTop: '4px' }}>
+                  ⚠ Warning: Password contains leading or trailing spaces
+                </div>
+              )}
             </div>
 
             <div style={{ marginBottom: '20px' }}>

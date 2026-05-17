@@ -6,6 +6,7 @@ import { setCredentials } from '../store/slices/authSlice'
 import ConfirmModal from '../components/ConfirmModal'
 import Toast from '../components/Toast'
 import { getPermissions } from '../utils/permissions'
+import { useLocation } from 'react-router-dom'
 
 export default function SettingsPage() {
   const { isDark } = useTheme()
@@ -14,6 +15,29 @@ export default function SettingsPage() {
   )
 
   const dispatch = useDispatch()
+  const location = useLocation()
+
+  // Refs for each section
+  const profileRef = useRef(null)
+  const workspaceRef = useRef(null)
+
+  useEffect(() => {
+    const section = location.state?.section
+    if (section === 'profile' && profileRef.current) {
+      setTimeout(() => {
+        profileRef.current.scrollIntoView({
+          behavior: 'smooth', block: 'start'
+        })
+      }, 100)
+    } else if (section === 'workspace' &&
+               workspaceRef.current) {
+      setTimeout(() => {
+        workspaceRef.current.scrollIntoView({
+          behavior: 'smooth', block: 'start'
+        })
+      }, 100)
+    }
+  }, [location.state])
   const [currentOrg, setCurrentOrg] = useState(null)
   const [orgLoading, setOrgLoading] = useState(true)
   const [confirmModal, setConfirmModal] =
@@ -169,7 +193,7 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         {/* Profile Card */}
-        <div className={`p-6 rounded-2xl border ${isDark ? 'bg-[#141414] border-[rgba(255,255,255,0.06)]' : 'bg-white border-slate-200'}`}>
+        <div ref={profileRef} className={`p-6 rounded-2xl border ${isDark ? 'bg-[#141414] border-[rgba(255,255,255,0.06)]' : 'bg-white border-slate-200'}`}>
           <h2 className="text-lg font-bold mb-4 text-slate-900 dark:text-white flex items-center gap-2">
             <span className="material-symbols-outlined text-indigo-500">person</span>
             Profile Information
@@ -259,7 +283,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Workspace Section */}
-        <section className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
+        <section ref={workspaceRef} className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
           <div className="px-6 py-4 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Workspace</h2>
             <p className="text-xs text-slate-500 dark:text-slate-500">Configure your organization</p>
