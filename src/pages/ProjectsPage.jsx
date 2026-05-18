@@ -384,7 +384,7 @@ const ProjectsPage = () => {
           <p className="text-slate-500 dark:text-slate-400">No projects match your search.</p>
         </div>
       ) : (
-        (viewMode === 'grid' || isMobile) ? (
+        viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((project) => (
               <div 
@@ -476,6 +476,84 @@ const ProjectsPage = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            ))}
+          </div>
+        ) : isMobile ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+          }}>
+            {filtered.map(p => (
+              <div
+                key={p._id}
+                onClick={() => navigate(
+                  `/org/${orgId}/projects/${p._id}/board`
+                )}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  background: isDark ? '#161616' : 'white',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.07)' : '#e2e8f0'}`,
+                  cursor: 'pointer',
+                }}>
+                {/* Color dot */}
+                <div style={{
+                  width: '10px', height: '10px',
+                  borderRadius: '50%',
+                  background: p.color || '#6366f1',
+                  flexShrink: 0,
+                }} />
+                {/* Project info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: isDark ? '#f1f5f9' : '#0f172a',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {p.name}
+                  </p>
+                  <p style={{
+                    fontSize: '11px',
+                    color: isDark ? '#475569' : '#94a3b8',
+                    marginTop: '2px',
+                  }}>
+                    {p.members?.length || 1} members ·{' '}
+                    {projectStats[p._id]?.total || 0} tasks
+                  </p>
+                </div>
+                {/* Status badge */}
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  background: p.status === 'archived' 
+                      ? (isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9')
+                      : 'rgba(16,185,129,0.12)',
+                  color: p.status === 'archived' 
+                      ? (isDark ? '#94a3b8' : '#475569') 
+                      : '#10b981',
+                  textTransform: 'uppercase',
+                  flexShrink: 0,
+                }}>
+                  {p.status || 'ACTIVE'}
+                </span>
+                {/* Arrow */}
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '16px',
+                           color: '#6366f1',
+                           flexShrink: 0 }}>
+                  chevron_right
+                </span>
               </div>
             ))}
           </div>

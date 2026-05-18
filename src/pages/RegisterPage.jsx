@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerAPI } from '../features/auth/authAPI.js';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
@@ -19,6 +19,15 @@ const RegisterPage = () => {
 
     const navigate = useNavigate();
     const { isDark } = useTheme();
+
+    useEffect(() => {
+        // Clear any browser-autofilled values
+        // when register page mounts
+        setName('')
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+    }, [])
 
     const getPasswordStrength = (pwd) => {
         let strength = 0;
@@ -121,6 +130,9 @@ const RegisterPage = () => {
                                     </div>
                                     <input
                                         type="text"
+                                        autoComplete="name"
+                                        id="register-name"
+                                        name="register-name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="Ahmad Abdullah"
@@ -141,6 +153,9 @@ const RegisterPage = () => {
                                     </div>
                                     <input
                                         type="email"
+                                        autoComplete="email"
+                                        id="register-email"
+                                        name="register-email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="name@company.com"
@@ -156,6 +171,9 @@ const RegisterPage = () => {
                                 <div className="relative">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
+                                        autoComplete="new-password"
+                                        id="register-password"
+                                        name="register-password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
@@ -206,6 +224,9 @@ const RegisterPage = () => {
                                 <div className="relative">
                                     <input
                                         type={showConfirmPassword ? 'text' : 'password'}
+                                        autoComplete="new-password"
+                                        id="register-confirm-password"
+                                        name="register-confirm-password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         placeholder="••••••••"

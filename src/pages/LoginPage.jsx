@@ -22,6 +22,7 @@ const LoginPage = () => {
     const [forgotMsg, setForgotMsg] = useState('')
     const [forgotError, setForgotError] = useState('')
     const [forgotResetUrl, setForgotResetUrl] = useState(null)
+    const [forgotEmailSent, setForgotEmailSent] = useState(false)
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -58,21 +59,17 @@ const LoginPage = () => {
                 { email: forgotEmail.trim() }
             )
 
-            if (res.data.emailSent === true) {
+            if (res.data.status === 'success') {
+                setForgotEmailSent(res.data.emailSent)
                 setForgotMsg(
-                    '✅ Reset link sent! Check your inbox.'
+                  res.data.emailSent
+                    ? `✅ Reset email sent to ${forgotEmail}. ` +
+                      `If it doesn't arrive, use the link below:`
+                    : `⚠️ Could not deliver email. ` +
+                      `Use this link to reset your password:`
                 )
-                setForgotResetUrl(null)
-            } else if (res.data.resetUrl) {
-                setForgotMsg(
-                    '⚠️ Email could not be delivered to this address. Use the link below:'
-                )
+                // Always set the URL — it's always in response
                 setForgotResetUrl(res.data.resetUrl)
-            } else {
-                setForgotMsg(
-                    res.data.message ||
-                    'Check your email for a reset link.'
-                )
             }
         } catch (err) {
             setForgotError(
@@ -118,6 +115,8 @@ const LoginPage = () => {
                             </label>
                             <input
                                 type="email"
+                                autoComplete="email"
+                                id="login-email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
@@ -134,6 +133,8 @@ const LoginPage = () => {
                             <div className="relative focus-glow rounded-lg">
                                 <input
                                     type={showPassword ? 'text' : 'password'}
+                                    autoComplete="current-password"
+                                    id="login-password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
@@ -357,56 +358,72 @@ const LoginPage = () => {
                                     </>
                                 ) : (
                                     <div>
-                                        <p style={{
-                                            color: forgotResetUrl ? '#f59e0b' : '#10b981',
-                                            fontSize: '13px',
-                                            fontWeight: 500,
-                                            marginBottom: '10px',
-                                            lineHeight: 1.5,
+                                      <p style={{
+                                        color: forgotEmailSent ? '#10b981' : '#f59e0b',
+                                        fontSize: '13px',
+                                        lineHeight: 1.5,
+                                        marginBottom: '12px',
+                                      }}>
+                                        {forgotMsg}
+                                      </p>
+
+                                      {/* Always show direct link */}
+                                      {forgotResetUrl && (
+                                        <div style={{
+                                          background: isDark
+                                            ? 'rgba(99,102,241,0.1)'
+                                            : 'rgba(99,102,241,0.06)',
+                                          border: '1px solid rgba(99,102,241,0.25)',
+                                          borderRadius: '10px',
+                                          padding: '12px',
+                                          marginBottom: '12px',
                                         }}>
-                                            {forgotMsg}
-                                        </p>
-                                        {forgotResetUrl && (
-                                            <a
-                                                href={forgotResetUrl}
-                                                style={{
-                                                    display: 'block',
-                                                    padding: '10px 16px',
-                                                    background: '#6366f1',
-                                                    color: 'white',
-                                                    borderRadius: '10px',
-                                                    textAlign: 'center',
-                                                    textDecoration: 'none',
-                                                    fontSize: '13px',
-                                                    fontWeight: 600,
-                                                    marginBottom: '8px',
-                                                }}
-                                            >
-                                                Click here to reset your password →
-                                            </a>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setShowForgot(false)
-                                                setForgotEmail('')
-                                                setForgotMsg('')
-                                                setForgotResetUrl(null)
-                                                setForgotError('')
-                                            }}
+                                          <p style={{
+                                            fontSize: '11px',
+                                            color: isDark ? '#64748b' : '#94a3b8',
+                                            marginBottom: '8px',
+                                          }}>
+                                            Direct reset link:
+                                          </p>
+                                          <a
+                                            href={forgotResetUrl}
                                             style={{
-                                                width: '100%',
-                                                padding: '10px',
-                                                borderRadius: '10px',
-                                                background: 'transparent',
-                                                border: `1px solid ${isDark
-                                                    ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-                                                color: isDark ? '#94a3b8' : '#64748b',
-                                                fontSize: '13px',
-                                                cursor: 'pointer',
+                                              display: 'block',
+                                              padding: '10px',
+                                              background: '#6366f1',
+                                              color: 'white',
+                                              borderRadius: '8px',
+                                              textAlign: 'center',
+                                              textDecoration: 'none',
+                                              fontSize: '13px',
+                                              fontWeight: 600,
                                             }}>
-                                            Back to Login
-                                        </button>
+                                            Reset My Password →
+                                          </a>
+                                        </div>
+                                      )}
+
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setShowForgot(false)
+                                          setForgotEmail('')
+                                          setForgotMsg('')
+                                          setForgotResetUrl(null)
+                                          setForgotEmailSent(false)
+                                          setForgotError('')
+                                        }}
+                                        style={{
+                                          width: '100%', padding: '10px',
+                                          borderRadius: '10px',
+                                          background: 'transparent',
+                                          border: `1px solid ${isDark
+                                            ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                                          color: isDark ? '#94a3b8' : '#64748b',
+                                          fontSize: '13px', cursor: 'pointer',
+                                        }}>
+                                        Back to Login
+                                      </button>
                                     </div>
                                 )}
                             </div>

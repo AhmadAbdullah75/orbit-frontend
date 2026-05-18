@@ -564,12 +564,71 @@ const DashboardPage = () => {
           className={`grid grid-cols-2 lg:grid-cols-4 gap-4 ${!hasOrg ? 'opacity-50 pointer-events-none' : ''}`}
         >
           {[
-            { label: 'Active Initiatives', icon: 'folder', value: stats.totalProjects },
-            { label: 'Open Deliverables', icon: 'checklist', value: stats.activeTasks },
-            { label: 'Collaborators', icon: 'group', value: stats.teamMembers },
-            { label: 'Completion Rate', icon: 'bolt', value: stats.productivity },
-          ].map((stat, i) => (
-            <motion.div variants={scaleIn} key={i} className="bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] p-5 rounded-xl shadow-sm">
+            {
+              label: 'Active Initiatives',
+              value: stats.totalProjects,
+              icon: 'folder',
+              color: '#6366f1',
+              bg: 'rgba(99,102,241,0.1)',
+              onClick: () => navigate('/projects'),
+              tooltip: 'View all projects',
+            },
+            {
+              label: 'Open Deliverables',
+              value: stats.activeTasks,
+              icon: 'checklist',
+              color: '#10b981',
+              bg: 'rgba(16,185,129,0.1)',
+              onClick: () => navigate('/projects'),
+              tooltip: 'View tasks in projects',
+            },
+            {
+              label: 'Collaborators',
+              value: stats.teamMembers,
+              icon: 'group',
+              color: '#f59e0b',
+              bg: 'rgba(245,158,11,0.1)',
+              onClick: () => navigate('/members'),
+              tooltip: 'Manage team members',
+            },
+            {
+              label: 'Completion Rate',
+              value: stats.productivity,
+              icon: 'bolt',
+              color: '#ec4899',
+              bg: 'rgba(236,72,153,0.1)',
+              onClick: () => navigate('/activity'),
+              tooltip: 'View activity log',
+            },
+          ].map((card, i) => (
+            <motion.button 
+              variants={scaleIn} 
+              key={i} 
+              type="button"
+              onClick={card.onClick}
+              title={card.tooltip}
+              style={{
+                flex: 1,
+                minWidth: '140px',
+                padding: '16px',
+                borderRadius: '12px',
+                background: isDark ? '#161616' : 'white',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'}`,
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 150ms ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'
+                e.currentTarget.style.borderColor = card.color
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'
+              }}
+            >
               {statsLoading ? (
                 <div className="animate-pulse space-y-3">
                   <div className="flex justify-between items-start">
@@ -581,19 +640,50 @@ const DashboardPage = () => {
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-between items-start">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{stat.label}</span>
-                    <span className="material-symbols-outlined text-[20px] text-slate-400 dark:text-slate-600">{stat.icon}</span>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '12px',
+                  }}>
+                    <div style={{
+                      width: '36px', height: '36px',
+                      borderRadius: '10px',
+                      background: card.bg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: '20px', color: card.color }}>
+                        {card.icon}
+                      </span>
+                    </div>
+                    {/* Arrow indicating clickable */}
+                    <span className="material-symbols-outlined"
+                      style={{ fontSize: '16px', color: isDark ? '#334155' : '#cbd5e1' }}>
+                      arrow_forward
+                    </span>
                   </div>
-                  <p className="text-2xl font-bold mt-3 text-slate-900 dark:text-white">
-                    <StatNumber value={stat.value} />
+                  <p style={{
+                    fontSize: '26px',
+                    fontWeight: 800,
+                    color: isDark ? '#f1f5f9' : '#0f172a',
+                    lineHeight: 1,
+                    marginBottom: '4px',
+                  }}>
+                    <StatNumber value={card.value} />
                   </p>
-                  <p className="text-xs mt-1 text-slate-500 dark:text-slate-500">
-                    {hasOrg ? (stat.value === null ? 'Calculating...' : 'Active now') : 'Create an org to unlock'}
+                  <p style={{
+                    fontSize: '12px',
+                    color: isDark ? '#475569' : '#94a3b8',
+                    fontWeight: 500,
+                  }}>
+                    {card.label}
                   </p>
                 </>
               )}
-            </motion.div>
+            </motion.button>
           ))}
         </motion.section>
 
