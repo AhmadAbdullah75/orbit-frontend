@@ -566,25 +566,32 @@ const DashboardPage = () => {
           {[
             {
               label: 'Active Initiatives',
-              value: stats.totalProjects,
+              value: stats.totalProjects || 0,
               icon: 'folder',
               color: '#6366f1',
               bg: 'rgba(99,102,241,0.1)',
+              // Projects = Initiatives
               onClick: () => navigate('/projects'),
               tooltip: 'View all projects',
             },
             {
               label: 'Open Deliverables',
-              value: stats.activeTasks,
+              value: stats.activeTasks || 0,
               icon: 'checklist',
               color: '#10b981',
               bg: 'rgba(16,185,129,0.1)',
-              onClick: () => navigate('/projects'),
-              tooltip: 'View tasks in projects',
+              // Tasks live in boards — go to Activity
+              // filtered to task entity, which shows
+              // all task creation/update events
+              onClick: () => navigate(
+                '/activity',
+                { state: { entityFilter: 'task' } }
+              ),
+              tooltip: 'View task activity',
             },
             {
               label: 'Collaborators',
-              value: stats.teamMembers,
+              value: stats.teamMembers || 0,
               icon: 'group',
               color: '#f59e0b',
               bg: 'rgba(245,158,11,0.1)',
@@ -593,12 +600,14 @@ const DashboardPage = () => {
             },
             {
               label: 'Completion Rate',
-              value: stats.productivity,
+              value: stats.productivity || '0%',
               icon: 'bolt',
               color: '#ec4899',
               bg: 'rgba(236,72,153,0.1)',
-              onClick: () => navigate('/activity'),
-              tooltip: 'View activity log',
+              // Completion = done tasks = activity
+              // filtered to show completions
+              onClick: () => navigate('/projects'),
+              tooltip: 'View project completion stats',
             },
           ].map((card, i) => (
             <motion.button 

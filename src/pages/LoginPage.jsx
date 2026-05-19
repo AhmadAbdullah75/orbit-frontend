@@ -115,11 +115,12 @@ const LoginPage = () => {
                             </label>
                             <input
                                 type="email"
-                                autoComplete="email"
+                                autoComplete="username"
                                 id="login-email"
+                                name="login-email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="name@company.com"
+                                placeholder="your@email.com"
                                 required
                                 className={`w-full rounded-lg px-4 py-2.5 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 outline-none ${isDark ? 'bg-[#242424] border border-[#2a2a2a] text-white' : 'bg-gray-50 border border-gray-200 text-gray-900'}`}
                             />
@@ -135,9 +136,10 @@ const LoginPage = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     autoComplete="current-password"
                                     id="login-password"
+                                    name="login-password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="Your password"
                                     required
                                     className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 outline-none ${isDark ? 'bg-[#242424] border border-[#2a2a2a] text-white' : 'bg-gray-50 border border-gray-200 text-gray-900'}`}
                                 />

@@ -11,6 +11,7 @@ import Toast from '../components/Toast'
 import ConfirmModal from '../components/ConfirmModal'
 import { motion, AnimatePresence } from 'framer-motion'
 import { staggerContainer, slideUp } from '../utils/animations'
+import { useLocation } from 'react-router-dom'
 
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date)
@@ -232,6 +233,15 @@ const ActivityPage = () => {
   // Filters
   const [search, setSearch] = useState('')
   const [entityFilter, setEntityFilter] = useState('all')
+
+  const location = useLocation()
+
+  useEffect(() => {
+    // If navigated from dashboard with filter
+    if (location.state?.entityFilter) {
+      setEntityFilter(location.state.entityFilter)
+    }
+  }, [location.state])
 
   const fetchActivity = useCallback(async (pageNum = 1) => {
     if (!orgId) return
