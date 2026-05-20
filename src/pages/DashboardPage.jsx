@@ -570,7 +570,6 @@ const DashboardPage = () => {
               icon: 'folder',
               color: '#6366f1',
               bg: 'rgba(99,102,241,0.1)',
-              // Projects = Initiatives
               onClick: () => navigate('/projects'),
               tooltip: 'View all projects',
             },
@@ -580,14 +579,8 @@ const DashboardPage = () => {
               icon: 'checklist',
               color: '#10b981',
               bg: 'rgba(16,185,129,0.1)',
-              // Tasks live in boards — go to Activity
-              // filtered to task entity, which shows
-              // all task creation/update events
-              onClick: () => navigate(
-                '/activity',
-                { state: { entityFilter: 'task' } }
-              ),
-              tooltip: 'View task activity',
+              onClick: () => navigate('/tasks'),
+              tooltip: 'View your tasks',
             },
             {
               label: 'Collaborators',
@@ -604,10 +597,8 @@ const DashboardPage = () => {
               icon: 'bolt',
               color: '#ec4899',
               bg: 'rgba(236,72,153,0.1)',
-              // Completion = done tasks = activity
-              // filtered to show completions
-              onClick: () => navigate('/projects'),
-              tooltip: 'View project completion stats',
+              onClick: () => navigate('/analytics'),
+              tooltip: 'View productivity analytics',
             },
           ].map((card, i) => (
             <motion.button 

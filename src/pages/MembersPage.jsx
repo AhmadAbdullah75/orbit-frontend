@@ -8,7 +8,7 @@ import ConfirmModal from '../components/ConfirmModal'
 import { getPermissions } from '../utils/permissions'
 
 const MembersPage = () => {
-  const { user, token, activeOrgId } = useSelector(s => s.auth)
+  const { user, activeOrgId } = useSelector(s => s.auth)
   const navigate = useNavigate()
   const { isDark } = useTheme()
 
@@ -142,7 +142,7 @@ const MembersPage = () => {
     })
   }
 
-  const handleChangeRole = async (userId, newRole, membershipId) => {
+  const handleChangeRole = async (userId, newRole) => {
     try {
       setOpenMenuId(null)
       await api.patch(`/organizations/${orgId}/members`, {
@@ -175,16 +175,20 @@ const MembersPage = () => {
         role: inviteForm.role,
       })
 
-      // Success! Close modal and refresh list immediately
-      setShowModal(false)
-      setInviteForm({ email: '', role: 'member' })
-      setInviteError('')
+      setInviteSuccess(true)
 
       // Refresh pending invitations immediately without full page reload
       const invitesRes = await api.get(`/organizations/${orgId}/invitations`)
       setPendingInvites(invitesRes.data?.data?.invitations || [])
 
       showToast(`Invitation sent successfully!`, 'success')
+
+      setTimeout(() => {
+        setShowModal(false)
+        setInviteForm({ email: '', role: 'member' })
+        setInviteError('')
+        setInviteSuccess(false)
+      }, 1500)
     } catch (err) {
       setInviteError(
         err.response?.data?.message ||
@@ -285,16 +289,22 @@ const MembersPage = () => {
     if (members.length === 0) {
       return (
         <tr>
-          <td colSpan={5} style={{
-            textAlign: 'center',
-            padding: '60px',
-          }}>
-            <p style={{
-              color: isDark ? '#475569' : '#94a3b8',
-              fontSize: '14px',
-            }}>
-              No members yet. Invite your team.
-            </p>
+          <td colSpan={5} className="py-16 text-center">
+            <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+              <div className="size-12 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-indigo-500 text-[24px]">group</span>
+              </div>
+              <h3 className="font-bold text-sm text-slate-800 dark:text-white">Your roster is empty</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-4">Onboard your team to start delegating tasks and tracking activity.</p>
+              {perms.canInviteMembers && (
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+                >
+                  Invite Member
+                </button>
+              )}
+            </div>
           </td>
         </tr>
       )
@@ -303,16 +313,14 @@ const MembersPage = () => {
     if (filtered.length === 0) {
       return (
         <tr>
-          <td colSpan={5} style={{
-            textAlign: 'center',
-            padding: '60px',
-          }}>
-            <p style={{
-              color: isDark ? '#475569' : '#94a3b8',
-              fontSize: '14px',
-            }}>
-              No members match the selected filter.
-            </p>
+          <td colSpan={5} className="py-16 text-center">
+            <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+              <div className="size-12 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-slate-400 text-[24px]">search_off</span>
+              </div>
+              <h3 className="font-bold text-sm text-slate-800 dark:text-white">No results matched your search</h3>
+              <p className="text-xs text-slate-500 mt-1">Try double checking your search terms or adjusting the designation filter.</p>
+            </div>
           </td>
         </tr>
       )
@@ -424,7 +432,7 @@ const MembersPage = () => {
                           onClick={e => {
                             e.stopPropagation()
                             handleChangeRole(
-                              m.user?._id, r, m._id
+                              m.user?._id, r
                             )
                           }}
                           className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors ${
@@ -702,17 +710,18 @@ const MembersPage = () => {
                 <button
                   onClick={() =>
                     handleRevokeInvitation(
-                      inv._id, inv.email
+                      inv._id
                     )}
+                  disabled={revoking === inv._id}
                   style={{
                     background: 'none',
                     border: 'none',
-                    cursor: 'pointer',
-                    color: '#ef4444',
+                    cursor: revoking === inv._id ? 'not-allowed' : 'pointer',
+                    color: revoking === inv._id ? '#94a3b8' : '#ef4444',
                     fontSize: '11px',
                     fontWeight: 600,
                   }}>
-                  Revoke
+                  {revoking === inv._id ? 'Revoking...' : 'Revoke'}
                 </button>
               )}
             </div>

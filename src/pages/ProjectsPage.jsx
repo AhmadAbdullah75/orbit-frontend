@@ -359,22 +359,22 @@ const ProjectsPage = () => {
 
       {/* PROJECT GRID/LIST */}
       {projects.length === 0 && !loading ? (
-        <div className="text-center py-20">
-          <span className="material-symbols-outlined text-[56px] text-slate-300 dark:text-slate-700 block mb-4">
-            folder_open
-          </span>
-          <p className={`text-lg font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-            No projects yet
-          </p>
-          <p className={`text-sm mb-6 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
-            Create your first project to get started
+        <div className="flex flex-col items-center justify-center py-16 px-4 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-2xl max-w-md mx-auto text-center shadow-sm">
+          <div className="size-16 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-5">
+            <span className="material-symbols-outlined text-[36px] text-slate-450 dark:text-slate-550">
+              folder_open
+            </span>
+          </div>
+          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">No active projects</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 mb-6 max-w-xs">
+            Start collaborating with your team by launching a project workspace.
           </p>
           {perms.canCreateProject && (
             <button
               onClick={() => setShowModal(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors cursor-pointer"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02]"
             >
-              + New Project
+              + Launch Project
             </button>
           )}
         </div>

@@ -8,12 +8,16 @@ import api from '../services/axios';
 import { getPermissions } from '../utils/permissions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { slideUp, scaleIn, scaleInRight, EASE } from '../utils/animations';
+import { io } from 'socket.io-client';
+import Toast from '../components/Toast';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { to: '/activity', label: 'Activity', icon: 'history' },
   { to: '/projects', label: 'Projects', icon: 'folder' },
+  { to: '/tasks', label: 'Tasks', icon: 'checklist' },
   { to: '/members', label: 'Members', icon: 'group' },
+  { to: '/analytics', label: 'Analytics', icon: 'analytics' },
+  { to: '/activity', label: 'Activity', icon: 'history' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
@@ -57,6 +61,13 @@ export default function DashboardLayout() {
   const [showResults, setShowResults] = useState(false)
   const [searching, setSearching] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [inviteModal, setInviteModal] = useState(null)
+  const [acceptingInvite, setAcceptingInvite] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  const showToast = React.useCallback((message, type = 'success') => {
+    setToast({ message, type })
+  }, [])
 
   // 4. useRef calls
   const notifRef = useRef(null)
@@ -91,19 +102,17 @@ export default function DashboardLayout() {
   const userRole = displayedOrg?.role || displayedOrg?.userRole || 'viewer';
   const perms = getPermissions(userRole);
 
-  // Fetch orgs on mount
-  useEffect(() => {
-    const fetchOrgs = async () => {
-      try {
-        const res = await api.get('/organizations')
-        const data = res.data?.data?.organizations || []
-        // Write to cache FIRST
-        localStorage.setItem(
-          'orbit_orgs_cache',
-          JSON.stringify(data)
-        )
-        // Then update state
-        setOrgs(data)
+  const fetchOrgs = React.useCallback(async () => {
+    try {
+      const res = await api.get('/organizations')
+      const data = res.data?.data?.organizations || []
+      // Write to cache FIRST
+      localStorage.setItem(
+        'orbit_orgs_cache',
+        JSON.stringify(data)
+      )
+      // Then update state
+      setOrgs(data)
 
       if (data.length > 0) {
         // Check if activeOrgId is valid
@@ -126,13 +135,16 @@ export default function DashboardLayout() {
           ))
         }
       }
-      } catch (err) {
-        console.error('Fetch orgs error:', err)
-        // Keep showing cached orgs on error
-      }
+    } catch (err) {
+      console.error('Fetch orgs error:', err)
+      // Keep showing cached orgs on error
     }
-    fetchOrgs();
   }, [activeOrgId, dispatch]);
+
+  // Fetch orgs on mount
+  useEffect(() => {
+    fetchOrgs();
+  }, [fetchOrgs]);
 
   // Click outside handlers
   useEffect(() => {
@@ -217,6 +229,41 @@ export default function DashboardLayout() {
     return () => clearInterval(interval)
   }, [user?._id])
 
+  useEffect(() => {
+    if (!user?._id) return
+
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL,
+      {
+        auth: { token },
+        transports: ['websocket', 'polling'],
+      }
+    )
+
+    // Join personal user room
+    socket.emit('join:user', user._id)
+
+    // Listen for new notifications in real-time
+    socket.on('notification:new', (notif) => {
+      // Add to notifications list immediately
+      setNotifications(prev => [notif, ...prev])
+      // Increment unread count
+      setUnreadCount(prev => prev + 1)
+    })
+
+    // Listen for members updated (after acceptance)
+    socket.on('members:updated', ({ orgId }) => {
+      if (orgId === activeOrgId) {
+        // Refresh org data silently
+        fetchOrgs()
+      }
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [user?._id, activeOrgId, token, fetchOrgs])
+
   const handleMarkAllRead = async () => {
     try {
       await api.patch('/notifications/all/read');
@@ -224,6 +271,18 @@ export default function DashboardLayout() {
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleMarkRead = async (notifId) => {
+    try {
+      await api.patch(`/notifications/${notifId}/read`);
+      setNotifications(prev =>
+        prev.map(n => (n._id === notifId ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Mark read error:', err);
     }
   };
 
@@ -711,18 +770,127 @@ export default function DashboardLayout() {
                       </div>
                     ) : (
                       notifications.map(notif => (
-                        <div key={notif._id} className={`flex gap-3 px-4 py-3 border-b last:border-0 border-slate-50 dark:border-[rgba(255,255,255,0.04)] transition-colors ${!notif.isRead ? 'bg-indigo-50/50 dark:bg-indigo-500/5' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}>
-                          <div className="size-8 rounded-full shrink-0 flex items-center justify-center overflow-hidden bg-indigo-100 dark:bg-indigo-900/30">
-                            {notif.sender?.avatar
-                              ? <img src={notif.sender.avatar} className="w-full h-full object-cover" alt="" />
-                              : <span className="text-indigo-600 text-xs font-bold">{notif.sender?.name?.charAt(0) || '?'}</span>
+                        <div
+                          key={notif._id}
+                          onClick={() => {
+                            // Mark as read
+                            handleMarkRead(notif._id)
+                            // If invitation type → show accept modal
+                            if (notif.type === 'invitation' &&
+                                notif.metadata?.invitationToken) {
+                              setInviteModal(notif)
+                              setShowNotifications(false)
                             }
+                          }}
+                          style={{
+                            padding: '12px 16px',
+                            cursor: notif.type === 'invitation'
+                              ? 'pointer' : 'default',
+                            borderBottom: `1px solid ${isDark
+                              ? 'rgba(255,255,255,0.04)' : '#f1f5f9'}`,
+                            background: notif.isRead
+                              ? 'transparent'
+                              : isDark
+                                ? 'rgba(99,102,241,0.06)'
+                                : 'rgba(99,102,241,0.04)',
+                            transition: 'background 150ms',
+                            borderRadius: '8px',
+                          }}
+                          onMouseEnter={e => {
+                            if (notif.type === 'invitation') {
+                              e.currentTarget.style.background =
+                                isDark
+                                  ? 'rgba(99,102,241,0.12)'
+                                  : 'rgba(99,102,241,0.08)'
+                            }
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background =
+                              notif.isRead ? 'transparent'
+                              : isDark
+                                ? 'rgba(99,102,241,0.06)'
+                                : 'rgba(99,102,241,0.04)'
+                          }}
+                        >
+                          <div style={{ display: 'flex',
+                                        gap: '10px',
+                                        alignItems: 'flex-start' }}>
+                            {/* Sender avatar */}
+                            <div style={{
+                              width: '32px', height: '32px',
+                              borderRadius: '50%',
+                              background: notif.type === 'invitation'
+                                ? 'rgba(99,102,241,0.15)'
+                                : 'rgba(16,185,129,0.15)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}>
+                              <span className="material-symbols-outlined"
+                                style={{
+                                  fontSize: '16px',
+                                  color: notif.type === 'invitation'
+                                    ? '#6366f1' : '#10b981',
+                                }}>
+                                {notif.type === 'invitation'
+                                  ? 'person_add' : 'notifications'}
+                              </span>
+                            </div>
+
+                            <div style={{ flex: 1 }}>
+                              <p style={{
+                                fontSize: '12px',
+                                lineHeight: 1.4,
+                                color: isDark ? '#e2e8f0' : '#1e293b',
+                                margin: 0,
+                              }}>
+                                <strong>
+                                  {notif.sender?.name || 'Someone'}
+                                </strong>
+                                {' '}{(notif.message || '')
+                                  .replace(notif.sender?.name || '', '')
+                                  .trim()}
+                              </p>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginTop: '4px',
+                              }}>
+                                <p style={{
+                                  fontSize: '10px',
+                                  color: isDark ? '#475569' : '#94a3b8',
+                                }}>
+                                  {notif.createdAt
+                                    ? timeAgo(notif.createdAt)
+                                    : 'Just now'}
+                                </p>
+                                {notif.type === 'invitation' && (
+                                  <span style={{
+                                    fontSize: '10px',
+                                    fontWeight: 600,
+                                    color: '#6366f1',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    background: 'rgba(99,102,241,0.1)',
+                                  }}>
+                                    Tap to respond
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {!notif.isRead && (
+                              <div style={{
+                                width: '8px', height: '8px',
+                                borderRadius: '50%',
+                                background: '#6366f1',
+                                flexShrink: 0,
+                                marginTop: '4px',
+                              }} />
+                            )}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-snug">{notif.message}</p>
-                            <p className="text-xs mt-1 text-slate-400 dark:text-slate-600">{timeAgo(notif.createdAt)}</p>
-                          </div>
-                          {!notif.isRead && <div className="size-2 rounded-full bg-indigo-500 shrink-0 mt-1.5" />}
                         </div>
                       ))
                     )}
@@ -1044,6 +1212,197 @@ export default function DashboardLayout() {
         </motion.div>
       )}
       </AnimatePresence>
+
+      {/* Invitation Accept/Decline Modal */}
+      {inviteModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '380px',
+            background: isDark ? '#111' : 'white',
+            borderRadius: '20px',
+            padding: '32px',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: '60px', height: '60px',
+              borderRadius: '16px',
+              background: 'rgba(99,102,241,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+            }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '30px',
+                         color: '#6366f1' }}>
+                group_add
+              </span>
+            </div>
+
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: 700,
+              color: isDark ? '#f1f5f9' : '#0f172a',
+              textAlign: 'center',
+              marginBottom: '8px',
+            }}>
+              Team Invitation
+            </h3>
+
+            <p style={{
+              fontSize: '14px',
+              color: isDark ? '#64748b' : '#94a3b8',
+              textAlign: 'center',
+              lineHeight: 1.6,
+              marginBottom: '8px',
+            }}>
+              <strong style={{
+                color: isDark ? '#e2e8f0' : '#1e293b',
+              }}>
+                {inviteModal.sender?.name || 'Someone'}
+              </strong>
+              {' '}has invited you to join
+            </p>
+
+            <p style={{
+              fontSize: '20px',
+              fontWeight: 800,
+              color: '#6366f1',
+              textAlign: 'center',
+              marginBottom: '6px',
+            }}>
+              {inviteModal.metadata?.orgName ||
+               'their organization'}
+            </p>
+
+            <p style={{
+              fontSize: '13px',
+              color: isDark ? '#475569' : '#94a3b8',
+              textAlign: 'center',
+              marginBottom: '28px',
+            }}>
+              as{' '}
+              <span style={{
+                fontWeight: 600,
+                color: isDark ? '#94a3b8' : '#64748b',
+                textTransform: 'capitalize',
+              }}>
+                {inviteModal.metadata?.role || 'member'}
+              </span>
+            </p>
+
+            {/* Buttons */}
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+            }}>
+              <button
+                type="button"
+                onClick={() => setInviteModal(null)}
+                disabled={acceptingInvite}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                  background: 'transparent',
+                  color: isDark ? '#94a3b8' : '#64748b',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
+                Decline
+              </button>
+              <button
+                type="button"
+                disabled={acceptingInvite}
+                onClick={async () => {
+                  setAcceptingInvite(true)
+                  try {
+                    const token =
+                      inviteModal.metadata
+                        ?.invitationToken
+                    await api.post(
+                      '/organizations/invite/accept',
+                      { token }
+                    )
+                    // Refresh orgs to show new org
+                    const res = await api.get(
+                      '/organizations'
+                    )
+                    const orgs =
+                      res.data?.data?.organizations
+                      || []
+                    setOrgs(orgs)
+                    // Switch to accepted org
+                    const newOrg = orgs.find(
+                      o => o.name ===
+                        inviteModal.metadata?.orgName
+                    )
+                    if (newOrg) {
+                      dispatch(setActiveOrg(newOrg._id))
+                    }
+                    setInviteModal(null)
+                    // Show success toast
+                    showToast && showToast(
+                      `Joined ${inviteModal.metadata?.orgName}!`,
+                      'success'
+                    )
+                    // Navigate to dashboard
+                    navigate('/dashboard')
+                  } catch (err) {
+                    alert(
+                      err.response?.data?.message ||
+                      'Failed to accept invitation'
+                    )
+                  } finally {
+                    setAcceptingInvite(false)
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: '#6366f1',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: acceptingInvite
+                    ? 'not-allowed' : 'pointer',
+                  opacity: acceptingInvite ? 0.7 : 1,
+                }}>
+                {acceptingInvite
+                  ? 'Joining...' : 'Accept ✓'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Toast Alert */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

@@ -14,7 +14,9 @@ const VerifyEmailPage       = lazy(() => import('./pages/VerifyEmailPage'))
 const GoogleAuthSuccessPage = lazy(() => import('./pages/GoogleAuthSuccessPage'))
 const DashboardPage         = lazy(() => import('./pages/DashboardPage'))
 const ProjectsPage          = lazy(() => import('./pages/ProjectsPage'))
+const TasksPage             = lazy(() => import('./pages/TasksPage'))
 const MembersPage           = lazy(() => import('./pages/MembersPage'))
+const AnalyticsPage         = lazy(() => import('./pages/AnalyticsPage'))
 const SettingsPage          = lazy(() => import('./pages/SettingsPage'))
 const ActivityPage          = lazy(() => import('./pages/ActivityPage'))
 const BoardPage             = lazy(() => import('./pages/BoardPage'))
@@ -74,7 +76,9 @@ export default function App() {
           }>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/projects"  element={<ProjectsPage />} />
+            <Route path="/tasks"     element={<TasksPage />} />
             <Route path="/members"   element={<MembersPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/settings"  element={<SettingsPage />} />
             <Route path="/activity"  element={<ActivityPage />} />
             <Route 

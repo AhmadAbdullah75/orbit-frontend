@@ -246,7 +246,11 @@ const ActivityPage = () => {
   const fetchActivity = useCallback(async (pageNum = 1) => {
     if (!orgId) return
     try {
-      if (pageNum === 1) setLoading(true)
+      if (pageNum === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
       const res = await api.get(
         `/organizations/${orgId}/activity?page=${pageNum}&limit=20&entity=${entityFilter}&action=${search}`
       )
@@ -256,14 +260,17 @@ const ActivityPage = () => {
       if (pageNum === 1) {
         setActivities(data)
       } else {
-        setActivities(prev => [...prev, ...data])
+        setActivities(prev => {
+          const existingIds = new Set(prev.map(a => a._id))
+          const newUniqueData = data.filter(a => !existingIds.has(a._id))
+          return [...prev, ...newUniqueData]
+        })
       }
       
       setTotalPages(pagination.pages || 1)
       setTotal(pagination.total || 0)
     } catch (err) {
       console.error('Activity fetch error:', err)
-      // On error, stop trying to load more
       setTotalPages(1)
     } finally {
       setLoading(false)
@@ -271,21 +278,26 @@ const ActivityPage = () => {
     }
   }, [orgId, entityFilter, search])
 
-  // Infinite scroll observer
-  const hasMore = page < totalPages;
+  const handleLoadMore = useCallback(() => {
+    if (loading || loadingMore || page >= totalPages) return;
+    
+    setLoadingMore(true);
+    setPage(prev => {
+      const next = prev + 1;
+      fetchActivity(next);
+      return next;
+    });
+  }, [loading, loadingMore, page, totalPages, fetchActivity]);
 
+  // Infinite scroll observer
   useEffect(() => {
-    if (!loaderRef.current || !hasMore || loading) return;
+    if (!loaderRef.current) return;
 
     const observer = new IntersectionObserver(
-      async (entries) => {
+      (entries) => {
         const first = entries[0];
-        if (first.isIntersecting && !loadingMore) {
-          setLoadingMore(true);
-          const next = page + 1;
-          setPage(next);
-          await fetchActivity(next);
-          setLoadingMore(false);
+        if (first.isIntersecting) {
+          handleLoadMore();
         }
       },
       { threshold: 0.1, rootMargin: '100px' }
@@ -293,7 +305,7 @@ const ActivityPage = () => {
 
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [page, hasMore, loadingMore, loading, fetchActivity]);
+  }, [handleLoadMore]);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -304,11 +316,7 @@ const ActivityPage = () => {
   }, [fetchActivity])
 
   const loadMore = () => {
-    if (page < totalPages) {
-      const next = page + 1
-      setPage(next)
-      fetchActivity(next)
-    }
+    handleLoadMore();
   }
 
   return (
