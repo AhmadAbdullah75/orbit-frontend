@@ -263,16 +263,24 @@ const DashboardPage = () => {
   useEffect(() => {
     if (!activeOrgId) {
        // fallback if activeOrgId not set
-       if (orgId) setCurrentOrgId(orgId)
-       else return
+       if (orgId) {
+         setCurrentOrgId(orgId)
+         setHasOrg(true)
+       } else {
+         setStatsLoading(false)
+         setHasOrg(false)
+       }
     } else {
        setCurrentOrgId(activeOrgId)
+       setHasOrg(true)
     }
-    setHasOrg(true)
   }, [activeOrgId, orgId])
 
   useEffect(() => {
-    if (!currentOrgId) return
+    if (!currentOrgId) {
+      setStatsLoading(false)
+      return
+    }
     fetchStats()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrgId])

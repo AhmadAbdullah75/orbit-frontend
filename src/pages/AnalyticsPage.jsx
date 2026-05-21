@@ -10,6 +10,7 @@ export default function AnalyticsPage() {
 
   const [loading, setLoading] = useState(true)
   const [projectsData, setProjectsData] = useState([])
+  const [allTasks, setAllTasks] = useState([])
   const [members, setMembers] = useState([])
   const [toast, setToast] = useState(null)
 
@@ -17,86 +18,59 @@ export default function AnalyticsPage() {
     setToast({ message, type })
   }, [])
 
-  const fetchAnalytics = useCallback(async () => {
-    if (!activeOrgId) return
+  const fetchStats = useCallback(async () => {
+    if (!activeOrgId) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
     try {
-      // 1. Fetch organization members
-      const membersRes = await api.get(`/organizations/${activeOrgId}/members`)
+      const [projRes, tasksRes, membersRes] = await Promise.all([
+        api.get(`/organizations/${activeOrgId}/projects`),
+        api.get(`/organizations/${activeOrgId}/all-tasks`),
+        api.get(`/organizations/${activeOrgId}/members`)
+      ])
+
+      const projs = projRes.data?.data?.projects || []
+      const tasksList = tasksRes.data?.data?.tasks || []
       const orgMembers = membersRes.data?.data?.members || []
-      setMembers(orgMembers)
 
-      // 2. Fetch all projects in organization
-      const projectsRes = await api.get(`/organizations/${activeOrgId}/projects`)
-      const fetchedProjects = projectsRes.data?.data?.projects || []
+      // Calculate stats per project from tasks
+      const statsData = projs.map(p => {
+        const projectTasks = tasksList.filter(
+          t => String(t.projectId) === String(p._id)
+        )
+        const total = projectTasks.length
+        const done = projectTasks.filter(
+          t => t.isDone
+        ).length
+        const active = total - done
+        const productivity = total > 0
+          ? Math.round((done / total) * 100)
+          : 0
 
-      // 3. For each project, fetch its board and tasks in parallel
-      const detailedProjects = []
-      await Promise.all(
-        fetchedProjects.map(async (project) => {
-          try {
-            const projDetailRes = await api.get(`/projects/${project._id}`)
-            const board = projDetailRes.data?.data?.project?.board
-            if (board?._id) {
-              const tasksRes = await api.get(`/tasks?boardId=${board._id}`)
-              const tasks = tasksRes.data?.data?.tasks || []
-              
-              // Calculate task statuses
-              let total = tasks.length
-              let done = 0
-              let urgent = 0
-              let high = 0
-              let medium = 0
-              let low = 0
-
-              tasks.forEach(task => {
-                // Done check
-                const colName = task.column?.name?.toLowerCase() || ''
-                if (colName.includes('done') || colName.includes('complete')) {
-                  done++
-                }
-
-                // Priority check
-                if (task.priority === 'urgent') urgent++
-                else if (task.priority === 'high') high++
-                else if (task.priority === 'medium') medium++
-                else if (task.priority === 'low') low++
-              })
-
-              const rate = total > 0 ? Math.round((done / total) * 100) : 0
-
-              detailedProjects.push({
-                ...project,
-                tasks,
-                stats: {
-                  total,
-                  done,
-                  active: total - done,
-                  productivity: rate,
-                  priorityDistribution: { urgent, high, medium, low }
-                }
-              })
-            } else {
-              detailedProjects.push({
-                ...project,
-                tasks: [],
-                stats: { total: 0, done: 0, active: 0, productivity: 0, priorityDistribution: { urgent: 0, high: 0, medium: 0, low: 0 } }
-              })
+        return {
+          ...p,
+          stats: {
+            total,
+            done,
+            active,
+            productivity,
+            priorityDistribution: {
+              urgent: projectTasks.filter(t => t.priority === 'urgent').length,
+              high: projectTasks.filter(t => t.priority === 'high').length,
+              medium: projectTasks.filter(t => t.priority === 'medium').length,
+              low: projectTasks.filter(t => t.priority === 'low').length
             }
-          } catch (err) {
-            console.error(`Error loading analytics for project ${project.name}:`, err)
-            detailedProjects.push({
-              ...project,
-              tasks: [],
-              stats: { total: 0, done: 0, active: 0, productivity: 0, priorityDistribution: { urgent: 0, high: 0, medium: 0, low: 0 } }
-            })
           }
-        })
-      )
+        }
+      })
 
       // Sort by project name
-      detailedProjects.sort((a, b) => a.name.localeCompare(b.name))
-      setProjectsData(detailedProjects)
+      statsData.sort((a, b) => a.name.localeCompare(b.name))
+      setProjectsData(statsData)
+      setAllTasks(tasksList)
+      setMembers(orgMembers)
     } catch (err) {
       console.error('Error fetching analytics:', err)
       showToast('Failed to load analytics', 'error')
@@ -105,51 +79,66 @@ export default function AnalyticsPage() {
     }
   }, [activeOrgId, showToast])
 
+  // Early exit — no org, no infinite loading
   useEffect(() => {
-    fetchAnalytics()
-  }, [fetchAnalytics])
+    if (!activeOrgId) {
+      setLoading(false)
+      return
+    }
+    fetchStats()
+  }, [activeOrgId, fetchStats])
 
   // Aggregate stats
-  const totalTasks = projectsData.reduce((sum, p) => sum + p.stats.total, 0)
-  const completedTasks = projectsData.reduce((sum, p) => sum + p.stats.done, 0)
+  const totalTasks = allTasks.length
+  const completedTasks = allTasks.filter(t => t.isDone).length
   const activeTasks = totalTasks - completedTasks
   const overallProductivity = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
   // Priority Distribution
-  const urgentCount = projectsData.reduce((sum, p) => sum + p.stats.priorityDistribution.urgent, 0)
-  const highCount = projectsData.reduce((sum, p) => sum + p.stats.priorityDistribution.high, 0)
-  const mediumCount = projectsData.reduce((sum, p) => sum + p.stats.priorityDistribution.medium, 0)
-  const lowCount = projectsData.reduce((sum, p) => sum + p.stats.priorityDistribution.low, 0)
+  const urgentCount = allTasks.filter(t => t.priority === 'urgent').length
+  const highCount = allTasks.filter(t => t.priority === 'high').length
+  const mediumCount = allTasks.filter(t => t.priority === 'medium').length
+  const lowCount = allTasks.filter(t => t.priority === 'low').length
 
   // Member tasks counts
   const membersAnalytics = members.map(m => {
-    let assigned = 0
-    let done = 0
-
-    projectsData.forEach(p => {
-      p.tasks.forEach(t => {
-        const isAssigned = t.assignees?.some(a => a._id === m._id)
-        if (isAssigned) {
-          assigned++
-          const colName = t.column?.name?.toLowerCase() || ''
-          if (colName.includes('done') || colName.includes('complete')) {
-            done++
-          }
-        }
-      })
-    })
-
+    const userId = m.user?._id || m._id
+    const assigned = allTasks.filter(t =>
+      (t.assignees || []).some(
+        a => (a._id || a) === userId
+      )
+    )
+    const completedTasks = assigned.filter(
+      t => t.isDone
+    )
     return {
       ...m,
-      assigned,
-      done,
-      active: assigned - done,
-      rate: assigned > 0 ? Math.round((done / assigned) * 100) : 0
+      assigned: assigned.length,
+      done: completedTasks.length,
+      active: assigned.length - completedTasks.length,
+      rate: assigned.length > 0
+        ? Math.round((completedTasks.length / assigned.length) * 100)
+        : 0
     }
   })
 
-  // Sort members by performance or tasks assigned
+  // Sort members by tasks assigned
   membersAnalytics.sort((a, b) => b.assigned - a.assigned)
+
+  // Empty state if no org
+  if (!activeOrgId && !loading) {
+    return (
+      <div className="max-w-5xl mx-auto py-20 text-center px-4">
+        <div className="size-16 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-4 mx-auto">
+          <span className="material-symbols-outlined text-[32px] text-slate-300 dark:text-slate-700">analytics</span>
+        </div>
+        <h3 className="font-bold text-lg text-slate-900 dark:text-white">No active organization</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+          Please select or create an organization workspace to view analytical logs.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12 pt-6 px-4 sm:px-6">
@@ -165,7 +154,7 @@ export default function AnalyticsPage() {
         </div>
         
         <button
-          onClick={fetchAnalytics}
+          onClick={fetchStats}
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[rgba(255,255,255,0.08)] bg-white dark:bg-[rgba(255,255,255,0.02)] rounded-xl hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.06)] transition-all"
         >
@@ -348,15 +337,15 @@ export default function AnalyticsPage() {
                     <tr key={member._id} className="hover:bg-slate-50/50 dark:hover:bg-white/1 transition-colors">
                       <td className="py-3.5 flex items-center gap-3">
                         <div className="size-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
-                          {member.avatar ? (
-                            <img src={member.avatar} className="size-full object-cover" alt="" />
+                          {(member.user?.avatar || member.avatar) ? (
+                            <img src={member.user?.avatar || member.avatar} className="size-full object-cover" alt="" />
                           ) : (
-                            (member.name?.charAt(0) || '?').toUpperCase()
+                            ((member.user?.name || member.name || '?').charAt(0)).toUpperCase()
                           )}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-800 dark:text-slate-200">{member.name}</p>
-                          <p className="text-xs text-slate-400">{member.email}</p>
+                          <p className="font-bold text-slate-800 dark:text-slate-200">{member.user?.name || member.name}</p>
+                          <p className="text-xs text-slate-400">{member.user?.email || member.email}</p>
                         </div>
                       </td>
                       <td className="py-3.5 text-center font-bold text-slate-700 dark:text-slate-300">

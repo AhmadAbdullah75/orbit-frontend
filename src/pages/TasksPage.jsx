@@ -12,69 +12,61 @@ export default function TasksPage() {
 
   const [loading, setLoading] = useState(true)
   const [projects, setProjects] = useState([])
-  const [tasks, setTasks] = useState([])
+  const [allTasks, setAllTasks] = useState([])
   const [toast, setToast] = useState(null)
 
   // Filters state
-  const [searchQuery, setSearchQuery] = useState('')
+  const [search, setSearch] = useState('')
   const [selectedProject, setSelectedProject] = useState('all')
-  const [selectedPriority, setSelectedPriority] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('all')
-  const [assigneeFilter, setAssigneeFilter] = useState('assigned_to_me') // 'all' or 'assigned_to_me'
+  const [filterPriority, setFilterPriority] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [assignedFilter, setAssignedFilter] = useState('me') // 'all' or 'me'
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type })
   }, [])
 
-  const fetchAllTasks = useCallback(async () => {
-    if (!activeOrgId) return
-    setLoading(true)
+  const fetchAllTasks = async () => {
+    if (!activeOrgId) {
+      setLoading(false)
+      return
+    }
     try {
-      // 1. Fetch all projects in active org
-      const projectsRes = await api.get(`/organizations/${activeOrgId}/projects`)
-      const fetchedProjects = projectsRes.data?.data?.projects || []
-      setProjects(fetchedProjects)
-
-      // 2. Fetch boards & tasks in parallel
-      const allTasksList = []
-      await Promise.all(
-        fetchedProjects.map(async (project) => {
-          try {
-            // Get project details to get board information
-            const projDetailRes = await api.get(`/projects/${project._id}`)
-            const board = projDetailRes.data?.data?.project?.board
-            if (board?._id) {
-              const tasksRes = await api.get(`/tasks?boardId=${board._id}`)
-              const boardTasks = tasksRes.data?.data?.tasks || []
-              
-              // Attach project information to task
-              boardTasks.forEach(t => {
-                t.projectName = project.name
-                t.projectColor = project.color || '#6366f1'
-                t.projectId = project._id
-              })
-              allTasksList.push(...boardTasks)
-            }
-          } catch (err) {
-            console.error(`Error fetching board/tasks for project ${project.name}:`, err)
-          }
-        })
+      setLoading(true)
+      const res = await api.get(
+        `/organizations/${activeOrgId}/all-tasks`
       )
-
-      // Sort by creation date descending
-      allTasksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      setTasks(allTasksList)
+      const data = res.data?.data || {}
+      const tasks = data.tasks || []
+      setAllTasks(tasks)
+      const projectMap = new Map()
+      tasks.forEach(t => {
+        if (t.projectId && !projectMap.has(t.projectId)) {
+          projectMap.set(t.projectId, {
+            _id: t.projectId,
+            name: t.projectName,
+            color: t.projectColor,
+          })
+        }
+      })
+      setProjects(Array.from(projectMap.values()))
     } catch (err) {
-      console.error('Error fetching tasks:', err)
-      showToast('Failed to fetch tasks', 'error')
+      console.error('Tasks fetch error:', err)
+      setAllTasks([])
+      setProjects([])
     } finally {
       setLoading(false)
     }
-  }, [activeOrgId, showToast])
+  }
 
+  // Early exit — no org, no infinite loading
   useEffect(() => {
+    if (!activeOrgId) {
+      setLoading(false)
+      return
+    }
     fetchAllTasks()
-  }, [fetchAllTasks])
+  }, [activeOrgId])
 
   // Helpers
   const getPriorityColor = (prio) => {
@@ -121,47 +113,92 @@ export default function TasksPage() {
   }
 
   // Filter logic
-  const filteredTasks = tasks.filter(task => {
-    // 1. Search Query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      const titleMatch = task.title?.toLowerCase().includes(query)
-      const descMatch = task.description?.toLowerCase().includes(query)
-      if (!titleMatch && !descMatch) return false
-    }
-
-    // 2. Project filter
-    if (selectedProject !== 'all' && task.projectId !== selectedProject) {
-      return false
-    }
-
-    // 3. Priority filter
-    if (selectedPriority !== 'all' && task.priority !== selectedPriority) {
-      return false
-    }
-
-    // 4. Status filter
-    if (selectedStatus !== 'all') {
-      const label = getStatusLabel(task.column?.name)
-      if (label.toLowerCase().replace(' ', '_') !== selectedStatus) {
-        return false
-      }
-    }
-
-    // 5. Assignee filter
-    if (assigneeFilter === 'assigned_to_me') {
-      const isAssigned = task.assignees?.some(a => a._id === user?._id)
+  const filteredTasks = allTasks.filter(t => {
+    // "Assigned to Me" filter
+    if (assignedFilter === 'me') {
+      const isAssigned =
+        (t.assignees || []).some(
+          a => (a._id || a) === user?._id
+        )
       if (!isAssigned) return false
+    }
+
+    // Priority filter
+    if (filterPriority !== 'all' &&
+        t.priority !== filterPriority) {
+      return false
+    }
+
+    // Status filter
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'done' && !t.isDone)
+        return false
+      if (filterStatus === 'open' && t.isDone)
+        return false
+    }
+
+    // Search
+    const q = search.toLowerCase().trim()
+    if (q && !t.title?.toLowerCase().includes(q)) {
+      return false
+    }
+
+    // Project filter
+    if (selectedProject !== 'all' && t.projectId !== selectedProject) {
+      return false
     }
 
     return true
   })
 
+  const myTasks = allTasks.filter(t =>
+    (t.assignees || []).some(
+      a => (a._id || a) === user?._id
+    )
+  )
+  const urgentHigh = allTasks.filter(t =>
+    ['urgent', 'high'].includes(t.priority)
+    && !t.isDone
+  )
+  const completed = allTasks.filter(t => t.isDone)
+
   // Summary counts
-  const totalTasksCount = filteredTasks.length
-  const myTasksCount = tasks.filter(t => t.assignees?.some(a => a._id === user?._id)).length
-  const urgentCount = filteredTasks.filter(t => t.priority === 'urgent' || t.priority === 'high').length
-  const completedCount = filteredTasks.filter(t => getStatusLabel(t.column?.name) === 'Completed').length
+  const totalTasksCount = allTasks.length
+  const myTasksCount = myTasks.length
+  const urgentCount = urgentHigh.length
+  const completedCount = completed.length
+
+  if (!activeOrgId && !loading) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        minHeight: '60vh', textAlign: 'center',
+        padding: '40px',
+      }}>
+        <span className="material-symbols-outlined"
+          style={{
+            fontSize: '56px',
+            color: isDark ? '#1e293b' : '#e2e8f0',
+            marginBottom: '16px', display: 'block',
+          }}>
+          task_alt
+        </span>
+        <p style={{
+          fontSize: '18px', fontWeight: 700,
+          color: isDark ? '#334155' : '#94a3b8',
+        }}>
+          No organization yet
+        </p>
+        <p style={{
+          color: isDark ? '#1e293b' : '#cbd5e1',
+          marginTop: '8px', fontSize: '14px',
+        }}>
+          Create an organization to view tasks
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12 pt-6 px-4 sm:px-6">
@@ -179,9 +216,9 @@ export default function TasksPage() {
         {/* Toggle Assignee Filter */}
         <div className="flex bg-slate-100 dark:bg-[rgba(255,255,255,0.04)] p-1 rounded-xl border border-slate-200/60 dark:border-[rgba(255,255,255,0.06)]">
           <button
-            onClick={() => setAssigneeFilter('assigned_to_me')}
+            onClick={() => setAssignedFilter('me')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              assigneeFilter === 'assigned_to_me'
+              assignedFilter === 'me'
                 ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
@@ -189,14 +226,14 @@ export default function TasksPage() {
             Assigned to Me ({myTasksCount})
           </button>
           <button
-            onClick={() => setAssigneeFilter('all')}
+            onClick={() => setAssignedFilter('all')}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              assigneeFilter === 'all'
+              assignedFilter === 'all'
                 ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
-            All Tasks ({tasks.length})
+            All Tasks ({allTasks.length})
           </button>
         </div>
       </div>
@@ -204,10 +241,10 @@ export default function TasksPage() {
       {/* QUICK STATS CARDS */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Showing Tasks', value: totalTasksCount, icon: 'task', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
-          { label: 'My Total Tasks', value: myTasksCount, icon: 'assignment_ind', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+          { label: 'All Tasks', value: totalTasksCount, icon: 'task', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
+          { label: 'My Tasks', value: myTasksCount, icon: 'assignment_ind', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
           { label: 'Urgent & High', value: urgentCount, icon: 'warning', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-          { label: 'Completed Tasks', value: completedCount, icon: 'task_alt', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
+          { label: 'Completed', value: completedCount, icon: 'task_alt', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
         ].map((card, i) => (
           <div
             key={i}
@@ -256,8 +293,8 @@ export default function TasksPage() {
               <input
                 type="text"
                 placeholder="Search tasks..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -282,8 +319,8 @@ export default function TasksPage() {
           <div className="flex flex-col">
             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Priority</label>
             <select
-              value={selectedPriority}
-              onChange={e => setSelectedPriority(e.target.value)}
+              value={filterPriority}
+              onChange={e => setFilterPriority(e.target.value)}
               className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
               <option value="all">All Priorities</option>
@@ -298,15 +335,13 @@ export default function TasksPage() {
           <div className="flex flex-col">
             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Status</label>
             <select
-              value={selectedStatus}
-              onChange={e => setSelectedStatus(e.target.value)}
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
               className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
               <option value="all">All Statuses</option>
-              <option value="to_do">To Do</option>
-              <option value="in_progress">In Progress</option>
-              <option value="review">Review</option>
-              <option value="completed">Completed</option>
+              <option value="open">Open</option>
+              <option value="done">Done</option>
             </select>
           </div>
         </div>

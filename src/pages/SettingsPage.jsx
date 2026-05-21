@@ -6,7 +6,7 @@ import { setCredentials } from '../store/slices/authSlice'
 import ConfirmModal from '../components/ConfirmModal'
 import Toast from '../components/Toast'
 import { getPermissions } from '../utils/permissions'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function SettingsPage() {
   const { isDark } = useTheme()
@@ -16,6 +16,7 @@ export default function SettingsPage() {
 
   const dispatch = useDispatch()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Refs for each section
   const profileRef = useRef(null)
@@ -78,7 +79,10 @@ export default function SettingsPage() {
 
   // Fetch the ACTIVE org, not user's default org
   useEffect(() => {
-    if (!activeOrgId) return
+    if (!activeOrgId) {
+      setOrgLoading(false)
+      return
+    }
     setOrgLoading(true)
     api.get('/organizations')
       .then(res => {
@@ -183,6 +187,22 @@ export default function SettingsPage() {
       <div className={`size-4 rounded-full bg-white shadow transition-transform ${active ? 'translate-x-4' : 'translate-x-0'}`} />
     </div>
   )
+
+  if (!orgLoading && !activeOrgId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+        <span className="material-symbols-outlined text-[64px] text-slate-300 dark:text-slate-700 mb-4">corporate_fare</span>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">No organization yet</h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xs">Create an organization on the Dashboard first.</p>
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+        >
+          Go to Dashboard
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8 pb-12">

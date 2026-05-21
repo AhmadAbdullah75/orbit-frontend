@@ -102,7 +102,18 @@ export default function DashboardLayout() {
   const userRole = displayedOrg?.role || displayedOrg?.userRole || 'viewer';
   const perms = getPermissions(userRole);
 
+  const activeOrgIdRef = useRef(activeOrgId)
+  const lastFetchRef = useRef(0)
+
+  useEffect(() => {
+    activeOrgIdRef.current = activeOrgId
+  }, [activeOrgId])
+
   const fetchOrgs = React.useCallback(async () => {
+    const now = Date.now()
+    if (now - lastFetchRef.current < 30000) return
+    lastFetchRef.current = now
+
     try {
       const res = await api.get('/organizations')
       const data = res.data?.data?.organizations || []
@@ -117,7 +128,7 @@ export default function DashboardLayout() {
       if (data.length > 0) {
         // Check if activeOrgId is valid
         const currentValid = data.find(
-          o => o._id === activeOrgId
+          o => o._id === activeOrgIdRef.current
         )
 
         if (!currentValid) {
@@ -139,7 +150,7 @@ export default function DashboardLayout() {
       console.error('Fetch orgs error:', err)
       // Keep showing cached orgs on error
     }
-  }, [activeOrgId, dispatch]);
+  }, [dispatch]);
 
   // Fetch orgs on mount
   useEffect(() => {
@@ -205,7 +216,8 @@ export default function DashboardLayout() {
     }
   };
 
-  // Fetch notifications (poll every 30s)
+  const POLL_INTERVAL = 120 * 1000
+
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/notifications');
@@ -217,17 +229,15 @@ export default function DashboardLayout() {
   };
 
   useEffect(() => {
-    // Only fetch if user is authenticated
     if (!user?._id) return
 
     fetchNotifications()
 
-    // Poll every 30 seconds
     const interval = setInterval(
-      fetchNotifications, 30000
+      fetchNotifications, POLL_INTERVAL
     )
     return () => clearInterval(interval)
-  }, [user?._id])
+  }, [user?._id, activeOrgId])
 
   useEffect(() => {
     if (!user?._id) return
@@ -772,15 +782,56 @@ export default function DashboardLayout() {
                       notifications.map(notif => (
                         <div
                           key={notif._id}
-                          onClick={() => {
-                            // Mark as read
+                          onClick={async () => {
+                            console.log('[NOTIF CLICK]', notif)
                             handleMarkRead(notif._id)
-                            // If invitation type → show accept modal
-                            if (notif.type === 'invitation' &&
-                                notif.metadata?.invitationToken) {
-                              setInviteModal(notif)
-                              setShowNotifications(false)
+
+                            const isInvitation =
+                              notif.type === 'invitation' ||
+                              notif.message?.toLowerCase()
+                                .includes('invited') ||
+                              notif.metadata?.invitationToken
+
+                            if (!isInvitation) return
+
+                            let token = notif.metadata?.invitationToken
+
+                            if (!token) {
+                              try {
+                                const res = await api.get(
+                                  '/organizations/my-invitations'
+                                )
+                                const pending =
+                                  res.data?.data?.invitations || []
+                                const match = pending.find(inv =>
+                                  inv.organization?.name ===
+                                    notif.metadata?.orgName ||
+                                  inv.status === 'pending'
+                                )
+                                if (match) {
+                                  token = match.token
+                                }
+                              } catch (e) {
+                                console.error(
+                                  'Could not fetch invite:', e
+                                )
+                              }
                             }
+
+                            if (token) {
+                              setInviteModal({
+                                ...notif,
+                                metadata: {
+                                  ...notif.metadata,
+                                  invitationToken: token,
+                                  orgName: notif.metadata?.orgName ||
+                                    notif.message,
+                                  role: notif.metadata?.role ||
+                                    'member',
+                                },
+                              })
+                            }
+                            setShowNotifications(false)
                           }}
                           style={{
                             padding: '12px 16px',
@@ -1334,41 +1385,38 @@ export default function DashboardLayout() {
                 onClick={async () => {
                   setAcceptingInvite(true)
                   try {
-                    const token =
-                      inviteModal.metadata
-                        ?.invitationToken
-                    await api.post(
+                    const token = inviteModal.metadata?.invitationToken
+                    const acceptRes = await api.post(
                       '/organizations/invite/accept',
                       { token }
                     )
+                    
                     // Refresh orgs to show new org
-                    const res = await api.get(
-                      '/organizations'
-                    )
-                    const orgs =
-                      res.data?.data?.organizations
-                      || []
+                    const res = await api.get('/organizations')
+                    const orgs = res.data?.data?.organizations || []
                     setOrgs(orgs)
+
+                    const acceptedOrgId = acceptRes.data?.data?.orgId
                     // Switch to accepted org
                     const newOrg = orgs.find(
-                      o => o.name ===
-                        inviteModal.metadata?.orgName
+                      o => o._id === acceptedOrgId
+                    ) || orgs.find(
+                      o => o.name === inviteModal.metadata?.orgName
                     )
                     if (newOrg) {
                       dispatch(setActiveOrg(newOrg._id))
+                      localStorage.setItem('orbit_last_org_id', newOrg._id)
                     }
+                    
                     setInviteModal(null)
                     // Show success toast
-                    showToast && showToast(
-                      `Joined ${inviteModal.metadata?.orgName}!`,
-                      'success'
-                    )
+                    showToast(`Joined ${inviteModal.metadata?.orgName || 'organization'}!`, 'success')
                     // Navigate to dashboard
                     navigate('/dashboard')
                   } catch (err) {
-                    alert(
-                      err.response?.data?.message ||
-                      'Failed to accept invitation'
+                    showToast(
+                      err.response?.data?.message || 'Failed to accept invitation',
+                      'error'
                     )
                   } finally {
                     setAcceptingInvite(false)

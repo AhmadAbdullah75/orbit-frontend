@@ -11,7 +11,7 @@ import Toast from '../components/Toast'
 import ConfirmModal from '../components/ConfirmModal'
 import { motion, AnimatePresence } from 'framer-motion'
 import { staggerContainer, slideUp } from '../utils/animations'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date)
@@ -46,6 +46,7 @@ const ENTITY_LABELS = {
 const ActivityPage = () => {
   const { user, activeOrgId } = useSelector(s => s.auth)
   const { isDark } = useTheme()
+  const navigate = useNavigate()
 
   const formatAction = (action) => {
     if (!action || typeof action !== 'string') {
@@ -219,7 +220,7 @@ const ActivityPage = () => {
     // ── FALLBACK ─────────────────────────────────
     return gray(clean, 'fb')
   }
-  const orgId = activeOrgId || user?.organization?._id
+  const orgId = activeOrgId
 
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
@@ -308,15 +309,35 @@ const ActivityPage = () => {
   }, [handleLoadMore]);
 
   useEffect(() => {
+    if (!activeOrgId) {
+      setLoading(false)
+      return
+    }
     const delay = setTimeout(() => {
       setPage(1)
       fetchActivity(1)
     }, 300)
     return () => clearTimeout(delay)
-  }, [fetchActivity])
+  }, [activeOrgId, fetchActivity])
 
   const loadMore = () => {
     handleLoadMore();
+  }
+
+  if (!loading && !activeOrgId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+        <span className="material-symbols-outlined text-[64px] text-slate-300 dark:text-slate-700 mb-4">corporate_fare</span>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">No organization yet</h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xs">Create an organization on the Dashboard first.</p>
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+        >
+          Go to Dashboard
+        </button>
+      </div>
+    )
   }
 
   return (
