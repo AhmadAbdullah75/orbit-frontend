@@ -5,6 +5,8 @@ import api from '../services/axios'
 import { useTheme } from '../context/ThemeContext'
 import Toast from '../components/Toast'
 import ConfirmModal from '../components/ConfirmModal'
+import EmptyOrg from '../components/EmptyOrg'
+import useAutoRefresh from '../hooks/useAutoRefresh'
 import { getPermissions } from '../utils/permissions'
 
 const ProjectsPage = () => {
@@ -93,6 +95,12 @@ const ProjectsPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgId])
+
+  useAutoRefresh(
+    () => { if (activeOrgId) fetchProjects() },
+    90000,
+    [activeOrgId]
+  )
 
   // Click outside to close action menus and search dropdown
   useEffect(() => {
@@ -211,19 +219,13 @@ const ProjectsPage = () => {
     })
   }
 
-  if (!loading && !orgId) {
+  if (!activeOrgId && !loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
-        <span className="material-symbols-outlined text-[64px] text-slate-300 dark:text-slate-700 mb-4">corporate_fare</span>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">No organization yet</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xs">Create an organization on the Dashboard first.</p>
-        <button 
-          onClick={() => navigate('/dashboard')}
-          className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
-        >
-          Go to Dashboard
-        </button>
-      </div>
+      <EmptyOrg
+        icon="folder"
+        title="No Organization Yet"
+        description="Create an organization to start managing projects and tracking progress."
+      />
     )
   }
 

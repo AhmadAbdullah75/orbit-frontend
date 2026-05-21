@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/axios'
 import { useTheme } from '../context/ThemeContext'
 import Toast from '../components/Toast'
+import EmptyOrg from '../components/EmptyOrg'
+import useAutoRefresh from '../hooks/useAutoRefresh'
 
 export default function TasksPage() {
   const navigate = useNavigate()
@@ -67,6 +69,12 @@ export default function TasksPage() {
     }
     fetchAllTasks()
   }, [activeOrgId])
+
+  useAutoRefresh(
+    () => { if (activeOrgId) fetchAllTasks() },
+    60000,
+    [activeOrgId]
+  )
 
   // Helpers
   const getPriorityColor = (prio) => {
@@ -170,33 +178,11 @@ export default function TasksPage() {
 
   if (!activeOrgId && !loading) {
     return (
-      <div style={{
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        minHeight: '60vh', textAlign: 'center',
-        padding: '40px',
-      }}>
-        <span className="material-symbols-outlined"
-          style={{
-            fontSize: '56px',
-            color: isDark ? '#1e293b' : '#e2e8f0',
-            marginBottom: '16px', display: 'block',
-          }}>
-          task_alt
-        </span>
-        <p style={{
-          fontSize: '18px', fontWeight: 700,
-          color: isDark ? '#334155' : '#94a3b8',
-        }}>
-          No organization yet
-        </p>
-        <p style={{
-          color: isDark ? '#1e293b' : '#cbd5e1',
-          marginTop: '8px', fontSize: '14px',
-        }}>
-          Create an organization to view tasks
-        </p>
-      </div>
+      <EmptyOrg
+        icon="checklist"
+        title="No Organization Yet"
+        description="Create an organization to see tasks across all your projects."
+      />
     )
   }
 

@@ -9,6 +9,7 @@ import ConfirmModal from '../components/ConfirmModal'
 import { motion, AnimatePresence } from 'framer-motion'
 import { staggerContainer, scaleIn } from '../utils/animations'
 import { useCountUp } from '../hooks/useCountUp'
+import useAutoRefresh from '../hooks/useAutoRefresh'
 
 function StatNumber({ value }) {
   const isPercentage = typeof value === 'string' && value.includes('%')
@@ -363,6 +364,12 @@ const DashboardPage = () => {
       setStatsLoading(false)
     }
   }
+
+  useAutoRefresh(
+    () => { if (currentOrgId) fetchStats() },
+    60000,
+    [currentOrgId]
+  )
 
   // Checklist derived from real state
   const step1Done = Boolean(user?.isVerified)

@@ -64,6 +64,12 @@ export default function DashboardLayout() {
   const [inviteModal, setInviteModal] = useState(null)
   const [acceptingInvite, setAcceptingInvite] = useState(false)
   const [toast, setToast] = useState(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('orbit_sidebar_collapsed') === 'true'
+  })
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth >= 768
+  )
 
   const showToast = React.useCallback((message, type = 'success') => {
     setToast({ message, type })
@@ -323,36 +329,126 @@ export default function DashboardLayout() {
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || 'U';
 
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const toggleSidebar = () => {
+    const next = !sidebarCollapsed
+    setSidebarCollapsed(next)
+    localStorage.setItem('orbit_sidebar_collapsed', String(next))
+  }
+
+  const sidebarWidth = isDesktop
+    ? (sidebarCollapsed ? 64 : 240)
+    : 240
+
   return (
     <div className="flex h-screen overflow-hidden font-sans">
 
       {/* ── SIDEBAR ── */}
-      <aside 
-        className="flex flex-col flex-shrink-0 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[rgba(255,255,255,0.06)] z-50 transition-colors duration-150"
+      <aside
+        className="flex flex-col flex-shrink-0 z-50"
         style={{
-          width: '240px',
+          width: `${sidebarWidth}px`,
+          transition: 'width 250ms cubic-bezier(0.4,0,0.2,1)',
           flexShrink: 0,
           height: '100vh',
           position: 'fixed',
           top: 0,
           left: 0,
           zIndex: 50,
-          transform: mobileMenuOpen || window.innerWidth >= 768
+          overflowX: 'hidden',
+          background: isDark ? '#0e0e0e' : '#ffffff',
+          borderRight: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          transform: mobileMenuOpen || isDesktop
             ? 'translateX(0)'
             : 'translateX(-100%)',
-          transition: 'transform 250ms ease',
         }}
       >
 
-        {/* Logo */}
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#6764f2] to-indigo-400 flex items-center justify-center shadow-lg shadow-[#6764f2]/20 flex-shrink-0">
-            <span className="material-symbols-outlined text-white text-[20px]">rocket_launch</span>
-          </div>
-          <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Orbit</span>
+        {/* Sidebar header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: sidebarCollapsed
+            ? 'center' : 'space-between',
+          padding: sidebarCollapsed ? '16px 0' : '16px 16px',
+          borderBottom: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          flexShrink: 0,
+        }}>
+          {!sidebarCollapsed && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}>
+              <div style={{
+                width: '32px', height: '32px',
+                borderRadius: '10px', background: '#6366f1',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '18px', color: 'white' }}>
+                  rocket_launch
+                </span>
+              </div>
+              <span style={{
+                fontWeight: 800, fontSize: '17px',
+                color: isDark ? '#f1f5f9' : '#0f172a',
+              }}>
+                Orbit
+              </span>
+            </div>
+          )}
+
+          {sidebarCollapsed && (
+            <div style={{
+              width: '32px', height: '32px',
+              borderRadius: '10px', background: '#6366f1',
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '18px', color: 'white' }}>
+                rocket_launch
+              </span>
+            </div>
+          )}
+
+          {!sidebarCollapsed && (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title="Collapse sidebar"
+              style={{
+                width: '28px', height: '28px',
+                borderRadius: '8px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isDark ? '#475569' : '#94a3b8',
+                flexShrink: 0,
+              }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '16px' }}>
+                chevron_left
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Org Switcher */}
+        {!sidebarCollapsed && (
         <div className="relative px-4 mb-4" ref={orgDropdownRef}>
           <button
             onClick={() => setShowOrgDropdown(p => !p)}
@@ -515,64 +611,147 @@ export default function DashboardLayout() {
           )}
           </AnimatePresence>
         </div>
+        )}
+
+        {sidebarCollapsed && (
+          <div style={{
+            padding: '12px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}>
+            <div
+              style={{
+                width: '32px', height: '32px',
+                borderRadius: '8px', background: '#6366f1',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer',
+                fontSize: '14px', fontWeight: 700,
+                color: 'white',
+              }}
+              onClick={() => setSidebarCollapsed(false)}
+              title={displayedOrg?.name}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => {
+                if (e.key === 'Enter') setSidebarCollapsed(false)
+              }}>
+              {(displayedOrg?.name || 'W').charAt(0).toUpperCase()}
+            </div>
+          </div>
+        )}
 
         {/* Nav */}
-        <nav className="flex-1 space-y-0.5 overflow-y-auto pt-2">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto pt-2 px-2">
           {navLinks.map((link) => {
             const isActive = currentPath.pathname === link.to || (link.to !== '/dashboard' && currentPath.pathname.startsWith(link.to));
             return (
-            <div key={link.to} className="relative mb-1 px-3">
-              {isActive && (
+            <div key={link.to} className="relative mb-1">
+              {!sidebarCollapsed && isActive && (
                 <motion.div
                   layoutId="sidebar-active-pill"
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    left: '12px', right: '12px',
                     borderRadius: '8px',
                     background: isDark ? 'rgba(103,100,242,0.12)' : '#f1f5f9',
                   }}
                   transition={EASE.smoothSpring}
                 />
               )}
-              <motion.div
-                whileHover={{ x: 3 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ duration: 0.15 }}
-                className="relative z-10"
+              <NavLink
+                to={link.to}
+                title={sidebarCollapsed ? link.label : ''}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: sidebarCollapsed ? 0 : '10px',
+                  justifyContent: sidebarCollapsed
+                    ? 'center' : 'flex-start',
+                  padding: sidebarCollapsed ? '10px' : '10px 12px',
+                  borderRadius: '10px',
+                  background: isActive
+                    ? isDark
+                      ? 'rgba(99,102,241,0.12)'
+                      : 'rgba(99,102,241,0.08)'
+                    : 'transparent',
+                  color: isActive
+                    ? '#6366f1'
+                    : isDark ? '#64748b' : '#94a3b8',
+                  textDecoration: 'none',
+                  width: '100%',
+                  transition: 'all 150ms',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
               >
-                <NavLink
-                  to={link.to}
-                  className={`flex items-center gap-3 h-9 px-3 rounded-md text-[13.5px] font-medium transition-colors duration-150 ${
-                    isActive
-                      ? 'text-[#6764f2]'
-                      : 'text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[20px]">{link.icon}</span>
-                  <span>{link.label}</span>
-                </NavLink>
-              </motion.div>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '20px', flexShrink: 0 }}>
+                  {link.icon}
+                </span>
+                {!sidebarCollapsed && (
+                  <span style={{
+                    fontSize: '13px', fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                  }}>
+                    {link.label}
+                  </span>
+                )}
+              </NavLink>
             </div>
           )})}
         </nav>
+
+        {sidebarCollapsed && (
+          <div style={{ marginTop: 'auto', padding: '12px' }}>
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title="Expand sidebar"
+              style={{
+                width: '40px', height: '40px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isDark ? '#475569' : '#94a3b8',
+                margin: '0 auto',
+              }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '20px' }}>
+                chevron_right
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* User Profile */}
         <div className="p-4 border-t border-slate-200 dark:border-[rgba(255,255,255,0.06)] relative">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.04)] transition-colors duration-150"
+            style={{
+              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+            }}
           >
             <div className="w-8 h-8 rounded-full border border-slate-200 dark:border-[rgba(255,255,255,0.1)] bg-[#6764f2] flex items-center justify-center text-sm font-semibold text-white flex-shrink-0 overflow-hidden">
               {user?.avatar
                 ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 : userInitial}
             </div>
-            <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate leading-tight">{user?.name || 'User'}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-500 truncate leading-tight">{user?.email || ''}</p>
-            </div>
-            <span className="material-symbols-outlined text-[18px] text-slate-400 dark:text-slate-600">more_vert</span>
+            {!sidebarCollapsed && (
+              <>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate leading-tight">{user?.name || 'User'}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 truncate leading-tight">{user?.email || ''}</p>
+                </div>
+                <span className="material-symbols-outlined text-[18px] text-slate-400 dark:text-slate-600">more_vert</span>
+              </>
+            )}
           </button>
 
           {isMobileMenuOpen && (
@@ -602,7 +781,7 @@ export default function DashboardLayout() {
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
             zIndex: 40,
-            display: window.innerWidth < 768
+            display: !isDesktop
               ? 'block' : 'none',
           }}
         />
@@ -610,7 +789,8 @@ export default function DashboardLayout() {
 
       {/* ── MAIN AREA ── */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{
-        marginLeft: window.innerWidth >= 768 ? '240px' : '0',
+        marginLeft: isDesktop ? `${sidebarWidth}px` : '0',
+        transition: 'margin-left 250ms cubic-bezier(0.4,0,0.2,1)',
       }}>
 
         {/* Header */}
@@ -621,7 +801,7 @@ export default function DashboardLayout() {
             <button
               onClick={() => setMobileMenuOpen(p => !p)}
               style={{
-                display: window.innerWidth < 768 ? 'flex' : 'none',
+                display: !isDesktop ? 'flex' : 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '36px',

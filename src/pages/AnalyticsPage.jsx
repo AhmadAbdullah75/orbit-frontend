@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/axios'
 import Toast from '../components/Toast'
+import EmptyOrg from '../components/EmptyOrg'
+import useAutoRefresh from '../hooks/useAutoRefresh'
 
 export default function AnalyticsPage() {
   const navigate = useNavigate()
@@ -88,6 +90,12 @@ export default function AnalyticsPage() {
     fetchStats()
   }, [activeOrgId, fetchStats])
 
+  useAutoRefresh(
+    () => { if (activeOrgId) fetchStats() },
+    120000,
+    [activeOrgId]
+  )
+
   // Aggregate stats
   const totalTasks = allTasks.length
   const completedTasks = allTasks.filter(t => t.isDone).length
@@ -128,15 +136,11 @@ export default function AnalyticsPage() {
   // Empty state if no org
   if (!activeOrgId && !loading) {
     return (
-      <div className="max-w-5xl mx-auto py-20 text-center px-4">
-        <div className="size-16 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-4 mx-auto">
-          <span className="material-symbols-outlined text-[32px] text-slate-300 dark:text-slate-700">analytics</span>
-        </div>
-        <h3 className="font-bold text-lg text-slate-900 dark:text-white">No active organization</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-          Please select or create an organization workspace to view analytical logs.
-        </p>
-      </div>
+      <EmptyOrg
+        icon="insights"
+        title="No Organization Yet"
+        description="Create an organization to view analytics and completion rates."
+      />
     )
   }
 
