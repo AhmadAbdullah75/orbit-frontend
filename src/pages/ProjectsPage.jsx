@@ -267,7 +267,7 @@ const ProjectsPage = () => {
         {perms.canCreateProject && (
           <button 
             onClick={() => setShowModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
             New Project
@@ -387,12 +387,12 @@ const ProjectsPage = () => {
         </div>
       ) : (
         viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="projects-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((project) => (
-              <div 
+              <div
                 key={project._id}
                 onClick={() => navigate(`/org/${orgId}/projects/${project._id}/board`)}
-                className="bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] p-5 rounded-xl cursor-pointer group hover:shadow-md dark:hover:border-[rgba(255,255,255,0.14)] transition-all duration-150"
+                className="orbit-project-card bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] p-5 rounded-xl cursor-pointer group"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
@@ -490,6 +490,7 @@ const ProjectsPage = () => {
             {filtered.map(p => (
               <div
                 key={p._id}
+                className="orbit-project-card"
                 onClick={() => navigate(
                   `/org/${orgId}/projects/${p._id}/board`
                 )}
@@ -575,7 +576,7 @@ const ProjectsPage = () => {
             {filtered.map(project => (
               <div key={project._id}
                    onClick={() => navigate(`/org/${orgId}/projects/${project._id}/board`)}
-                   className="grid grid-cols-12 gap-4 px-5 py-4 border-b last:border-0 border-slate-50 dark:border-[rgba(255,255,255,0.04)] cursor-pointer group hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                   className="orbit-member-row grid grid-cols-12 gap-4 px-5 py-4 border-b last:border-0 border-slate-50 dark:border-[rgba(255,255,255,0.04)] cursor-pointer group">
 
                 {/* Project name + description */}
                 <div className="col-span-4 flex items-center gap-3">

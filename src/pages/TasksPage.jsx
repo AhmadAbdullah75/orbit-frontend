@@ -234,12 +234,12 @@ export default function TasksPage() {
         ].map((card, i) => (
           <div
             key={i}
+            className="orbit-stat-card"
             style={{
               padding: '16px',
               borderRadius: '12px',
               background: isDark ? '#161616' : 'white',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'}`,
-              transition: 'all 150ms ease',
             }}
           >
             <div className="flex items-center justify-between mb-3">
@@ -270,9 +270,8 @@ export default function TasksPage() {
 
       {/* FILTER PANEL */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#101010] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Search bar */}
-          <div className="flex flex-col">
+        <div className="tasks-filter-panel">
+          <div className="tasks-filter-search flex flex-col">
             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Search text</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">search</span>
@@ -286,49 +285,48 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* Project dropdown */}
-          <div className="flex flex-col">
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Project</label>
-            <select
-              value={selectedProject}
-              onChange={e => setSelectedProject(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option value="all">All Projects</option>
-              {projects.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
+          <div className="tasks-filter-selects">
+            <div className="tasks-filter-select flex flex-col">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Project</label>
+              <select
+                value={selectedProject}
+                onChange={e => setSelectedProject(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="all">All Projects</option>
+                {projects.map(p => (
+                  <option key={p._id} value={p._id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
 
-          {/* Priority dropdown */}
-          <div className="flex flex-col">
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Priority</label>
-            <select
-              value={filterPriority}
-              onChange={e => setFilterPriority(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option value="all">All Priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
+            <div className="tasks-filter-select flex flex-col">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Priority</label>
+              <select
+                value={filterPriority}
+                onChange={e => setFilterPriority(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="all">All Priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
 
-          {/* Status dropdown */}
-          <div className="flex flex-col">
-            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Status</label>
-            <select
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option value="all">All Statuses</option>
-              <option value="open">Open</option>
-              <option value="done">Done</option>
-            </select>
+            <div className="tasks-filter-select flex flex-col">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Status</label>
+              <select
+                value={filterStatus}
+                onChange={e => setFilterStatus(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="all">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -361,7 +359,7 @@ export default function TasksPage() {
                 <div
                   key={task._id}
                   onClick={() => navigate(`/org/${activeOrgId}/projects/${task.projectId}/board`)}
-                  className="group relative flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="orbit-card group relative flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm"
                 >
                   <div className="flex-1 min-w-0 pr-4">
                     {/* Project & Tag row */}
@@ -395,9 +393,27 @@ export default function TasksPage() {
 
                     {/* Task description snippet */}
                     {task.description && (
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 line-clamp-1">
-                        {task.description}
-                      </p>
+                      <div
+                        className="task-description-preview"
+                        dangerouslySetInnerHTML={{
+                          __html: task.description
+                            .replace(/<[^>]*>/g, '')
+                            .substring(0, 80) +
+                            (task.description.replace(
+                              /<[^>]*>/g, ''
+                            ).length > 80 ? '...' : '')
+                        }}
+                        style={{
+                          fontSize: '12px',
+                          color: isDark ? '#475569' : '#94a3b8',
+                          lineHeight: 1.4,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: '100%',
+                          marginTop: '4px',
+                        }}
+                      />
                     )}
                   </div>
 

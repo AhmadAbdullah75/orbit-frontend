@@ -21,6 +21,14 @@ const navLinks = [
   { to: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
+const mobileNavItems = [
+  { path: '/dashboard', icon: 'dashboard', label: 'Home' },
+  { path: '/projects', icon: 'folder', label: 'Projects' },
+  { path: '/tasks', icon: 'checklist', label: 'Tasks' },
+  { path: '/members', icon: 'group', label: 'Members' },
+  { path: '/settings', icon: 'settings', label: 'Settings' },
+];
+
 export default function DashboardLayout() {
 
   // 1. ALL hooks first — no exceptions
@@ -661,6 +669,7 @@ export default function DashboardLayout() {
               <NavLink
                 to={link.to}
                 title={sidebarCollapsed ? link.label : ''}
+                className="orbit-nav-item"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -788,7 +797,7 @@ export default function DashboardLayout() {
       )}
 
       {/* ── MAIN AREA ── */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{
+      <main className="main-content flex-1 flex flex-col min-w-0 overflow-hidden" style={{
         marginLeft: isDesktop ? `${sidebarWidth}px` : '0',
         transition: 'margin-left 250ms cubic-bezier(0.4,0,0.2,1)',
       }}>
@@ -962,6 +971,7 @@ export default function DashboardLayout() {
                       notifications.map(notif => (
                         <div
                           key={notif._id}
+                          className="orbit-notif-item"
                           onClick={async () => {
                             console.log('[NOTIF CLICK]', notif)
                             handleMarkRead(notif._id)
@@ -1026,21 +1036,6 @@ export default function DashboardLayout() {
                                 : 'rgba(99,102,241,0.04)',
                             transition: 'background 150ms',
                             borderRadius: '8px',
-                          }}
-                          onMouseEnter={e => {
-                            if (notif.type === 'invitation') {
-                              e.currentTarget.style.background =
-                                isDark
-                                  ? 'rgba(99,102,241,0.12)'
-                                  : 'rgba(99,102,241,0.08)'
-                            }
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background =
-                              notif.isRead ? 'transparent'
-                              : isDark
-                                ? 'rgba(99,102,241,0.06)'
-                                : 'rgba(99,102,241,0.04)'
                           }}
                         >
                           <div style={{ display: 'flex',
@@ -1366,22 +1361,70 @@ export default function DashboardLayout() {
         </div>
       </main>
 
-      {/* ── MOBILE BOTTOM NAV ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-[#0f0f0f] border-t border-slate-200 dark:border-[rgba(255,255,255,0.06)] flex items-center justify-around px-2 z-50 transition-colors duration-150">
-        {navLinks.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors duration-150 ${
-                isActive ? 'text-[#6764f2]' : 'text-slate-400 dark:text-slate-500'
-              }`
-            }
-          >
-            <span className="material-symbols-outlined text-[22px]">{link.icon}</span>
-            <span className="text-[10px] font-bold">{link.label}</span>
-          </NavLink>
-        ))}
+      {/* ── MOBILE BOTTOM NAV (5 items) ── */}
+      <nav
+        className="mobile-bottom-nav"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          display: 'none',
+          height: '60px',
+          background: isDark ? '#0e0e0e' : 'white',
+          borderTop: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          zIndex: 60,
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          height: '100%',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+        }}>
+          {mobileNavItems.map(item => {
+            const isActive =
+              currentPath.pathname === item.path ||
+              currentPath.pathname.startsWith(item.path + '/')
+            return (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => navigate(item.path)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '2px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px 12px',
+                  flex: 1,
+                }}
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: '22px',
+                    color: isActive ? '#6366f1' : '#94a3b8',
+                  }}
+                >
+                  {item.icon}
+                </span>
+                <span style={{
+                  fontSize: '9px',
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? '#6366f1' : '#94a3b8',
+                }}>
+                  {item.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </nav>
 
       {/* Create Org Modal */}
@@ -1432,7 +1475,7 @@ export default function DashboardLayout() {
                 transition={{ duration: 0.12 }}
                 disabled={creatingOrg}
                 onClick={handleCreateOrg}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-60 flex items-center gap-2 border border-transparent"
+                className="orbit-btn-primary px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-60 flex items-center gap-2 border border-transparent"
               >
                 {creatingOrg ? (
                   <><div className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin" />Creating...</>

@@ -185,9 +185,17 @@ export default function AnalyticsPage() {
       ) : (
         <>
           {/* SUMMARY CARDS AND CHART */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            className="analytics-top-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 2fr',
+              gap: '16px',
+              marginBottom: '24px',
+            }}
+          >
             {/* Circular Progress Gauge */}
-            <div className="col-span-1 p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="orbit-analytics-card p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] flex flex-col items-center justify-center text-center shadow-sm">
               <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-6">Overall Completion Rate</h3>
               
               <div className="relative size-36 flex items-center justify-center">
@@ -238,7 +246,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Task Priority Distribution */}
-            <div className="col-span-1 md:col-span-2 p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] flex flex-col justify-between shadow-sm">
+            <div className="orbit-analytics-card p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] flex flex-col justify-between shadow-sm">
               <div>
                 <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Priority Distribution</h3>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mb-6">Task volume segmented by urgency tags.</p>
@@ -278,7 +286,7 @@ export default function AnalyticsPage() {
                 <div
                   key={project._id}
                   onClick={() => navigate(`/org/${activeOrgId}/projects/${project._id}/board`)}
-                  className="group p-4 rounded-xl border border-slate-100 dark:border-[rgba(255,255,255,0.04)] hover:border-indigo-500/30 bg-slate-50/50 dark:bg-[#101010]/30 hover:bg-white dark:hover:bg-[#1c1c1c] transition-all cursor-pointer flex flex-col justify-between"
+                  className="orbit-analytics-card group p-4 rounded-xl border border-slate-100 dark:border-[rgba(255,255,255,0.04)] bg-slate-50/50 dark:bg-[#101010]/30 cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2.5">

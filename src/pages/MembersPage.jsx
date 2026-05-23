@@ -337,7 +337,7 @@ const MembersPage = () => {
     return filtered.map(m => (
       <tr
         key={m._id}
-        className="hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors"
+        className="orbit-member-row"
       >
         <td className="px-6 py-4">
           <div className="flex items-center gap-3">
@@ -352,7 +352,8 @@ const MembersPage = () => {
               <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">
                 {m.user?.name || 'Unknown'}
               </p>
-              <p className="text-xs text-slate-500 leading-tight mt-0.5">
+              <p className="member-email text-xs text-slate-500 leading-tight mt-0.5"
+                style={{ fontSize: '12px' }}>
                 {m.user?.email || ''}
               </p>
             </div>
@@ -376,7 +377,7 @@ const MembersPage = () => {
             </div>
           ) : (
             <span
-              className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider"
+              className="role-badge px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider"
               style={{
                 color: (roleColors[m.role] ||
                   roleColors.member).color,
@@ -514,7 +515,7 @@ const MembersPage = () => {
         {perms.canInviteMembers && (
           <button 
             onClick={() => setShowModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[20px]">person_add</span>
             Invite Member
@@ -628,8 +629,14 @@ const MembersPage = () => {
 
       {/* MEMBERS TABLE */}
       <div className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)]">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div
+          className="members-table-wrapper"
+          style={{
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <table className="w-full text-left border-collapse" style={{ minWidth: '600px' }}>
             <thead>
               <tr className="bg-slate-50/50 dark:bg-[rgba(255,255,255,0.02)] border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Collaborator</th>

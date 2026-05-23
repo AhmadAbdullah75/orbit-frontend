@@ -553,7 +553,7 @@ const DashboardPage = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
                 <button 
                   onClick={() => navigate('/projects')}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25"
                 >
                   <span className="material-symbols-outlined text-[20px]">
                     {stats.totalProjects > 0 ? 'add_box' : 'create_new_folder'}
@@ -616,9 +616,10 @@ const DashboardPage = () => {
               tooltip: 'View productivity analytics',
             },
           ].map((card, i) => (
-            <motion.button 
-              variants={scaleIn} 
-              key={i} 
+            <motion.button
+              className="orbit-stat-card"
+              variants={scaleIn}
+              key={i}
               type="button"
               onClick={card.onClick}
               title={card.tooltip}
@@ -629,19 +630,7 @@ const DashboardPage = () => {
                 borderRadius: '12px',
                 background: isDark ? '#161616' : 'white',
                 border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'}`,
-                cursor: 'pointer',
                 textAlign: 'left',
-                transition: 'all 150ms ease',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'
-                e.currentTarget.style.borderColor = card.color
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-                e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'
               }}
             >
               {statsLoading ? (
@@ -710,7 +699,7 @@ const DashboardPage = () => {
           marginTop: '24px',
         }}>
           {/* Getting Started */}
-          <div className="col-span-1 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
+          <div className="orbit-card col-span-1 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
               <h2 className="font-bold text-slate-900 dark:text-white">Workspace Setup</h2>
               <p className="text-xs text-slate-500">Complete steps to set up your workspace.</p>
@@ -773,7 +762,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="col-span-2 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
+          <div className="orbit-card col-span-2 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] flex justify-between items-center">
               <h2 className="font-bold text-slate-900 dark:text-white">Recent Activity Log</h2>
               {recentActivity.length > 4 && (

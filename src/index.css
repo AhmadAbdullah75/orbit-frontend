@@ -700,3 +700,145 @@ button:disabled,
     transform: none !important;
   }
 }
+
+/* Task rich text rendered content */
+.task-rich-content h1,
+.task-rich-content h2,
+.task-rich-content h3 {
+  color: inherit;
+  margin: 12px 0 6px;
+  font-weight: 700;
+}
+
+.task-rich-content p {
+  margin: 6px 0;
+  line-height: 1.7;
+}
+
+.task-rich-content ul,
+.task-rich-content ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.task-rich-content strong { font-weight: 700; }
+.task-rich-content em { font-style: italic; }
+
+.task-rich-content s,
+.task-rich-content del {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.task-rich-content u {
+  text-decoration: underline;
+}
+
+.task-rich-content code {
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+/* Analytics grid: stack on mobile */
+@media (max-width: 640px) {
+  .analytics-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analytics-top-grid > div {
+    width: 100% !important;
+  }
+}
+
+/* Members table scrolls horizontally */
+@media (max-width: 640px) {
+  .members-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .member-email {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .role-badge {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+}
+
+/* Projects grid responsive */
+@media (max-width: 480px) {
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* Tasks filter panel */
+.tasks-filter-panel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tasks-filter-search {
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+.tasks-filter-selects {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+.tasks-filter-select {
+  flex: 1 1 120px;
+  min-width: 120px;
+}
+
+/* Board scroll snap for swipe feel */
+@media (max-width: 768px) {
+  .board-scroll-container {
+    scroll-snap-type: x proximity;
+  }
+
+  .board-column {
+    scroll-snap-align: start;
+    width: 272px !important;
+    min-width: 272px !important;
+    flex-shrink: 0;
+  }
+}
+
+/* Mobile bottom navigation */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: block !important;
+  }
+
+  main.main-content,
+  .main-content {
+    padding-bottom: 72px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}

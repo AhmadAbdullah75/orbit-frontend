@@ -128,17 +128,17 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
     <div
       ref={setNodeRef}
       style={style}
+      data-is-dragging={isSortableDragging ? 'true' : 'false'}
       {...attributes}
       {...listeners}
       onClick={() => {
         if (!isSortableDragging) onClick(task)
       }}
-      className={`group p-3 rounded-lg border cursor-grab
+      className={`orbit-task-card group p-3 rounded-lg border cursor-grab
         active:cursor-grabbing select-none
-        transition-all duration-150
         ${isDark
-          ? 'bg-[#1c1c1c] border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.18)]'
-          : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300'
+          ? 'bg-[#1c1c1c] border-[rgba(255,255,255,0.08)]'
+          : 'bg-white border-slate-200 shadow-sm'
         }`}
     >
       <div className="flex items-start justify-between mb-2">
@@ -223,6 +223,21 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
         }`}>
         {task.title}
       </p>
+
+      {task.description && (
+        <p style={{
+          fontSize: '11px',
+          color: isDark ? '#475569' : '#94a3b8',
+          lineHeight: 1.4,
+          margin: '4px 0 0',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>
+          {task.description.replace(/<[^>]*>/g, '')}
+        </p>
+      )}
 
       {task.subtasks?.length > 0 && (
         <div style={{ marginTop: '8px' }}>
@@ -386,7 +401,7 @@ function BoardColumn({
   const menuRef = useRef(null)
 
   return (
-    <div className="flex flex-col shrink-0 rounded-xl
+    <div className="board-column flex flex-col shrink-0 rounded-xl
              overflow-hidden"
       style={{
         width: width || '280px',
@@ -1495,10 +1510,15 @@ function TaskDetailPanel({
             />
           ) : (
             <div
-              className={`text-sm leading-relaxed min-h-[60px]
+              className={`task-rich-content text-sm leading-relaxed min-h-[60px]
                 cursor-text
                 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}
               onClick={() => setEditingDesc(true)}
+              style={{
+                fontSize: '14px',
+                lineHeight: 1.7,
+                color: isDark ? '#94a3b8' : '#64748b',
+              }}
               dangerouslySetInnerHTML={{
                 __html: editDesc ||
                   `<p style="color:${isDark
@@ -4382,11 +4402,10 @@ export default function BoardPage() {
               setTargetColumnId(columns[0]?._id)
               setShowCreateModal(true)
             }}
-            className="flex items-center gap-1.5 px-4 py-1.5
+            className="orbit-btn-primary flex items-center gap-1.5 px-4 py-1.5
                        bg-indigo-600 hover:bg-indigo-700
                        text-white text-sm font-semibold
-                       rounded-lg shadow-lg shadow-indigo-600/20
-                       transition-all active:scale-95"
+                       rounded-lg shadow-lg shadow-indigo-600/20"
           >
             <span className="material-symbols-outlined
                              text-[18px]">
@@ -4405,11 +4424,19 @@ export default function BoardPage() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className={`flex-1 overflow-x-auto overflow-y-hidden
+        <div className={`board-scroll-container flex-1 overflow-x-auto overflow-y-visible
           ${isDark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5f7]'}`}
-          style={{ height: 'calc(100vh - 64px - 64px - 60px)', touchAction: 'pan-x pan-y' }}>
-          <div className="flex gap-3 h-full px-4 py-3"
-               style={{ minWidth: 'max-content', alignItems: 'stretch' }}>
+          style={{
+            height: 'calc(100vh - 160px)',
+            touchAction: 'pan-x',
+            WebkitOverflowScrolling: 'touch',
+            scrollPaddingLeft: '16px',
+          }}>
+          <div className="flex gap-3 h-full px-4 pb-4 pt-3"
+               style={{
+                 minWidth: 'max-content',
+                 alignItems: 'flex-start',
+               }}>
             {columns.map(column => (
               <BoardColumn
                 key={column._id}
@@ -4429,7 +4456,7 @@ export default function BoardPage() {
             ))}
 
             {/* Add Column Button */}
-            <div className="shrink-0" style={{ width: '280px' }}>
+            <div className="shrink-0" style={{ minWidth: '200px', flexShrink: 0 }}>
               <button
                 onClick={handleAddColumn}
                 className={`w-full h-12 rounded-xl border border-dashed
