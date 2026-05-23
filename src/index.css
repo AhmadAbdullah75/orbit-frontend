@@ -487,3 +487,216 @@ button:disabled,
   .mb-8 { margin-bottom: 16px !important; }
   .mb-6 { margin-bottom: 12px !important; }
 }
+
+/* ══════════════════════════════════════════
+   ORBIT CARD HOVER SYSTEM
+   Inspired by Vercel · Linear · Notion
+   ════════════════════════════════════════ */
+
+/* Base card transition — applied to all cards */
+.orbit-card {
+  transition:
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  cursor: pointer;
+}
+
+/* Light mode hover */
+.orbit-card:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07),
+    0 12px 24px -4px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Dark mode hover */
+.dark .orbit-card:hover,
+[data-theme="dark"] .orbit-card:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 12px 28px -4px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Active/click effect — slight press down */
+.orbit-card:active {
+  transform: translateY(0px) scale(0.998);
+  transition-duration: 80ms;
+}
+
+/* ── Stat cards (dashboard numbers) ── */
+.orbit-stat-card {
+  transition:
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  cursor: pointer;
+}
+
+.orbit-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 24px -4px rgba(99, 102, 241, 0.15),
+    0 0 0 1px rgba(99, 102, 241, 0.2);
+}
+
+.orbit-stat-card:active {
+  transform: translateY(-1px);
+}
+
+/* ── Task cards on Kanban board ── */
+.orbit-task-card {
+  transition:
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.orbit-task-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 16px -2px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.2) !important;
+  z-index: 2;
+  position: relative;
+}
+
+/* Dark mode task cards */
+.dark .orbit-task-card:hover {
+  box-shadow:
+    0 4px 20px -2px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.orbit-task-card:active {
+  transform: translateY(0);
+}
+
+.orbit-task-card[data-is-dragging="true"] {
+  transform: rotate(2deg) scale(1.02) !important;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.2) !important;
+  z-index: 999;
+}
+
+/* ── Member cards ── */
+.orbit-member-row:hover {
+  background: rgba(99, 102, 241, 0.04) !important;
+  transition: background 150ms ease;
+}
+
+.dark .orbit-member-row:hover {
+  background: rgba(99, 102, 241, 0.06) !important;
+}
+
+/* ── Project cards ── */
+.orbit-project-card {
+  transition:
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.orbit-project-card:hover {
+  transform: translateY(-3px) scale(1.008);
+  box-shadow:
+    0 8px 32px -4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark .orbit-project-card:hover {
+  box-shadow:
+    0 8px 32px -4px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+.orbit-project-card:active {
+  transform: translateY(-1px) scale(1.002);
+}
+
+/* ── Notification items ── */
+.orbit-notif-item {
+  transition:
+    background 150ms ease,
+    padding-left 150ms ease;
+  cursor: pointer;
+}
+
+.orbit-notif-item:hover {
+  background: rgba(99, 102, 241, 0.06) !important;
+  padding-left: 20px !important;
+}
+
+/* ── Nav items in sidebar ── */
+.orbit-nav-item {
+  transition:
+    background 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.orbit-nav-item:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #6366f1 !important;
+  transform: translateX(2px);
+}
+
+/* ── Analytics/stat progress cards ── */
+.orbit-analytics-card {
+  transition:
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.orbit-analytics-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px -4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(99, 102, 241, 0.15);
+}
+
+/* ── Button hover effects ── */
+.orbit-btn-primary {
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease;
+}
+
+.orbit-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.orbit-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+/* ── Prevent animation for users who prefer
+   reduced motion (accessibility) ── */
+@media (prefers-reduced-motion: reduce) {
+  .orbit-card,
+  .orbit-stat-card,
+  .orbit-task-card,
+  .orbit-project-card,
+  .orbit-member-row,
+  .orbit-nav-item,
+  .orbit-analytics-card,
+  .orbit-btn-primary {
+    transition: none !important;
+    transform: none !important;
+  }
+}
