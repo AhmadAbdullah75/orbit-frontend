@@ -352,15 +352,80 @@ const RegisterPage = () => {
                     </footer>
                 </section>
 
-                <footer className="mt-8 text-center">
-                    <div className={`flex items-center justify-center gap-4 text-[11px] ${isDark ? 'text-neutral-600' : 'text-gray-400'}`}>
-                        <Link to="/privacy" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Privacy Policy</Link>
-                        <span>·</span>
-                        <Link to="/terms" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Terms of Service</Link>
-                        <span>·</span>
-                        <a href="#" className={`hover:underline transition-colors ${isDark ? 'hover:text-neutral-400' : 'hover:text-gray-600'}`}>Support</a>
-                    </div>
-                </footer>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    marginTop: '24px',
+                }}>
+                    <a
+                        href="/privacy"
+                        style={{
+                            fontSize: '12px',
+                            color: isDark ? '#475569' : '#94a3b8',
+                            textDecoration: 'none',
+                            transition: 'color 150ms',
+                        }}
+                        onMouseEnter={e =>
+                            e.target.style.color = '#6366f1'
+                        }
+                        onMouseLeave={e =>
+                            e.target.style.color =
+                                isDark ? '#475569' : '#94a3b8'
+                        }
+                    >
+                        Privacy Policy
+                    </a>
+
+                    <span style={{
+                        color: isDark ? '#1e293b' : '#e2e8f0',
+                        fontSize: '12px',
+                    }}>·</span>
+
+                    <a
+                        href="/terms"
+                        style={{
+                            fontSize: '12px',
+                            color: isDark ? '#475569' : '#94a3b8',
+                            textDecoration: 'none',
+                            transition: 'color 150ms',
+                        }}
+                        onMouseEnter={e =>
+                            e.target.style.color = '#6366f1'
+                        }
+                        onMouseLeave={e =>
+                            e.target.style.color =
+                                isDark ? '#475569' : '#94a3b8'
+                        }
+                    >
+                        Terms of Service
+                    </a>
+
+                    <span style={{
+                        color: isDark ? '#1e293b' : '#e2e8f0',
+                        fontSize: '12px',
+                    }}>·</span>
+
+                    <a
+                        href="mailto:iamahmad3027@gmail.com"
+                        style={{
+                            fontSize: '12px',
+                            color: isDark ? '#475569' : '#94a3b8',
+                            textDecoration: 'none',
+                            transition: 'color 150ms',
+                        }}
+                        onMouseEnter={e =>
+                            e.target.style.color = '#6366f1'
+                        }
+                        onMouseLeave={e =>
+                            e.target.style.color =
+                                isDark ? '#475569' : '#94a3b8'
+                        }
+                    >
+                        Support
+                    </a>
+                </div>
             </main>
         </div>
     );
