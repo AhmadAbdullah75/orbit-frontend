@@ -1,5 +1,6 @@
   import { useNavigate } from 'react-router-dom'
   import { useTheme } from '../context/ThemeContext'
+  import AuthBackground from '../components/AuthBackground'
 
   export default function PrivacyPage() {
     const navigate = useNavigate()
@@ -49,11 +50,11 @@
     ]
 
     return (
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <AuthBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
       <div style={{
         minHeight: '100vh',
-        background: isDark
-          ? '#0a0a0a'
-          : 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
         transition: 'background 300ms',
       }}>
         {/* Header */}
@@ -295,6 +296,8 @@
               Terms of Service →
             </button>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     )

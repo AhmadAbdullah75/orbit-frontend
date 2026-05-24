@@ -4,6 +4,7 @@ import { registerAPI } from '../features/auth/authAPI.js';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import OrbitLogo from '../components/ui/OrbitLogo.jsx';
+import AuthBackground from '../components/AuthBackground';
 
 const RegisterPage = () => {
     const [name, setName] = useState('');
@@ -89,21 +90,49 @@ const RegisterPage = () => {
         }
     };
 
+    const glassCardStyle = {
+        background: isDark
+            ? 'rgba(17, 17, 27, 0.85)'
+            : 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '20px',
+        border: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(99,102,241,0.15)'}`,
+        boxShadow: isDark
+            ? '0 24px 64px rgba(0,0,0,0.5)'
+            : '0 24px 64px rgba(99,102,241,0.12)',
+        padding: '36px',
+    }
+
     return (
-        <div className={`min-h-screen flex flex-col items-center justify-center p-4 transition-all duration-300 relative ${isDark ? 'bg-[#0f0f0f]' : 'bg-[#f8fafc]'}`}
-            style={!isDark ? {
-                backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)',
-                backgroundSize: '24px 24px'
-            } : {}}
-        >
-            <div className="fixed top-4 right-4">
+        <div style={{
+            minHeight: '100vh',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            padding: '20px',
+            paddingTop: 'max(20px, 5vh)',
+        }}>
+            <AuthBackground />
+
+            <div className="fixed top-4 right-4 z-[2]">
                 <ThemeToggle />
             </div>
 
-            <main className="w-full max-w-sm">
+            <div style={{
+                position: 'relative',
+                zIndex: 1,
+                width: '100%',
+                maxWidth: '480px',
+            }}>
+            <main className="w-full">
                 <OrbitLogo subtitle="Create your project workspace" />
 
-                <section className={`rounded-2xl p-8 shadow-2xl transition-all duration-300 w-full border ${isDark ? 'bg-[#1a1a1a] border-[#2a2a2a] shadow-black/50' : 'bg-white border-gray-100 shadow-gray-200/80'}`}>
+                <div style={glassCardStyle}>
+                <section className="w-full">
                     {success ? (
                         <div className="text-center py-8">
                             <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -351,6 +380,7 @@ const RegisterPage = () => {
                         </p>
                     </footer>
                 </section>
+                </div>
 
                 <div style={{
                     display: 'flex',
@@ -427,6 +457,7 @@ const RegisterPage = () => {
                     </a>
                 </div>
             </main>
+            </div>
         </div>
     );
 };

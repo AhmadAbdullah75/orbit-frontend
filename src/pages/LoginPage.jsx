@@ -7,6 +7,7 @@ import api from '../services/axios';
 import { useTheme } from '../context/ThemeContext.jsx';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import OrbitLogo from '../components/ui/OrbitLogo.jsx';
+import AuthBackground from '../components/AuthBackground';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -81,32 +82,48 @@ const LoginPage = () => {
         }
     }
 
-    return (
-        <div className={`min-h-screen flex flex-col items-center 
-      justify-center p-4 transition-all duration-300 relative
-      ${isDark ? 'bg-[#0f0f0f]' : 'bg-[#f8fafc]'}`}
-            style={!isDark ? {
-                backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)',
-                backgroundSize: '24px 24px'
-            } : {}}
-        >
+    const glassCardStyle = {
+        background: isDark
+            ? 'rgba(17, 17, 27, 0.85)'
+            : 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '20px',
+        border: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(99,102,241,0.15)'}`,
+        boxShadow: isDark
+            ? '0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+            : '0 24px 64px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+        padding: '36px',
+    }
 
-            {/* Theme Toggle - top right corner */}
-            <div className="fixed top-4 right-4">
+    return (
+        <div style={{
+            minHeight: '100vh',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+        }}>
+            <AuthBackground />
+
+            <div className="fixed top-4 right-4 z-[2]">
                 <ThemeToggle />
             </div>
 
-            <main className="w-full max-w-sm">
-                {/* Brand Header */}
+            <div style={{
+                position: 'relative',
+                zIndex: 1,
+                width: '100%',
+                maxWidth: '420px',
+            }}>
+            <main className="w-full">
                 <OrbitLogo subtitle="Sign in to your project workspace" />
 
-                {/* Login Card */}
-                <section className={`orbit-border rounded-2xl p-8 shadow-2xl 
-          transition-all duration-300 w-full
-          ${isDark
-                        ? 'bg-[#1a1a1a] shadow-black/50'
-                        : 'bg-white shadow-gray-200/80 border border-gray-100'
-                    }`}>
+                <div style={glassCardStyle}>
+                <section className="w-full">
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         {/* Email Field */}
                         <div className="space-y-2">
@@ -474,6 +491,7 @@ const LoginPage = () => {
                         </p>
                     </div>
                 </section>
+                </div>
 
                 {/* Footer Links */}
                 <div style={{
@@ -551,7 +569,7 @@ const LoginPage = () => {
                     </a>
                 </div>
       </main>
-
+            </div>
     </div>
   );
 };

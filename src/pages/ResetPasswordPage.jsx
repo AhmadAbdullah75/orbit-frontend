@@ -3,6 +3,7 @@
     from 'react-router-dom'
   import api from '../services/axios'
   import { useTheme } from '../context/ThemeContext'
+  import AuthBackground from '../components/AuthBackground'
 
   export default function ResetPasswordPage() {
     const [params] = useSearchParams()
@@ -63,15 +64,16 @@
     return (
       <div style={{
         minHeight: '100vh',
-        background: isDark
-          ? '#0a0a0a'
-          : 'linear-gradient(135deg, #f8fafc 0%, #ede9fe 100%)',
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '20px',
       }}>
+        <AuthBackground />
         <div style={{
+          position: 'relative',
+          zIndex: 1,
           width: '100%',
           maxWidth: '420px',
         }}>
