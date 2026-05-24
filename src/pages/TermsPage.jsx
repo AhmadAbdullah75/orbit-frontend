@@ -1,6 +1,7 @@
   import { useNavigate } from 'react-router-dom'
   import { useTheme } from '../context/ThemeContext'
   import AuthBackground from '../components/AuthBackground'
+  import OrbitLogo from '../components/OrbitLogo'
 
   export default function TermsPage() {
     const navigate = useNavigate()
@@ -99,31 +100,7 @@
               background: isDark
                 ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
             }} />
-            <div style={{ display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px' }}>
-              <div style={{
-                width: '32px', height: '32px',
-                borderRadius: '8px',
-                background: '#6366f1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <span className="material-symbols-outlined"
-                  style={{ fontSize: '18px',
-                           color: 'white' }}>
-                  rocket_launch
-                </span>
-              </div>
-              <span style={{
-                fontWeight: 700,
-                fontSize: '15px',
-                color: isDark ? '#f1f5f9' : '#0f172a',
-              }}>
-                Orbit
-              </span>
-            </div>
+            <OrbitLogo size={32} textSize={15} />
           </div>
         </div>
 

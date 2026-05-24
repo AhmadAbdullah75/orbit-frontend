@@ -6,7 +6,7 @@ import { loginAPI } from '../features/auth/authAPI.js';
 import api from '../services/axios';
 import { useTheme } from '../context/ThemeContext.jsx';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
-import OrbitLogo from '../components/ui/OrbitLogo.jsx';
+import OrbitLogo from '../components/OrbitLogo';
 import AuthBackground from '../components/AuthBackground';
 
 const LoginPage = () => {
@@ -84,17 +84,17 @@ const LoginPage = () => {
 
     const glassCardStyle = {
         background: isDark
-            ? 'rgba(17, 17, 27, 0.85)'
-            : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+            ? 'rgba(17, 17, 27, 0.88)'
+            : 'rgba(255, 255, 255, 0.75)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '20px',
         border: `1px solid ${isDark
             ? 'rgba(255,255,255,0.08)'
-            : 'rgba(99,102,241,0.15)'}`,
+            : 'rgba(255,255,255,0.9)'}`,
         boxShadow: isDark
             ? '0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
-            : '0 24px 64px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+            : '0 24px 64px rgba(99,102,241,0.15), 0 0 0 1px rgba(255,255,255,0.5)',
         padding: '36px',
     }
 
@@ -120,7 +120,33 @@ const LoginPage = () => {
                 maxWidth: '420px',
             }}>
             <main className="w-full">
-                <OrbitLogo subtitle="Sign in to your project workspace" />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginBottom: '8px',
+                }}>
+                    <OrbitLogo size={52} showText={false} />
+                </div>
+                <h1
+                    className={`text-3xl font-bold tracking-tight mb-1 text-center
+    ${isDark ? 'text-white' : 'text-gray-900'}`}
+                    style={isDark ? {
+                        background: 'linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    } : {
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    }}
+                >
+                    Orbit
+                </h1>
+                <p className={`text-sm text-center mb-8 ${isDark ? 'text-neutral-500' : 'text-gray-500'}`}>
+                    Sign in to your project workspace
+                </p>
 
                 <div style={glassCardStyle}>
                 <section className="w-full">
@@ -256,199 +282,6 @@ const LoginPage = () => {
                         </button>
                     </form>
 
-                    {/* Modal is OUTSIDE form, inside section */}
-                    {showForgot && (
-                        <div style={{
-                            position: 'fixed',
-                            inset: 0,
-                            background: 'rgba(0,0,0,0.7)',
-                            zIndex: 100,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '20px',
-                            backdropFilter: 'blur(4px)',
-                        }}>
-                            <div style={{
-                                width: '100%',
-                                maxWidth: '380px',
-                                background: isDark ? '#111' : '#fff',
-                                borderRadius: '16px',
-                                border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0',
-                                padding: '32px',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-                            }}>
-                                <h3 style={{
-                                    color: isDark ? 'white' : '#1e293b',
-                                    fontSize: '18px',
-                                    fontWeight: 700,
-                                    marginBottom: '8px',
-                                }}>
-                                    Reset Password
-                                </h3>
-                                <p style={{
-                                    color: isDark ? '#64748b' : '#64748b',
-                                    fontSize: '13px',
-                                    marginBottom: '20px',
-                                    lineHeight: 1.5,
-                                }}>
-                                    Enter your email address and we'll send
-                                    you a link to reset your password.
-                                </p>
-
-                                {!forgotMsg ? (
-                                    <>
-                                        <input
-                                            type="email"
-                                            placeholder="your@email.com"
-                                            value={forgotEmail}
-                                            onChange={e =>
-                                                setForgotEmail(e.target.value)
-                                            }
-                                            onKeyDown={e => {
-                                                if (e.key === 'Enter')
-                                                    handleForgotPassword()
-                                            }}
-                                            style={{
-                                                width: '100%',
-                                                padding: '11px 14px',
-                                                borderRadius: '10px',
-                                                border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #cbd5e1',
-                                                background: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc',
-                                                color: isDark ? 'white' : '#1e293b',
-                                                fontSize: '14px',
-                                                outline: 'none',
-                                                boxSizing: 'border-box',
-                                                marginBottom: '12px',
-                                            }}
-                                        />
-                                        {forgotError && (
-                                            <p style={{
-                                                color: '#ef4444',
-                                                fontSize: '12px',
-                                                marginBottom: '12px',
-                                            }}>
-                                                {forgotError}
-                                            </p>
-                                        )}
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '10px',
-                                        }}>
-                                            <button
-                                                type="button"
-                                                onClick={handleForgotPassword}
-                                                disabled={forgotLoading}
-                                                style={{
-                                                    flex: 1,
-                                                    padding: '11px',
-                                                    borderRadius: '10px',
-                                                    background: '#6366f1',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    fontSize: '14px',
-                                                    fontWeight: 600,
-                                                    cursor: forgotLoading
-                                                        ? 'not-allowed' : 'pointer',
-                                                    opacity: forgotLoading ? 0.7 : 1,
-                                                }}>
-                                                {forgotLoading
-                                                    ? 'Sending...' : 'Send Reset Link'}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setShowForgot(false)
-                                                    setForgotEmail('')
-                                                    setForgotError('')
-                                                }}
-                                                style={{
-                                                    padding: '11px 16px',
-                                                    borderRadius: '10px',
-                                                    background: 'transparent',
-                                                    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
-                                                    color: '#64748b',
-                                                    fontSize: '14px',
-                                                    cursor: 'pointer',
-                                                }}>
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div>
-                                      <p style={{
-                                        color: forgotEmailSent ? '#10b981' : '#f59e0b',
-                                        fontSize: '13px',
-                                        lineHeight: 1.5,
-                                        marginBottom: '12px',
-                                      }}>
-                                        {forgotMsg}
-                                      </p>
-
-                                      {/* Always show direct link */}
-                                      {forgotResetUrl && (
-                                        <div style={{
-                                          background: isDark
-                                            ? 'rgba(99,102,241,0.1)'
-                                            : 'rgba(99,102,241,0.06)',
-                                          border: '1px solid rgba(99,102,241,0.25)',
-                                          borderRadius: '10px',
-                                          padding: '12px',
-                                          marginBottom: '12px',
-                                        }}>
-                                          <p style={{
-                                            fontSize: '11px',
-                                            color: isDark ? '#64748b' : '#94a3b8',
-                                            marginBottom: '8px',
-                                          }}>
-                                            Direct reset link:
-                                          </p>
-                                          <a
-                                            href={forgotResetUrl}
-                                            style={{
-                                              display: 'block',
-                                              padding: '10px',
-                                              background: '#6366f1',
-                                              color: 'white',
-                                              borderRadius: '8px',
-                                              textAlign: 'center',
-                                              textDecoration: 'none',
-                                              fontSize: '13px',
-                                              fontWeight: 600,
-                                            }}>
-                                            Reset My Password →
-                                          </a>
-                                        </div>
-                                      )}
-
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setShowForgot(false)
-                                          setForgotEmail('')
-                                          setForgotMsg('')
-                                          setForgotResetUrl(null)
-                                          setForgotEmailSent(false)
-                                          setForgotError('')
-                                        }}
-                                        style={{
-                                          width: '100%', padding: '10px',
-                                          borderRadius: '10px',
-                                          background: 'transparent',
-                                          border: `1px solid ${isDark
-                                            ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-                                          color: isDark ? '#94a3b8' : '#64748b',
-                                          fontSize: '13px', cursor: 'pointer',
-                                        }}>
-                                        Back to Login
-                                      </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
                     {/* Divider */}
                     <div className="relative flex items-center my-4">
                         <div className={`flex-grow border-t 
@@ -570,6 +403,202 @@ const LoginPage = () => {
                 </div>
       </main>
             </div>
+
+            {showForgot && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    backdropFilter: 'blur(8px)',
+                    zIndex: 100,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                }}>
+                    <div style={{
+                        width: '100%',
+                        maxWidth: '400px',
+                        background: isDark ? '#111' : 'white',
+                        borderRadius: '20px',
+                        padding: '32px',
+                        border: `1px solid ${isDark
+                            ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                        boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
+                        position: 'relative',
+                        zIndex: 101,
+                    }}>
+                        <h3 style={{
+                            color: isDark ? 'white' : '#1e293b',
+                            fontSize: '18px',
+                            fontWeight: 700,
+                            marginBottom: '8px',
+                        }}>
+                            Reset Password
+                        </h3>
+                        <p style={{
+                            color: isDark ? '#64748b' : '#64748b',
+                            fontSize: '13px',
+                            marginBottom: '20px',
+                            lineHeight: 1.5,
+                        }}>
+                            Enter your email address and we'll send
+                            you a link to reset your password.
+                        </p>
+
+                        {!forgotMsg ? (
+                            <>
+                                <input
+                                    type="email"
+                                    placeholder="your@email.com"
+                                    value={forgotEmail}
+                                    onChange={e =>
+                                        setForgotEmail(e.target.value)
+                                    }
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter')
+                                            handleForgotPassword()
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '11px 14px',
+                                        borderRadius: '10px',
+                                        border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #cbd5e1',
+                                        background: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                                        color: isDark ? 'white' : '#1e293b',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box',
+                                        marginBottom: '12px',
+                                    }}
+                                />
+                                {forgotError && (
+                                    <p style={{
+                                        color: '#ef4444',
+                                        fontSize: '12px',
+                                        marginBottom: '12px',
+                                    }}>
+                                        {forgotError}
+                                    </p>
+                                )}
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '10px',
+                                }}>
+                                    <button
+                                        type="button"
+                                        onClick={handleForgotPassword}
+                                        disabled={forgotLoading}
+                                        style={{
+                                            flex: 1,
+                                            padding: '11px',
+                                            borderRadius: '10px',
+                                            background: '#6366f1',
+                                            color: 'white',
+                                            border: 'none',
+                                            fontSize: '14px',
+                                            fontWeight: 600,
+                                            cursor: forgotLoading
+                                                ? 'not-allowed' : 'pointer',
+                                            opacity: forgotLoading ? 0.7 : 1,
+                                        }}>
+                                        {forgotLoading
+                                            ? 'Sending...' : 'Send Reset Link'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowForgot(false)
+                                            setForgotEmail('')
+                                            setForgotError('')
+                                        }}
+                                        style={{
+                                            padding: '11px 16px',
+                                            borderRadius: '10px',
+                                            background: 'transparent',
+                                            border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e2e8f0',
+                                            color: '#64748b',
+                                            fontSize: '14px',
+                                            cursor: 'pointer',
+                                        }}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <div>
+                                <p style={{
+                                    color: forgotEmailSent ? '#10b981' : '#f59e0b',
+                                    fontSize: '13px',
+                                    lineHeight: 1.5,
+                                    marginBottom: '12px',
+                                }}>
+                                    {forgotMsg}
+                                </p>
+
+                                {forgotResetUrl && (
+                                    <div style={{
+                                        background: isDark
+                                            ? 'rgba(99,102,241,0.1)'
+                                            : 'rgba(99,102,241,0.06)',
+                                        border: '1px solid rgba(99,102,241,0.25)',
+                                        borderRadius: '10px',
+                                        padding: '12px',
+                                        marginBottom: '12px',
+                                    }}>
+                                        <p style={{
+                                            fontSize: '11px',
+                                            color: isDark ? '#64748b' : '#94a3b8',
+                                            marginBottom: '8px',
+                                        }}>
+                                            Direct reset link:
+                                        </p>
+                                        <a
+                                            href={forgotResetUrl}
+                                            style={{
+                                                display: 'block',
+                                                padding: '10px',
+                                                background: '#6366f1',
+                                                color: 'white',
+                                                borderRadius: '8px',
+                                                textAlign: 'center',
+                                                textDecoration: 'none',
+                                                fontSize: '13px',
+                                                fontWeight: 600,
+                                            }}>
+                                            Reset My Password →
+                                        </a>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowForgot(false)
+                                        setForgotEmail('')
+                                        setForgotMsg('')
+                                        setForgotResetUrl(null)
+                                        setForgotEmailSent(false)
+                                        setForgotError('')
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px',
+                                        borderRadius: '10px',
+                                        background: 'transparent',
+                                        border: `1px solid ${isDark
+                                            ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                                        color: isDark ? '#94a3b8' : '#64748b',
+                                        fontSize: '13px',
+                                        cursor: 'pointer',
+                                    }}>
+                                    Back to Login
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
     </div>
   );
 };

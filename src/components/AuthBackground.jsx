@@ -38,34 +38,34 @@ export default function AuthBackground() {
     },
   ] : [
     {
-      color: 'rgba(99, 102, 241, 0.2)',
-      size: '600px',
-      top: '-10%',
-      left: '-10%',
+      color: 'rgba(99, 102, 241, 0.35)',
+      size: '700px',
+      top: '-20%',
+      left: '-15%',
       animation: 'orbit-blob-1 18s ease infinite',
       delay: '0s',
     },
     {
-      color: 'rgba(139, 92, 246, 0.15)',
-      size: '500px',
-      top: '50%',
+      color: 'rgba(139, 92, 246, 0.3)',
+      size: '600px',
+      bottom: '-20%',
       right: '-15%',
       animation: 'orbit-blob-2 22s ease infinite',
       delay: '-5s',
     },
     {
-      color: 'rgba(56, 189, 248, 0.18)',
-      size: '450px',
-      bottom: '-15%',
-      left: '20%',
+      color: 'rgba(56, 189, 248, 0.25)',
+      size: '500px',
+      top: '-10%',
+      right: '10%',
       animation: 'orbit-blob-3 20s ease infinite',
       delay: '-10s',
     },
     {
-      color: 'rgba(167, 139, 250, 0.15)',
-      size: '350px',
-      top: '30%',
-      left: '35%',
+      color: 'rgba(236, 72, 153, 0.18)',
+      size: '400px',
+      bottom: '0%',
+      left: '15%',
       animation: 'orbit-blob-4 25s ease infinite',
       delay: '-8s',
     },
@@ -77,7 +77,7 @@ export default function AuthBackground() {
       inset: 0,
       zIndex: 0,
       overflow: 'hidden',
-      background: isDark ? '#06060f' : '#f5f4ff',
+      background: isDark ? '#06060f' : '#ffffff',
       pointerEvents: 'none',
     }}>
       {blobs.map((blob, i) => (
@@ -99,7 +99,7 @@ export default function AuthBackground() {
             bottom: blob.bottom,
             animation: blob.animation,
             animationDelay: blob.delay,
-            filter: 'blur(40px)',
+            filter: isDark ? 'blur(40px)' : 'blur(60px)',
             willChange: 'transform',
           }}
         />
@@ -116,7 +116,7 @@ export default function AuthBackground() {
             )`
           : `radial-gradient(
               circle,
-              rgba(99,102,241,0.12) 1px,
+              rgba(99,102,241,0.18) 1px,
               transparent 1px
             )`,
         backgroundSize: '32px 32px',
@@ -134,8 +134,8 @@ export default function AuthBackground() {
             )`
           : `radial-gradient(
               ellipse at center,
-              transparent 40%,
-              rgba(240,240,255,0.8) 100%
+              transparent 30%,
+              rgba(255,255,255,0.75) 100%
             )`,
       }} />
 

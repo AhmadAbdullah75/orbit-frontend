@@ -318,18 +318,90 @@ export default function SettingsPage() {
                 }
               </div>
             </div>
-            <div className="px-6 py-4 flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">Plan</p>
-                <p className="text-xs text-slate-500">Your current subscription</p>
-              </div>
-              <div className="flex items-center">
-                <span className="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded tracking-tighter">Free Plan</span>
-                <button className="text-xs text-indigo-500 font-semibold cursor-pointer ml-3 hover:underline">Upgrade</button>
-              </div>
+            <div className="px-6 py-4">
+              <span className="bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded tracking-tighter">Free Plan</span>
             </div>
           </div>
         </section>
+
+        <div style={{
+          padding: '20px',
+          borderRadius: '14px',
+          background: isDark
+            ? 'rgba(99,102,241,0.08)'
+            : 'rgba(99,102,241,0.05)',
+          border: `1px solid ${isDark
+            ? 'rgba(99,102,241,0.2)'
+            : 'rgba(99,102,241,0.15)'}`,
+          marginTop: '24px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '12px',
+          }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ color: '#6366f1', fontSize: '24px' }}>
+              workspace_premium
+            </span>
+            <div>
+              <p style={{
+                fontWeight: 700,
+                fontSize: '14px',
+                color: isDark ? '#f1f5f9' : '#1e293b',
+                margin: 0,
+              }}>
+                Orbit Pro
+              </p>
+              <p style={{
+                fontSize: '12px',
+                margin: 0,
+                color: isDark ? '#475569' : '#94a3b8',
+              }}>
+                You're on the free plan
+              </p>
+            </div>
+          </div>
+          <p style={{
+            fontSize: '13px',
+            color: isDark ? '#64748b' : '#94a3b8',
+            lineHeight: 1.6,
+            marginBottom: '14px',
+          }}>
+            Pro features include unlimited projects,
+            advanced analytics, custom domains, and
+            priority support.
+          </p>
+          <button
+            type="button"
+            onClick={() => alert(
+              'Pro plan coming soon! 🚀\n\n' +
+              'This is a portfolio demo project.\n' +
+              'Contact: iamahmad3027@gmail.com'
+            )}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              color: 'white',
+              border: 'none',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '16px' }}>
+              bolt
+            </span>
+            Upgrade to Pro — Coming Soon
+          </button>
+        </div>
 
         {/* Notifications Section */}
         <section className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm">

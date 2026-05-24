@@ -4,6 +4,7 @@
   import api from '../services/axios'
   import { useTheme } from '../context/ThemeContext'
   import AuthBackground from '../components/AuthBackground'
+  import OrbitLogo from '../components/OrbitLogo'
 
   export default function ResetPasswordPage() {
     const [params] = useSearchParams()
@@ -85,28 +86,7 @@
             gap: '10px',
             marginBottom: '32px',
           }}>
-            <div style={{
-              width: '40px', height: '40px',
-              borderRadius: '12px',
-              background: '#6366f1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <span
-                className="material-symbols-outlined"
-                style={{ fontSize: '22px',
-                         color: 'white' }}>
-                rocket_launch
-              </span>
-            </div>
-            <span style={{
-              fontSize: '20px',
-              fontWeight: 800,
-              color: isDark ? '#f1f5f9' : '#0f172a',
-            }}>
-              Orbit
-            </span>
+            <OrbitLogo size={40} textSize={20} />
           </div>
 
           {/* Card */}

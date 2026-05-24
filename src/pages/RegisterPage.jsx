@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerAPI } from '../features/auth/authAPI.js';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
-import OrbitLogo from '../components/ui/OrbitLogo.jsx';
+import OrbitLogo from '../components/OrbitLogo';
 import AuthBackground from '../components/AuthBackground';
 
 const RegisterPage = () => {
@@ -92,17 +92,17 @@ const RegisterPage = () => {
 
     const glassCardStyle = {
         background: isDark
-            ? 'rgba(17, 17, 27, 0.85)'
-            : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+            ? 'rgba(17, 17, 27, 0.88)'
+            : 'rgba(255, 255, 255, 0.75)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '20px',
         border: `1px solid ${isDark
             ? 'rgba(255,255,255,0.08)'
-            : 'rgba(99,102,241,0.15)'}`,
+            : 'rgba(255,255,255,0.9)'}`,
         boxShadow: isDark
-            ? '0 24px 64px rgba(0,0,0,0.5)'
-            : '0 24px 64px rgba(99,102,241,0.12)',
+            ? '0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+            : '0 24px 64px rgba(99,102,241,0.15), 0 0 0 1px rgba(255,255,255,0.5)',
         padding: '36px',
     }
 
@@ -129,7 +129,33 @@ const RegisterPage = () => {
                 maxWidth: '480px',
             }}>
             <main className="w-full">
-                <OrbitLogo subtitle="Create your project workspace" />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginBottom: '8px',
+                }}>
+                    <OrbitLogo size={52} showText={false} />
+                </div>
+                <h1
+                    className={`text-3xl font-bold tracking-tight mb-1 text-center
+    ${isDark ? 'text-white' : 'text-gray-900'}`}
+                    style={isDark ? {
+                        background: 'linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    } : {
+                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    }}
+                >
+                    Orbit
+                </h1>
+                <p className={`text-sm text-center mb-8 ${isDark ? 'text-neutral-500' : 'text-gray-500'}`}>
+                    Create your project workspace
+                </p>
 
                 <div style={glassCardStyle}>
                 <section className="w-full">

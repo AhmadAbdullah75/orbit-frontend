@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { slideUp, scaleIn, scaleInRight, EASE } from '../utils/animations';
 import { io } from 'socket.io-client';
 import Toast from '../components/Toast';
+import OrbitLogo from '../components/OrbitLogo';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -78,8 +79,6 @@ export default function DashboardLayout() {
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.innerWidth >= 768
   )
-  const [fontLoaded, setFontLoaded] = useState(false)
-
   const showToast = React.useCallback((message, type = 'success') => {
     setToast({ message, type })
   }, [])
@@ -344,16 +343,6 @@ export default function DashboardLayout() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  useEffect(() => {
-    if (document.fonts) {
-      document.fonts.ready.then(() => {
-        setFontLoaded(true)
-      })
-    } else {
-      setTimeout(() => setFontLoaded(true), 500)
-    }
-  }, [])
-
   const toggleSidebar = () => {
     const next = !sidebarCollapsed
     setSidebarCollapsed(next)
@@ -365,13 +354,7 @@ export default function DashboardLayout() {
     : 240
 
   return (
-    <div
-      className="flex h-screen overflow-hidden font-sans"
-      style={{
-        opacity: fontLoaded ? 1 : 0,
-        transition: 'opacity 200ms ease',
-      }}
-    >
+    <div className="flex h-screen overflow-hidden font-sans">
 
       {/* ── SIDEBAR ── */}
       <aside
@@ -407,43 +390,11 @@ export default function DashboardLayout() {
           flexShrink: 0,
         }}>
           {!sidebarCollapsed && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-            }}>
-              <div style={{
-                width: '32px', height: '32px',
-                borderRadius: '10px', background: '#6366f1',
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <span className="material-symbols-outlined"
-                  style={{ fontSize: '18px', color: 'white' }}>
-                  rocket_launch
-                </span>
-              </div>
-              <span style={{
-                fontWeight: 800, fontSize: '17px',
-                color: isDark ? '#f1f5f9' : '#0f172a',
-              }}>
-                Orbit
-              </span>
-            </div>
+            <OrbitLogo size={32} textSize={17} />
           )}
 
           {sidebarCollapsed && (
-            <div style={{
-              width: '32px', height: '32px',
-              borderRadius: '10px', background: '#6366f1',
-              display: 'flex', alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <span className="material-symbols-outlined"
-                style={{ fontSize: '18px', color: 'white' }}>
-                rocket_launch
-              </span>
-            </div>
+            <OrbitLogo size={32} showText={false} />
           )}
 
           {!sidebarCollapsed && (
