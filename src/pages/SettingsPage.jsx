@@ -44,6 +44,8 @@ export default function SettingsPage() {
   const [confirmModal, setConfirmModal] =
     useState(null)
   const [toast, setToast] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] =
+    useState(false)
 
   const [profileName, setProfileName] =
     useState(user?.name || '')
@@ -376,11 +378,7 @@ export default function SettingsPage() {
           </p>
           <button
             type="button"
-            onClick={() => alert(
-              'Pro plan coming soon! 🚀\n\n' +
-              'This is a portfolio demo project.\n' +
-              'Contact: iamahmad3027@gmail.com'
-            )}
+            onClick={() => setShowUpgradeModal(true)}
             style={{
               padding: '10px 20px',
               borderRadius: '10px',
@@ -510,6 +508,235 @@ export default function SettingsPage() {
           type={toast.type}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {showUpgradeModal && (
+        <div
+          onClick={() => setShowUpgradeModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}>
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '440px',
+              background: isDark ? '#111' : 'white',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.08)'
+                : '#e2e8f0'}`,
+            }}>
+
+            <div style={{
+              background:
+                'linear-gradient(135deg, #4f46e5, #7c3aed)',
+              padding: '32px',
+              textAlign: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute',
+                width: '200px',
+                height: '200px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)',
+                top: '-60px',
+                right: '-60px',
+              }} />
+              <div style={{
+                position: 'absolute',
+                width: '150px',
+                height: '150px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)',
+                bottom: '-40px',
+                left: '-40px',
+              }} />
+
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                background: 'rgba(255,255,255,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+              }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '28px', color: 'white' }}>
+                  workspace_premium
+                </span>
+              </div>
+              <h2 style={{
+                fontSize: '22px',
+                fontWeight: 800,
+                color: 'white',
+                margin: '0 0 6px',
+              }}>
+                Orbit Pro
+              </h2>
+              <p style={{
+                color: 'rgba(255,255,255,0.75)',
+                fontSize: '14px',
+                margin: 0,
+              }}>
+                Unlock the full potential of Orbit
+              </p>
+            </div>
+
+            <div style={{ padding: '28px' }}>
+              {[
+                { icon: 'folder', text: 'Unlimited projects & boards' },
+                { icon: 'group', text: 'Unlimited team members' },
+                { icon: 'insights', text: 'Advanced analytics & reports' },
+                { icon: 'language', text: 'Custom domain support' },
+                { icon: 'priority_high', text: 'Priority customer support' },
+                { icon: 'history', text: 'Unlimited activity history' },
+              ].map((f, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '8px 0',
+                  borderBottom: i < 5
+                    ? `1px solid ${isDark
+                      ? 'rgba(255,255,255,0.04)'
+                      : '#f8fafc'}`
+                    : 'none',
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: 'rgba(99,102,241,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '16px', color: '#6366f1' }}>
+                      {f.icon}
+                    </span>
+                  </div>
+                  <span style={{
+                    fontSize: '13px',
+                    color: isDark ? '#e2e8f0' : '#374151',
+                  }}>
+                    {f.text}
+                  </span>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      fontSize: '16px',
+                      color: '#10b981',
+                      marginLeft: 'auto',
+                    }}>
+                    check
+                  </span>
+                </div>
+              ))}
+
+              <div style={{
+                marginTop: '20px',
+                padding: '14px 16px',
+                borderRadius: '12px',
+                background: isDark
+                  ? 'rgba(99,102,241,0.08)'
+                  : 'rgba(99,102,241,0.05)',
+                border: '1px solid rgba(99,102,241,0.15)',
+                marginBottom: '20px',
+              }}>
+                <p style={{
+                  fontSize: '13px',
+                  color: isDark ? '#94a3b8' : '#64748b',
+                  margin: 0,
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                }}>
+                  🚀 <strong>Pro plan launching soon!</strong>
+                  <br />
+                  This is a portfolio demo project.
+                  <br />
+                  <a
+                    href="mailto:iamahmad3027@gmail.com"
+                    style={{
+                      color: '#6366f1',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                    }}>
+                    Contact for early access →
+                  </a>
+                </p>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: `1px solid ${isDark
+                      ? 'rgba(255,255,255,0.1)'
+                      : '#e2e8f0'}`,
+                    background: 'transparent',
+                    color: isDark ? '#94a3b8' : '#64748b',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}>
+                  Maybe Later
+                </button>
+                <a
+                  href="mailto:iamahmad3027@gmail.com?subject=Orbit Pro Early Access"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    background:
+                      'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                  }}>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '16px' }}>
+                    bolt
+                  </span>
+                  Get Early Access
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
