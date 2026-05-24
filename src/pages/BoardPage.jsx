@@ -395,6 +395,7 @@ function BoardColumn({
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column._id,
+    data: { type: 'column', columnId: column._id },
   })
   const colColor = getColumnColor(column.name)
   const [showMenu, setShowMenu] = useState(false)
@@ -411,6 +412,18 @@ function BoardColumn({
         display: 'flex',
         flexDirection: 'column',
         flexShrink: 0,
+        background: isOver
+          ? isDark
+            ? 'rgba(99,102,241,0.08)'
+            : 'rgba(99,102,241,0.05)'
+          : 'transparent',
+        borderRadius: '12px',
+        border: isOver
+          ? '2px solid rgba(99,102,241,0.3)'
+          : '2px solid transparent',
+        transition: 'all 150ms ease',
+        minHeight: '100px',
+        padding: '4px',
       }}>
       {/* Column header */}
       <div className={`px-3 py-2.5 flex items-center
@@ -504,14 +517,17 @@ function BoardColumn({
             flex: 1,
             overflowY: 'auto',
             minHeight: 0,
-            backgroundColor: isOver
-              ? isDark
-                ? 'rgba(99,102,241,0.05)'
-                : 'rgba(99,102,241,0.04)'
-              : undefined,
-            transition: 'background-color 150ms ease',
           }}
         >
+          {isOver && (
+            <div style={{
+              height: '4px',
+              borderRadius: '2px',
+              background: '#6366f1',
+              margin: '4px 0',
+              opacity: 0.6,
+            }} />
+          )}
           {tasks.length === 0 && (
             <div className={`flex flex-col items-center
               justify-center h-32 border border-dashed
@@ -1510,17 +1526,18 @@ function TaskDetailPanel({
             />
           ) : (
             <div
-              className={`task-rich-content text-sm leading-relaxed min-h-[60px]
-                cursor-text
-                ${isDark ? 'text-slate-400' : 'text-slate-600'}`}
+              className="task-rich-content"
               onClick={() => setEditingDesc(true)}
               style={{
                 fontSize: '14px',
                 lineHeight: 1.7,
                 color: isDark ? '#94a3b8' : '#64748b',
+                minHeight: '60px',
+                cursor: 'text',
               }}
               dangerouslySetInnerHTML={{
-                __html: editDesc ||
+                __html: task.description ||
+                  editDesc ||
                   `<p style="color:${isDark
                     ? '#334155' : '#cbd5e1'}">
                     Click to add a description...
@@ -4079,61 +4096,110 @@ export default function BoardPage() {
     const activeId = String(active.id)
     const overId = String(over.id)
 
-    // Find current column and index
-    let currentColId = null
-    let currentIdx = 0
+    let sourceColumnId = null
+    let targetColumnId = null
 
-    for (const [colId, tasks] of
-         Object.entries(tasksByColumn)) {
-      const idx = tasks.findIndex(
-        t => String(t._id) === activeId
-      )
-      if (idx !== -1) {
-        currentColId = colId
-        currentIdx = idx
-        break
+    for (const [colId, tasks] of Object.entries(tasksByColumn)) {
+      if (tasks.some(t => String(t._id) === activeId)) {
+        sourceColumnId = colId
       }
     }
 
-    if (!currentColId) return
+    if (columns.some(c => String(c._id) === overId)) {
+      targetColumnId = overId
+    } else {
+      for (const [colId, tasks] of Object.entries(tasksByColumn)) {
+        if (tasks.some(t => String(t._id) === overId)) {
+          targetColumnId = colId
+          break
+        }
+      }
+    }
 
-    const colTasks = tasksByColumn[currentColId] || []
+    if (!sourceColumnId || !targetColumnId) return
 
-    // Reorder within same column if over is a task
-    const isOverTask = colTasks.some(
-      t => String(t._id) === overId
+    const sourceTasks = tasksByColumn[sourceColumnId] || []
+    const taskToMove = sourceTasks.find(
+      t => String(t._id) === activeId
     )
+    if (!taskToMove) return
 
-    if (isOverTask && activeId !== overId) {
-      const oldIdx = colTasks.findIndex(
-        t => String(t._id) === activeId
-      )
-      const newIdx = colTasks.findIndex(
+    const prevSnapshot = JSON.parse(JSON.stringify(tasksByColumn))
+
+    let newOrder = 0
+    const targetTasks = tasksByColumn[targetColumnId] || []
+
+    if (sourceColumnId === targetColumnId) {
+      const isOverTask = targetTasks.some(
         t => String(t._id) === overId
       )
-      if (oldIdx !== -1 && newIdx !== -1 &&
-          oldIdx !== newIdx) {
-        const reordered = arrayMove(
-          colTasks, oldIdx, newIdx
+      if (isOverTask && activeId !== overId) {
+        const oldIdx = targetTasks.findIndex(
+          t => String(t._id) === activeId
         )
-        setTasksByColumn(prev => ({
-          ...prev,
-          [currentColId]: reordered
-        }))
-        currentIdx = newIdx
+        newOrder = targetTasks.findIndex(
+          t => String(t._id) === overId
+        )
+        if (oldIdx !== -1 && newOrder !== -1 &&
+            oldIdx !== newOrder) {
+          const reordered = arrayMove(
+            targetTasks, oldIdx, newOrder
+          )
+          setTasksByColumn(prev => ({
+            ...prev,
+            [targetColumnId]: reordered,
+          }))
+        } else {
+          newOrder = oldIdx !== -1 ? oldIdx : 0
+        }
+      } else {
+        newOrder = targetTasks.findIndex(
+          t => String(t._id) === activeId
+        )
+        if (newOrder === -1) newOrder = 0
       }
+    } else {
+      if (targetTasks.some(t => String(t._id) === overId)) {
+        newOrder = targetTasks.findIndex(
+          t => String(t._id) === overId
+        )
+      } else {
+        newOrder = targetTasks.filter(
+          t => String(t._id) !== activeId
+        ).length
+      }
+
+      setTasksByColumn(prev => {
+        const newState = { ...prev }
+        newState[sourceColumnId] = newState[sourceColumnId].filter(
+          t => String(t._id) !== activeId
+        )
+        const dest = [
+          ...(newState[targetColumnId] || []).filter(
+            t => String(t._id) !== activeId
+          ),
+        ]
+        dest.splice(newOrder, 0, {
+          ...taskToMove,
+          column: targetColumnId,
+        })
+        newState[targetColumnId] = dest
+        return newState
+      })
     }
 
     try {
       await api.patch(`/tasks/${activeId}/move`, {
-        newColumnId: currentColId,
-        newOrder: currentIdx,
+        newColumnId: targetColumnId,
+        newOrder,
       })
     } catch (err) {
       console.error('Move task error:', err)
+      setTasksByColumn(prevSnapshot)
+      showToast('Failed to move task', 'error')
       fetchBoard()
     }
-  }, [tasksByColumn, fetchBoard])
+  }, [tasksByColumn, columns, fetchBoard, showToast])
 
   const handleTaskCreated = useCallback(
     (newTask) => {

@@ -78,6 +78,7 @@ export default function DashboardLayout() {
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.innerWidth >= 768
   )
+  const [fontLoaded, setFontLoaded] = useState(false)
 
   const showToast = React.useCallback((message, type = 'success') => {
     setToast({ message, type })
@@ -343,6 +344,16 @@ export default function DashboardLayout() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        setFontLoaded(true)
+      })
+    } else {
+      setTimeout(() => setFontLoaded(true), 500)
+    }
+  }, [])
+
   const toggleSidebar = () => {
     const next = !sidebarCollapsed
     setSidebarCollapsed(next)
@@ -354,7 +365,13 @@ export default function DashboardLayout() {
     : 240
 
   return (
-    <div className="flex h-screen overflow-hidden font-sans">
+    <div
+      className="flex h-screen overflow-hidden font-sans"
+      style={{
+        opacity: fontLoaded ? 1 : 0,
+        transition: 'opacity 200ms ease',
+      }}
+    >
 
       {/* ── SIDEBAR ── */}
       <aside
