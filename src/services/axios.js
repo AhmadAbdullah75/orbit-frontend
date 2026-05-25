@@ -1,4 +1,6 @@
 import axios from 'axios'
+import store from '../store'
+import { logout } from '../store/slices/authSlice'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ||
@@ -29,38 +31,35 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor — handle token expiry
+// Response interceptor — handle errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error?.response?.status
-    const message = error?.response?.data?.message
-      ?.toLowerCase() || ''
+    const status = error.response?.status
 
-    const isAuthError =
-      status === 401 ||
-      message.includes('jwt expired') ||
-      message.includes('invalid token') ||
-      message.includes('unauthorized') ||
-      message.includes('token') ||
-      status === 403
-
-    if (isAuthError) {
-      // Clear all auth data
-      localStorage.removeItem('token')
-      localStorage.removeItem('auth')
-      localStorage.removeItem('activeOrgId')
-      localStorage.removeItem('user')
-
-      // Redirect to login
-      // Use window.location to force full reload
-      // and clear React state
-      if (!window.location.pathname
-            .includes('/login') &&
-          !window.location.pathname
-            .includes('/register')) {
+    // Token expired — auto logout
+    if (status === 401) {
+      const msg = error.response?.data?.message
+      if (msg?.includes('expired') ||
+          msg?.includes('invalid token')) {
+        store.dispatch(logout())
         window.location.href = '/login'
       }
+    }
+
+    // Server down
+    if (status >= 500) {
+      console.error(
+        'Server error:',
+        error.response?.data?.message
+      )
+    }
+
+    // Network error (Railway sleeping)
+    if (!error.response) {
+      console.warn(
+        'Network error — server may be waking up'
+      )
     }
 
     return Promise.reject(error)

@@ -528,151 +528,146 @@ export default function SettingsPage() {
             onClick={e => e.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: '440px',
+              maxWidth: '420px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               background: isDark ? '#111' : 'white',
-              borderRadius: '24px',
-              overflow: 'hidden',
+              borderRadius: '20px',
               boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
               border: `1px solid ${isDark
-                ? 'rgba(255,255,255,0.08)'
-                : '#e2e8f0'}`,
+                ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+              scrollbarWidth: 'thin',
+              WebkitOverflowScrolling: 'touch',
             }}>
 
             <div style={{
-              background:
-                'linear-gradient(135deg, #4f46e5, #7c3aed)',
-              padding: '32px',
+              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+              padding: '24px',
               textAlign: 'center',
               position: 'relative',
               overflow: 'hidden',
             }}>
-              <div style={{
-                position: 'absolute',
-                width: '200px',
-                height: '200px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.05)',
-                top: '-60px',
-                right: '-60px',
-              }} />
-              <div style={{
-                position: 'absolute',
-                width: '150px',
-                height: '150px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.05)',
-                bottom: '-40px',
-                left: '-40px',
-              }} />
+              <button
+                type="button"
+                onClick={() => setShowUpgradeModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  width: '28px',
+                  height: '28px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '16px' }}>
+                  close
+                </span>
+              </button>
 
               <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '16px',
+                width: '44px',
+                height: '44px',
+                borderRadius: '12px',
                 background: 'rgba(255,255,255,0.15)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 16px',
+                margin: '0 auto 12px',
               }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '28px', color: 'white' }}>
+                  style={{ fontSize: '24px', color: 'white' }}>
                   workspace_premium
                 </span>
               </div>
               <h2 style={{
-                fontSize: '22px',
+                fontSize: '20px',
                 fontWeight: 800,
                 color: 'white',
-                margin: '0 0 6px',
+                margin: '0 0 4px',
               }}>
                 Orbit Pro
               </h2>
               <p style={{
                 color: 'rgba(255,255,255,0.75)',
-                fontSize: '14px',
+                fontSize: '13px',
                 margin: 0,
               }}>
                 Unlock the full potential of Orbit
               </p>
             </div>
 
-            <div style={{ padding: '28px' }}>
+            <div style={{ padding: '20px' }}>
               {[
                 { icon: 'folder', text: 'Unlimited projects & boards' },
                 { icon: 'group', text: 'Unlimited team members' },
-                { icon: 'insights', text: 'Advanced analytics & reports' },
-                { icon: 'language', text: 'Custom domain support' },
-                { icon: 'priority_high', text: 'Priority customer support' },
-                { icon: 'history', text: 'Unlimited activity history' },
+                { icon: 'insights', text: 'Advanced analytics' },
+                { icon: 'language', text: 'Custom domain' },
+                { icon: 'support_agent', text: 'Priority support' },
               ].map((f, i) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  padding: '8px 0',
-                  borderBottom: i < 5
+                  gap: '10px',
+                  padding: '7px 0',
+                  borderBottom: i < 4
                     ? `1px solid ${isDark
                       ? 'rgba(255,255,255,0.04)'
                       : '#f8fafc'}`
                     : 'none',
                 }}>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    background: 'rgba(99,102,241,0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontSize: '16px', color: '#6366f1' }}>
-                      {f.icon}
-                    </span>
-                  </div>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      fontSize: '16px',
+                      color: '#6366f1',
+                      flexShrink: 0,
+                    }}>
+                    {f.icon}
+                  </span>
                   <span style={{
                     fontSize: '13px',
                     color: isDark ? '#e2e8f0' : '#374151',
+                    flex: 1,
                   }}>
                     {f.text}
                   </span>
                   <span
                     className="material-symbols-outlined"
-                    style={{
-                      fontSize: '16px',
-                      color: '#10b981',
-                      marginLeft: 'auto',
-                    }}>
+                    style={{ fontSize: '14px', color: '#10b981' }}>
                     check
                   </span>
                 </div>
               ))}
 
               <div style={{
-                marginTop: '20px',
-                padding: '14px 16px',
-                borderRadius: '12px',
+                marginTop: '16px',
+                marginBottom: '16px',
+                padding: '12px',
+                borderRadius: '10px',
                 background: isDark
                   ? 'rgba(99,102,241,0.08)'
                   : 'rgba(99,102,241,0.05)',
                 border: '1px solid rgba(99,102,241,0.15)',
-                marginBottom: '20px',
+                textAlign: 'center',
               }}>
                 <p style={{
-                  fontSize: '13px',
-                  color: isDark ? '#94a3b8' : '#64748b',
+                  fontSize: '12px',
                   margin: 0,
-                  textAlign: 'center',
+                  color: isDark ? '#94a3b8' : '#64748b',
                   lineHeight: 1.5,
                 }}>
                   🚀 <strong>Pro plan launching soon!</strong>
                   <br />
-                  This is a portfolio demo project.
-                  <br />
+                  This is a portfolio demo project.{' '}
                   <a
                     href="mailto:iamahmad3027@gmail.com"
                     style={{
@@ -680,28 +675,24 @@ export default function SettingsPage() {
                       textDecoration: 'none',
                       fontWeight: 600,
                     }}>
-                    Contact for early access →
+                    Contact for early access
                   </a>
                 </p>
               </div>
 
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-              }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   type="button"
                   onClick={() => setShowUpgradeModal(false)}
                   style={{
                     flex: 1,
-                    padding: '12px',
-                    borderRadius: '12px',
+                    padding: '11px',
+                    borderRadius: '10px',
                     border: `1px solid ${isDark
-                      ? 'rgba(255,255,255,0.1)'
-                      : '#e2e8f0'}`,
+                      ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
                     background: 'transparent',
-                    color: isDark ? '#94a3b8' : '#64748b',
-                    fontSize: '14px',
+                    color: isDark ? '#64748b' : '#94a3b8',
+                    fontSize: '13px',
                     fontWeight: 600,
                     cursor: 'pointer',
                   }}>
@@ -711,12 +702,12 @@ export default function SettingsPage() {
                   href="mailto:iamahmad3027@gmail.com?subject=Orbit Pro Early Access"
                   style={{
                     flex: 1,
-                    padding: '12px',
-                    borderRadius: '12px',
+                    padding: '11px',
+                    borderRadius: '10px',
                     background:
                       'linear-gradient(135deg, #4f46e5, #7c3aed)',
                     color: 'white',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: 700,
                     cursor: 'pointer',
                     textAlign: 'center',
@@ -728,7 +719,7 @@ export default function SettingsPage() {
                   }}>
                   <span
                     className="material-symbols-outlined"
-                    style={{ fontSize: '16px' }}>
+                    style={{ fontSize: '14px' }}>
                     bolt
                   </span>
                   Get Early Access
