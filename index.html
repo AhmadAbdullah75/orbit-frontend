@@ -10,6 +10,42 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cellipse cx='16' cy='16' rx='7' ry='3.2' fill='none' stroke='white' stroke-width='1.5' opacity='0.7' transform='rotate(-35 16 16)'/%3E%3Ccircle cx='16' cy='16' r='2.8' fill='white'/%3E%3Ccircle cx='21' cy='11' r='1.5' fill='white' opacity='0.85'/%3E%3C/svg%3E" />
 
     <title>Orbit — Project Management</title>
+    <style>
+      /*
+        Block icon text during the ~1ms before
+        the font loads from the npm bundle.
+        Once React mounts and CSS loads,
+        icons render correctly.
+      */
+      .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined Variable',
+          'Material Symbols Outlined', sans-serif;
+        font-variation-settings:
+          'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-weight: normal;
+        font-style: normal;
+        font-size: inherit;
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-feature-settings: 'liga' 1;
+      }
+
+      /* Hide icon text until the font bundle loads.
+         The font CSS in main.jsx will override this. */
+      @font-face {
+        font-family: 'Material Symbols Outlined';
+        font-style: normal;
+        font-display: block;
+        src: local('Material Symbols Outlined');
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

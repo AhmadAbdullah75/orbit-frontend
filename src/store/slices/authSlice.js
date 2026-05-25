@@ -23,22 +23,36 @@ const authSlice = createSlice({
             localStorage.setItem('token', token);
         },
   logout: (state) => {
-    // Save last org before clearing
+    // Save last org for when user logs back in
     if (state.activeOrgId) {
       localStorage.setItem(
-        'orbit_last_org_id',
-        state.activeOrgId
+        'orbit_last_org_id', state.activeOrgId
       )
     }
+
+    // Clear all auth state
     state.user = null
     state.token = null
     state.activeOrgId = null
+    state.isAuthenticated = false
+
     // Clear all localStorage keys
-    localStorage.removeItem('token')
-    localStorage.removeItem('auth')
-    localStorage.removeItem('activeOrgId')
-    localStorage.removeItem('user')
-    localStorage.removeItem('orbit_projects_view')
+    const keysToRemove = [
+      'token', 'activeOrgId',
+      'user',
+      'auth',
+      'orbit_orgs_cache',
+      'orbit_notification_prefs',
+    ]
+    keysToRemove.forEach(key =>
+      localStorage.removeItem(key)
+    )
+
+    // Clear redux-persist if used
+    try {
+      localStorage.removeItem('persist:auth')
+      localStorage.removeItem('persist:root')
+    } catch {}
   },
         setActiveOrg: (state, action) => {
             state.activeOrgId = action.payload;

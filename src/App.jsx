@@ -34,9 +34,22 @@ const Loader = () => (
   </div>
 )
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useSelector(s => s.auth)
-  return isAuthenticated ? children : <Navigate to="/login" replace />
+const ProtectedRoute = ({ children }) => {
+  const { token, user } =
+    useSelector(s => s.auth)
+
+  // Check both Redux state AND localStorage
+  const storedToken =
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('token')
+
+  if (!token && !storedToken) {
+    // Hard redirect — no React Router
+    window.location.replace('/login')
+    return null
+  }
+
+  return children
 }
 
 function PublicRoute({ children }) {

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout, setCredentials, setActiveOrg } from '../store/slices/authSlice';
-import { logoutAPI } from '../features/auth/authAPI';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/axios';
 import { getPermissions } from '../utils/permissions';
@@ -221,14 +220,30 @@ export default function DashboardLayout() {
 
   const handleLogout = async () => {
     try {
-      await logoutAPI();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      dispatch(logout());
-      navigate('/login');
+      await api.post('/auth/logout')
+    } catch (err) {
+      // Continue logout even if API fails
+      console.log('Logout API error:', err)
     }
-  };
+
+    // Clear Redux state
+    dispatch(logout())
+
+    // Clear ALL local storage
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('auth')
+    localStorage.removeItem('activeOrgId')
+    localStorage.removeItem('persist:root')
+    localStorage.removeItem('orbit_orgs_cache')
+    localStorage.removeItem('orbit_last_org_id')
+    localStorage.removeItem('orbit_notification_prefs')
+    localStorage.removeItem('orbit_sidebar_collapsed')
+
+    // Hard redirect — bypasses React Router
+    // ensures clean state, no stale cache
+    window.location.replace('/login')
+  }
 
   const POLL_INTERVAL = 120 * 1000
 
@@ -1281,11 +1296,7 @@ export default function DashboardLayout() {
                     <button
                       onClick={async () => {
                         setShowProfileMenu(false)
-                        try {
-                          await api.post('/auth/logout')
-                        } catch {}
-                        dispatch(logout())
-                        navigate('/login')
+                        await handleLogout()
                       }}
                       style={{
                         width: '100%',
