@@ -10,19 +10,12 @@ const api = axios.create({
   },
 })
 
+let isRefreshing = false
+
 // Request interceptor — attach token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token') ||
-      (() => {
-        try {
-          const auth = JSON.parse(
-            localStorage.getItem('auth') || '{}'
-          )
-          return auth?.token
-        } catch { return null }
-      })()
-
+    const token = store.getState().auth.token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -31,35 +24,59 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor — handle errors globally
+// Response interceptor — complete error handler
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status
+    const message = error.response?.data?.message || ''
 
-    // Token expired — auto logout
+    // 401 — Unauthorized / token expired
     if (status === 401) {
-      const msg = error.response?.data?.message
-      if (msg?.includes('expired') ||
-          msg?.includes('invalid token')) {
+      if (!isRefreshing) {
+        isRefreshing = true
         store.dispatch(logout())
-        window.location.href = '/login'
+        localStorage.clear()
+        window.location.replace('/login')
       }
+      return Promise.reject(error)
     }
 
-    // Server down
+    // 403 — Forbidden / no permission
+    if (status === 403) {
+      console.warn('Permission denied:', message)
+      // Don't crash — let component handle
+      return Promise.reject(error)
+    }
+
+    // 404 — Not found
+    if (status === 404) {
+      // Don't crash — let component handle
+      return Promise.reject(error)
+    }
+
+    // 429 — Rate limit exceeded
+    if (status === 429) {
+      error.userMessage =
+        'Too many requests. Please wait a moment.'
+      return Promise.reject(error)
+    }
+
+    // 500+ — Server error
     if (status >= 500) {
-      console.error(
-        'Server error:',
-        error.response?.data?.message
-      )
+      error.userMessage =
+        'Server error. Please try again shortly.'
+      console.error('Server error:', message)
+      return Promise.reject(error)
     }
 
-    // Network error (Railway sleeping)
+    // Network error — server may be sleeping
     if (!error.response) {
-      console.warn(
-        'Network error — server may be waking up'
-      )
+      error.userMessage =
+        'Connection failed. ' +
+        'The server may be starting up. ' +
+        'Please wait 30 seconds and retry.'
+      return Promise.reject(error)
     }
 
     return Promise.reject(error)

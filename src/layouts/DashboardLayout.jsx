@@ -78,6 +78,10 @@ export default function DashboardLayout() {
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.innerWidth >= 768
   )
+  const [isOnline, setIsOnline] = useState(
+    () => typeof window !== 'undefined' ? window.navigator.onLine : true
+  )
+  const [wasOffline, setWasOffline] = useState(false)
   const showToast = React.useCallback((message, type = 'success') => {
     setToast({ message, type })
   }, [])
@@ -120,6 +124,9 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     activeOrgIdRef.current = activeOrgId
+    if (activeOrgId) {
+      localStorage.setItem('orbit_last_org_id', activeOrgId)
+    }
   }, [activeOrgId])
 
   const fetchOrgs = React.useCallback(async () => {
@@ -358,6 +365,29 @@ export default function DashboardLayout() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => {
+      setIsOnline(false)
+      setWasOffline(true)
+    }
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isOnline && wasOffline) {
+      const timer = setTimeout(() => {
+        setWasOffline(false)
+      }, 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [isOnline, wasOffline])
+
   const toggleSidebar = () => {
     const next = !sidebarCollapsed
     setSidebarCollapsed(next)
@@ -370,6 +400,99 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden font-sans">
+      {/* Connection Status Banner (Offline/Online) */}
+      <AnimatePresence>
+        {!isOnline && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={EASE.smoothSpring}
+            style={{
+              position: 'fixed',
+              top: '20px',
+              left: 0,
+              right: 0,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              width: 'fit-content',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'rgba(239, 68, 68, 0.9)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 8px 32px rgba(239, 68, 68, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '13px',
+              fontWeight: 500,
+            }}
+          >
+            <span className="material-symbols-outlined animate-pulse" style={{ fontSize: '18px' }}>
+              wifi_off
+            </span>
+            <span>You are currently offline. Some features may be unavailable.</span>
+          </motion.div>
+        )}
+
+        {isOnline && wasOffline && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={EASE.smoothSpring}
+            style={{
+              position: 'fixed',
+              top: '20px',
+              left: 0,
+              right: 0,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              width: 'fit-content',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'rgba(16, 185, 129, 0.9)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 8px 32px rgba(16, 185, 129, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '13px',
+              fontWeight: 500,
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              wifi
+            </span>
+            <span>Connection restored. You are back online!</span>
+            <button
+              onClick={() => setWasOffline(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer',
+                padding: '2px',
+                display: 'flex',
+                alignItems: 'center',
+                opacity: 0.8,
+              }}
+              onMouseEnter={e => e.target.style.opacity = 1}
+              onMouseLeave={e => e.target.style.opacity = 0.8}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                close
+              </span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── SIDEBAR ── */}
       <aside

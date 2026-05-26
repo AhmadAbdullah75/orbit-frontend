@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setCredentials } from '../store/slices/authSlice.js';
+import { setCredentials, setActiveOrg } from '../store/slices/authSlice.js';
 import { loginAPI } from '../features/auth/authAPI.js';
 import api from '../services/axios';
 import { useTheme } from '../context/ThemeContext.jsx';
@@ -36,12 +36,33 @@ const LoginPage = () => {
         try {
             const data = await loginAPI({ email, password });
             dispatch(setCredentials({ user: data.user, token: data.accessToken }));
-            navigate('/dashboard');
+
+            // Restore last used org from localStorage
+            const lastOrgId = localStorage.getItem('orbit_last_org_id');
+            if (lastOrgId) {
+                dispatch(setActiveOrg(lastOrgId));
+            }
+
+            // Hard navigate to dashboard
+            window.location.href = '/dashboard';
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleGoogleLogin = () => {
+        // Get base URL from env, strip /api suffix,
+        // add google auth path
+        const baseUrl = (
+            import.meta.env.VITE_SOCKET_URL ||
+            import.meta.env.VITE_API_URL
+                ?.replace('/api', '') ||
+            'https://orbit-backend-production-76bf.up.railway.app'
+        ).replace(/\/$/, '') // remove trailing slash
+
+        window.location.href = `${baseUrl}/api/auth/google`
     };
 
     const handleForgotPassword = async () => {
@@ -106,6 +127,8 @@ const LoginPage = () => {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '20px',
+            // Prevent white flash before theme loads:
+            background: '#06060f',
         }}>
             <AuthBackground />
 
@@ -295,8 +318,9 @@ const LoginPage = () => {
                     </div>
 
                     {/* Google Button */}
-                    <a
-                        href={`${import.meta.env.VITE_SOCKET_URL}/api/auth/google`}
+                    <button
+                        type="button"
+                        onClick={handleGoogleLogin}
                         className={`w-full flex items-center justify-center gap-3 
     py-2.5 rounded-lg border transition-all duration-200
     font-medium text-sm
@@ -312,7 +336,7 @@ const LoginPage = () => {
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                         </svg>
                         Continue with Google
-                    </a>
+                    </button>
 
                     {/* Register Link */}
                     <div className="mt-8 text-center">

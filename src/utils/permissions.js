@@ -1,45 +1,98 @@
 export const PERMISSIONS = {
   owner: {
-    canCreateOrg: true,
+    // Org management
     canDeleteOrg: true,
+    canRenameOrg: true,
+    canTransferOwnership: true,
+    // Member management
     canInviteMembers: true,
+    canRemoveMembers: true,
+    canChangeRoles: true,      // can change any role
     canManageMembers: true,
+    // Project management
     canCreateProject: true,
     canDeleteProject: true,
+    canManageProject: true,
+    // Board management
+    canManageBoard: true,
+    canCreateColumn: true,
+    canDeleteColumn: true,
+    // Task management
     canCreateTask: true,
     canDeleteTask: true,
-    canManageBoard: true,
+    canUpdateTask: true,
+    canAssignTask: true,
+    // Access
     canViewActivity: true,
-    canChangeRoles: true,
+    canViewAnalytics: true,
   },
   admin: {
-    canCreateOrg: false,
-    canDeleteOrg: false,
-    canInviteMembers: true,
+    // Org management
+    canDeleteOrg: false,        // ← CANNOT
+    canRenameOrg: true,
+    canTransferOwnership: false, // ← CANNOT
+    // Member management
+    canInviteMembers: true,     // ← CAN ✅
+    canRemoveMembers: true,     // ← CAN ✅
+    canChangeRoles: true,       // ← CAN ✅ (admin/member only)
     canManageMembers: true,
-    canCreateProject: true,
-    canDeleteProject: true,
+    // Project management
+    canCreateProject: true,     // ← CAN ✅
+    canDeleteProject: true,     // ← CAN ✅
+    canManageProject: true,
+    // Board management
+    canManageBoard: true,
+    canCreateColumn: true,
+    canDeleteColumn: true,
+    // Task management
     canCreateTask: true,
     canDeleteTask: true,
-    canManageBoard: true,
+    canUpdateTask: true,
+    canAssignTask: true,
+    // Access
     canViewActivity: true,
-    canChangeRoles: true,
+    canViewAnalytics: true,
   },
   member: {
-    canCreateOrg: false,
+    // Org management
     canDeleteOrg: false,
-    canInviteMembers: false,
+    canRenameOrg: false,
+    canTransferOwnership: false,
+    // Member management
+    canInviteMembers: false,    // ← CANNOT
+    canRemoveMembers: false,    // ← CANNOT
+    canChangeRoles: false,      // ← CANNOT
     canManageMembers: false,
-    canCreateProject: false,
+    // Project management
+    canCreateProject: false,    // ← CANNOT
     canDeleteProject: false,
-    canCreateTask: true,
-    canDeleteTask: false,
+    canManageProject: false,
+    // Board management
     canManageBoard: false,
+    canCreateColumn: false,
+    canDeleteColumn: false,
+    // Task management
+    canCreateTask: true,        // ← CAN ✅
+    canDeleteTask: false,
+    canUpdateTask: true,        // ← CAN ✅
+    canAssignTask: false,
+    // Access
     canViewActivity: true,
-    canChangeRoles: false,
+    canViewAnalytics: true,
   },
 }
 
 export const getPermissions = (role) => {
   return PERMISSIONS[role] || PERMISSIONS.member
+}
+
+// Helper to check role change permission
+// Admin cannot assign owner role
+export const canChangeToRole = (changerRole, targetRole) => {
+  if (changerRole === 'owner') return true
+  if (changerRole === 'admin') {
+    // Admin can only change to admin or member
+    return ['admin', 'member'].includes(targetRole)
+  }
+  return false
 }

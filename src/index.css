@@ -919,3 +919,105 @@ button:disabled,
 @media (prefers-reduced-motion: reduce) {
   .orbit-blob { animation: none !important; }
 }
+
+/* ══ Light Theme Color System ════════════
+   Based on Stripe/Linear approach:
+   Subtle tints, NOT gradients on cards
+   ════════════════════════════════════════ */
+
+:root {
+  /* Light theme page background:
+     Very subtle indigo-tinted white */
+  --orbit-bg: #f5f4ff;
+  --orbit-bg-2: #ffffff;
+  --orbit-border: rgba(99, 102, 241, 0.1);
+  --orbit-border-hover: rgba(99, 102, 241, 0.25);
+
+  /* Card tints for each category */
+  --tint-indigo: rgba(99, 102, 241, 0.06);
+  --tint-emerald: rgba(16, 185, 129, 0.06);
+  --tint-amber: rgba(245, 158, 11, 0.06);
+  --tint-rose: rgba(236, 72, 153, 0.06);
+  --tint-blue: rgba(59, 130, 246, 0.06);
+}
+
+/* Apply to main page background */
+body:not(.dark) {
+  background: var(--orbit-bg) !important;
+}
+
+/* Cards: white + subtle indigo border */
+body:not(.dark) .orbit-card,
+body:not(.dark) [class*="rounded-xl"],
+body:not(.dark) [class*="rounded-2xl"] {
+  background: white !important;
+  border-color: var(--orbit-border) !important;
+  box-shadow:
+    0 1px 3px rgba(99,102,241,0.06),
+    0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+body:not(.dark) .orbit-card:hover {
+  border-color: var(--orbit-border-hover) !important;
+  box-shadow:
+    0 4px 12px rgba(99,102,241,0.1),
+    0 0 0 1px rgba(99,102,241,0.15) !important;
+}
+
+/* Stat cards: each with unique light tint */
+body:not(.dark) .orbit-stat-card:nth-child(1) {
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    rgba(99,102,241,0.04) 100%
+  ) !important;
+}
+body:not(.dark) .orbit-stat-card:nth-child(2) {
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    rgba(16,185,129,0.04) 100%
+  ) !important;
+}
+body:not(.dark) .orbit-stat-card:nth-child(3) {
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    rgba(245,158,11,0.04) 100%
+  ) !important;
+}
+body:not(.dark) .orbit-stat-card:nth-child(4) {
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    rgba(236,72,153,0.04) 100%
+  ) !important;
+}
+
+/* Sidebar light mode: slightly tinted */
+body:not(.dark) aside,
+body:not(.dark) .sidebar {
+  background: #fafaff !important;
+  border-right: 1px solid rgba(99,102,241,0.08) !important;
+}
+
+/* Table rows: subtle hover tint */
+body:not(.dark) tr:hover {
+  background: rgba(99,102,241,0.03) !important;
+}
+
+/* Input focus: indigo ring */
+body:not(.dark) input:focus,
+body:not(.dark) select:focus,
+body:not(.dark) textarea:focus {
+  border-color: rgba(99,102,241,0.4) !important;
+  box-shadow:
+    0 0 0 3px rgba(99,102,241,0.08) !important;
+}
+
+/* Active nav items: light indigo */
+body:not(.dark) .orbit-nav-item.active,
+body:not(.dark) .orbit-nav-item[data-active="true"] {
+  background: rgba(99,102,241,0.08) !important;
+  color: #6366f1 !important;
+}

@@ -55,7 +55,99 @@ export default function SettingsPage() {
 
   const [avatarUploading, setAvatarUploading] =
     useState(false)
+  const [uploadProgress, setUploadProgress] =
+    useState(0)
   const avatarInputRef = useRef(null)
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+  }
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg',
+      'image/png', 'image/webp', 'image/gif'
+    ]
+    if (!allowedTypes.includes(file.type)) {
+      showToast(
+        'Please upload a JPG, PNG, WebP, or GIF',
+        'error'
+      )
+      return
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      showToast(
+        'Image must be smaller than 5MB',
+        'error'
+      )
+      return
+    }
+
+    setAvatarUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const uploadRes = await api.post(
+        '/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) /
+              progressEvent.total
+            )
+            setUploadProgress(percent)
+          },
+        }
+      )
+
+      const avatarUrl =
+        uploadRes.data?.data?.url ||
+        uploadRes.data?.url
+
+      if (!avatarUrl) {
+        throw new Error('No URL returned from upload')
+      }
+
+      // Update user profile with new avatar
+      const profileRes = await api.patch(
+        '/auth/profile',
+        { avatar: avatarUrl }
+      )
+
+      // Update Redux state
+      dispatch(setCredentials({
+        user: { ...user, avatar: avatarUrl },
+        token: localStorage.getItem('token') ||
+          user?.token,
+      }))
+
+      showToast('Profile picture updated!', 'success')
+    } catch (err) {
+      console.error('Avatar upload error:', err)
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        'Upload failed. Check your connection.'
+      showToast(msg, 'error')
+    } finally {
+      setAvatarUploading(false)
+      setUploadProgress(0)
+      // Reset file input
+      e.target.value = ''
+    }
+  }
 
   const [notifications, setNotifications] = useState(() => {
     try {
@@ -224,48 +316,115 @@ export default function SettingsPage() {
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Avatar Section */}
             <div className="flex flex-col items-center gap-3">
-              <div className="size-24 rounded-full border-4 border-slate-100 dark:border-[rgba(255,255,255,0.04)] overflow-hidden relative group">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <button 
-                  onClick={() => avatarInputRef.current?.click()}
-                  disabled={avatarUploading}
-                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-white">photo_camera</span>
-                </button>
-              </div>
-              <input 
-                type="file" 
-                ref={avatarInputRef} 
-                className="hidden" 
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0]
-                  if (!file) return
-                  try {
-                    setAvatarUploading(true)
-                    const formData = new FormData()
-                    formData.append('avatar', file)
-                    const res = await api.put('/auth/me/avatar', formData)
-                    const updatedUser = res.data?.user || res.data?.data?.user
-                    if (updatedUser) {
-                      dispatch(setCredentials({ user: updatedUser, token: localStorage.getItem('token') }))
+              <div
+                style={{ position: 'relative', cursor: 'pointer' }}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                {/* Avatar image */}
+                <div style={{
+                  width: '80px', height: '80px',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  background: '#6366f1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '3px solid rgba(99,102,241,0.3)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                }}>
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="Profile"
+                      style={{ width: '100%', height: '100%',
+                               objectFit: 'cover' }}
+                      onError={e => {
+                        e.target.style.display = 'none'
+                      }}
+                    />
+                  ) : (
+                    <span style={{
+                      fontSize: '28px', fontWeight: 800,
+                      color: 'white',
+                    }}>
+                      {(user?.name || 'U').charAt(0).toUpperCase()}
+                    </span>
+                  )}
+
+                  {/* Upload overlay */}
+                  {avatarUploading ? (
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: 'rgba(0,0,0,0.6)',
+                      display: 'flex', flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center', gap: '4px',
+                    }}>
+                      <div style={{
+                        width: '24px', height: '24px',
+                        borderRadius: '50%',
+                        border: '2px solid white',
+                        borderTop: '2px solid transparent',
+                        animation: 'orbit-spin 0.8s linear infinite',
+                      }} />
+                      <span style={{
+                        color: 'white', fontSize: '10px',
+                        fontWeight: 600,
+                      }}>
+                        {uploadProgress}%
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: 'rgba(0,0,0,0)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 150ms',
+                      borderRadius: '50%',
+                    }}
+                    onMouseEnter={e =>
+                      e.currentTarget.style.background = 'rgba(0,0,0,0.4)'
                     }
-                  } catch (err) {
-                    console.error('Avatar upload failed:', err)
-                  } finally {
-                    setAvatarUploading(false)
-                  }
-                }}
-              />
-              <p className="text-[10px] text-slate-500 text-center uppercase tracking-wider font-bold">
-                {avatarUploading ? 'Uploading...' : 'Click image to change'}
+                    onMouseLeave={e =>
+                      e.currentTarget.style.background = 'rgba(0,0,0,0)'
+                    }>
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          color: 'transparent',
+                          fontSize: '20px',
+                          transition: 'color 150ms',
+                        }}
+                        onMouseEnter={e =>
+                          e.target.style.color = 'white'
+                        }
+                        onMouseLeave={e =>
+                          e.target.style.color = 'transparent'
+                        }>
+                        photo_camera
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <input
+                  id="avatar-input"
+                  type="file"
+                  ref={avatarInputRef}
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={handleAvatarUpload}
+                  style={{ display: 'none' }}
+                />
+              </div>
+              <p style={{
+                fontSize: '11px',
+                color: isDark ? '#475569' : '#94a3b8',
+                marginTop: '6px', textAlign: 'center',
+              }}>
+                Click to change · Max 5MB
               </p>
             </div>
 

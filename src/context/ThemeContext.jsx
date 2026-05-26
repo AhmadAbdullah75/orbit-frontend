@@ -14,10 +14,14 @@ export const ThemeProvider = ({ children }) => {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
             document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark');
+            document.body.classList.remove('light');
         } else {
             document.documentElement.classList.add('light');
             document.documentElement.classList.remove('dark');
             document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark');
+            document.body.classList.add('light');
         }
     }, [isDark]);
 
