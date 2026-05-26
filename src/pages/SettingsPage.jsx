@@ -123,7 +123,10 @@ export default function SettingsPage() {
       // Update user profile with new avatar
       const profileRes = await api.patch(
         '/auth/profile',
-        { avatar: avatarUrl }
+        {
+          avatar: avatarUrl,
+          name: user?.name || 'User',
+        }
       )
 
       // Update Redux state

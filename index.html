@@ -47,12 +47,11 @@
       }
     </style>
     <style>
-      body {
-        background: #06060f;
-        margin: 0;
-        padding: 0;
-      }
-      /* Remove once React hydrates */
+      /* Prevent white flash without covering content */
+      html { background: #06060f; }
+      body { margin: 0; }
+      /* React app container */
+      #root { min-height: 100vh; }
     </style>
   </head>
   <body>

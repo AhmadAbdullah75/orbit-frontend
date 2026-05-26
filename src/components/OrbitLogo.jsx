@@ -23,7 +23,9 @@ export default function OrbitLogo({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 2px 10px rgba(99,102,241,0.35)',
+        boxShadow: isDark
+          ? '0 2px 12px rgba(99,102,241,0.4)'
+          : '0 2px 16px rgba(99,102,241,0.25)',
         flexShrink: 0,
       }}>
         <svg
@@ -50,11 +52,19 @@ export default function OrbitLogo({
           fontSize: `${textSize}px`,
           fontWeight: 800,
           letterSpacing: '-0.5px',
+          // Use solid color as fallback
+          // Gradient works in most cases but
+          // falls back to indigo if not supported
+          color: '#6366f1',
+          // Gradient overlay
           background:
             'linear-gradient(135deg, #6366f1, #8b5cf6)',
           WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          // Force hardware rendering for consistency
+          display: 'inline-block',
+          position: 'relative',
         }}>
           Orbit
         </span>

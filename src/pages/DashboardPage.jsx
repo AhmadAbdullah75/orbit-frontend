@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { staggerContainer, scaleIn } from '../utils/animations'
 import { useCountUp } from '../hooks/useCountUp'
 import useAutoRefresh from '../hooks/useAutoRefresh'
+import OrbitLogo from '../components/OrbitLogo'
 
 function StatNumber({ value }) {
   const isPercentage = typeof value === 'string' && value.includes('%')
@@ -443,9 +444,7 @@ const DashboardPage = () => {
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700 min-h-[80vh]">
         <div className="relative mb-8 animate-float">
           <div className="absolute inset-0 rounded-2xl bg-indigo-500/20 blur-xl scale-150 animate-glow-pulse" />
-          <div className="relative size-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/40">
-            <span className="material-symbols-outlined text-white text-[40px]">rocket_launch</span>
-          </div>
+          <OrbitLogo size={64} showText={false} />
         </div>
         <h1 className="text-4xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
           Welcome to Orbit, {firstName}! 🚀
@@ -532,11 +531,12 @@ const DashboardPage = () => {
                }} />
 
           <div className="relative z-10 flex flex-col items-center text-center">
-            <div className="relative mb-6 animate-float">
-              <div className="absolute inset-0 rounded-2xl bg-indigo-500/20 blur-xl scale-150 animate-glow-pulse" />
-              <div className="relative size-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/40">
-                <span className="material-symbols-outlined text-white text-[32px]">rocket_launch</span>
-              </div>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '20px',
+            }}>
+              <OrbitLogo size={64} showText={false} />
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
