@@ -86,7 +86,7 @@
             gap: '10px',
             marginBottom: '32px',
           }}>
-            <OrbitLogo size={40} textSize={20} />
+            <OrbitLogo size={48} textSize={22} />
           </div>
 
           {/* Card */}

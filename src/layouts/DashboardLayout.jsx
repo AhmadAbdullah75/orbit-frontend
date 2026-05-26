@@ -129,53 +129,83 @@ export default function DashboardLayout() {
     }
   }, [activeOrgId])
 
-  const fetchOrgs = React.useCallback(async () => {
+  const fetchOrgs = React.useCallback(async (isInitialLoad = false) => {
+    // Debounce: don't re-fetch within 30 seconds
     const now = Date.now()
-    if (now - lastFetchRef.current < 30000) return
+    if (now - lastFetchRef.current < 30000
+        && !isInitialLoad) return
     lastFetchRef.current = now
 
     try {
       const res = await api.get('/organizations')
-      const data = res.data?.data?.organizations || []
-      // Write to cache FIRST
+      const data =
+        res.data?.data?.organizations || []
+
       localStorage.setItem(
-        'orbit_orgs_cache',
-        JSON.stringify(data)
+        'orbit_orgs_cache', JSON.stringify(data)
       )
-      // Then update state
       setOrgs(data)
 
-      if (data.length > 0) {
-        // Check if activeOrgId is valid
-        const currentValid = data.find(
-          o => o._id === activeOrgIdRef.current
+      if (data.length === 0) return
+
+      if (isInitialLoad) {
+        // On FIRST load — restore the last org
+        const savedOrgId = localStorage.getItem(
+          'orbit_last_org_id'
         )
 
-        if (!currentValid) {
-          // Try to restore last used org
-          const lastOrgId = localStorage.getItem(
-            'orbit_last_org_id'
+        if (savedOrgId) {
+          // Verify the org still exists
+          const savedOrg = data.find(
+            o => o._id === savedOrgId
           )
-          const lastOrg = lastOrgId
-            ? data.find(o => o._id === lastOrgId)
-            : null
+          if (savedOrg) {
+            // Restore! Don't fall through to first
+            dispatch(setActiveOrg(savedOrg._id))
+            return  // ← EXIT, don't override
+          }
+        }
 
-          // Use last org OR first org
-          dispatch(setActiveOrg(
-            lastOrg ? lastOrg._id : data[0]._id
-          ))
+        // No saved org or org not found — use first
+        if (!activeOrgId || !data.find(
+          o => o._id === activeOrgId
+        )) {
+          dispatch(setActiveOrg(data[0]._id))
+        }
+      } else {
+        // Subsequent fetches — only fix if invalid
+        const currentValid = data.find(
+          o => o._id === activeOrgId
+        )
+        if (!currentValid) {
+          dispatch(setActiveOrg(data[0]._id))
         }
       }
     } catch (err) {
       console.error('Fetch orgs error:', err)
-      // Keep showing cached orgs on error
+      // Show cached orgs on error
+      const cached = localStorage.getItem(
+        'orbit_orgs_cache'
+      )
+      if (cached) {
+        try { setOrgs(JSON.parse(cached)) } catch {}
+      }
     }
-  }, [dispatch]);
+  }, [activeOrgId, dispatch]);
 
-  // Fetch orgs on mount
+  // Initial load effect — pass true
   useEffect(() => {
-    fetchOrgs();
-  }, [fetchOrgs]);
+    if (user?._id) {
+      fetchOrgs(true)  // ← isInitialLoad = true
+    }
+  }, [user?._id, fetchOrgs])
+
+  // Subsequent org change
+  useEffect(() => {
+    if (activeOrgId) {
+      fetchOrgs(false) // ← not initial
+    }
+  }, [activeOrgId, fetchOrgs]);
 
   // Click outside handlers
   useEffect(() => {
@@ -228,27 +258,20 @@ export default function DashboardLayout() {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout')
-    } catch (err) {
-      // Continue logout even if API fails
-      console.log('Logout API error:', err)
-    }
+    } catch {}
 
-    // Clear Redux state
-    dispatch(logout())
+    dispatch(logout()) // saves last org inside
 
-    // Clear ALL local storage
+    // Clear auth data but NOT last org
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('auth')
     localStorage.removeItem('activeOrgId')
     localStorage.removeItem('persist:root')
     localStorage.removeItem('orbit_orgs_cache')
-    localStorage.removeItem('orbit_last_org_id')
     localStorage.removeItem('orbit_notification_prefs')
-    localStorage.removeItem('orbit_sidebar_collapsed')
+    // DO NOT remove orbit_last_org_id ← key fix
 
-    // Hard redirect — bypasses React Router
-    // ensures clean state, no stale cache
     window.location.replace('/login')
   }
 
@@ -527,13 +550,11 @@ export default function DashboardLayout() {
             ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
           flexShrink: 0,
         }}>
-          {!sidebarCollapsed && (
-            <OrbitLogo size={32} textSize={17} />
-          )}
-
-          {sidebarCollapsed && (
-            <OrbitLogo size={32} showText={false} />
-          )}
+          <OrbitLogo
+            size={32}
+            showText={!sidebarCollapsed}
+            textSize={17}
+          />
 
           {!sidebarCollapsed && (
             <button

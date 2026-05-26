@@ -100,7 +100,7 @@
               background: isDark
                 ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
             }} />
-            <OrbitLogo size={32} textSize={15} />
+            <OrbitLogo size={28} textSize={16} />
           </div>
         </div>
 

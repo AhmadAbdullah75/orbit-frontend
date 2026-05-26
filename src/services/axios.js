@@ -36,7 +36,17 @@ api.interceptors.response.use(
       if (!isRefreshing) {
         isRefreshing = true
         store.dispatch(logout())
-        localStorage.clear()
+        const keysToRemove = [
+          'token', 'user', 'auth', 'activeOrgId',
+          'orbit_orgs_cache', 'orbit_notification_prefs'
+        ]
+        keysToRemove.forEach(key =>
+          localStorage.removeItem(key)
+        )
+        try {
+          localStorage.removeItem('persist:root')
+          localStorage.removeItem('persist:auth')
+        } catch {}
         window.location.replace('/login')
       }
       return Promise.reject(error)
