@@ -48,26 +48,41 @@ export default function OrbitLogo({
       </div>
 
       {showText && (
-        <span style={{
-          fontSize: `${textSize}px`,
-          fontWeight: 800,
-          letterSpacing: '-0.5px',
-          // Use solid color as fallback
-          // Gradient works in most cases but
-          // falls back to indigo if not supported
-          color: '#6366f1',
-          // Gradient overlay
-          background:
-            'linear-gradient(135deg, #6366f1, #8b5cf6)',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          // Force hardware rendering for consistency
-          display: 'inline-block',
-          position: 'relative',
-        }}>
-          Orbit
-        </span>
+        <div style={{ position: 'relative' }}>
+          {/* Main Orbit text */}
+          <span style={{
+            fontSize: `${textSize}px`,
+            fontWeight: 900,
+            letterSpacing: '-1px',
+            display: 'inline-block',
+            position: 'relative',
+            /* Gradient text */
+            background:
+              'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            /* Subtle text shadow for depth */
+            filter:
+              'drop-shadow(0 1px 2px rgba(99,102,241,0.2))',
+            lineHeight: 1,
+          }}>
+            Orbit
+          </span>
+
+          {/* Optional superscript dot accent */}
+          <span style={{
+            position: 'absolute',
+            top: '2px',
+            right: '-6px',
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            background: '#a855f7',
+            boxShadow: '0 0 6px rgba(168,85,247,0.8)',
+            display: textSize >= 16 ? 'block' : 'none',
+          }} />
+        </div>
       )}
     </div>
   )

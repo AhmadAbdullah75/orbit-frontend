@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useTheme } from '../context/ThemeContext'
 import api from '../services/axios'
-import { setCredentials } from '../store/slices/authSlice'
+import { setCredentials, updateUser } from '../store/slices/authSlice'
 import ConfirmModal from '../components/ConfirmModal'
 import Toast from '../components/Toast'
 import { getPermissions } from '../utils/permissions'
@@ -129,12 +129,16 @@ export default function SettingsPage() {
         }
       )
 
-      // Update Redux state
-      dispatch(setCredentials({
-        user: { ...user, avatar: avatarUrl },
-        token: localStorage.getItem('token') ||
-          user?.token,
-      }))
+      // After successful profile update:
+      const updatedUserRes = await api.get('/auth/me')
+      const updatedUser =
+        updatedUserRes.data?.data?.user || updatedUserRes.data?.user
+
+      if (updatedUser) {
+        dispatch(updateUser(updatedUser))
+      } else {
+        dispatch(updateUser({ ...user, avatar: avatarUrl }))
+      }
 
       showToast('Profile picture updated!', 'success')
     } catch (err) {

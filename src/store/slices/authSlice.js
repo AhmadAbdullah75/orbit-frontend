@@ -22,6 +22,17 @@ const authSlice = createSlice({
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('token', token);
         },
+        loginSuccess: (state, action) => {
+            const { token, user } = action.payload;
+            state.token = token;
+            state.user = user;      // ← user includes avatar
+            state.isAuthenticated = true;
+            localStorage.setItem('token', token);
+        },
+        updateUser: (state, action) => {
+            state.user = { ...state.user, ...action.payload };
+            localStorage.setItem('user', JSON.stringify(state.user));
+        },
   logout: (state) => {
     // Save current org BEFORE clearing
     if (state.activeOrgId) {
@@ -54,5 +65,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setCredentials, logout, setLoading, setError, setActiveOrg } = authSlice.actions;
+export const { setCredentials, loginSuccess, updateUser, logout, setLoading, setError, setActiveOrg } = authSlice.actions;
 export default authSlice.reducer;
