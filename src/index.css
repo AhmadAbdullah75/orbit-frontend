@@ -144,6 +144,23 @@ body {
   user-select: none;
 }
 
+/* Prevent FOUT by using opacity transition */
+.material-symbols-outlined {
+  opacity: 0;
+  animation: orbit-icon-appear 0ms forwards;
+  animation-delay: 50ms;
+}
+
+@keyframes orbit-icon-appear {
+  to { opacity: 1; }
+}
+
+/* Once font is loaded, remove animation */
+.fonts-loaded .material-symbols-outlined {
+  opacity: 1;
+  animation: none;
+}
+
 .dot-grid-light {
   background-color: #f8fafc;
   background-image: radial-gradient(
@@ -310,7 +327,7 @@ html, body, #root {
 }
 
 .orbit-drawer-backdrop {
-  display: none;
+  display: block;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -318,21 +335,19 @@ html, body, #root {
   z-index: 70;
   opacity: 0;
   transition: opacity 280ms ease;
+  /* CRITICAL: no touch blocking when invisible */
+  pointer-events: none;
 }
 
 .orbit-drawer-backdrop.open {
   opacity: 1;
+  pointer-events: auto;  /* only blocks when open */
 }
 
 @media (max-width: 768px) {
   /* Show bottom nav */
   .orbit-bottom-nav {
     display: flex !important;
-  }
-
-  /* Show drawer backdrop when needed */
-  .orbit-drawer-backdrop {
-    display: block;
   }
 
   /* Main content: no sidebar margin */

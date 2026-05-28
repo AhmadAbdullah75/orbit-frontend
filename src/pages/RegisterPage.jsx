@@ -437,8 +437,16 @@ const RegisterPage = () => {
     Continue with Google
   </button>
 
-                    <footer className="text-center">
-                        <p className={`text-sm ${isDark ? 'text-neutral-500' : 'text-gray-500'}`}>
+                    {/* Spacer */}
+                    <div style={{ height: '20px' }} />
+
+                    <footer style={{
+                        textAlign: 'center',
+                        paddingTop: '12px',
+                        borderTop: `1px solid ${isDark
+                            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+                    }}>
+                        <p className={`text-sm ${isDark ? 'text-neutral-500' : 'text-gray-500'}`} style={{ margin: 0, paddingBottom: '4px' }}>
                             Already have an account?{' '}
                             <Link to="/login" className={`font-medium transition-colors hover:text-indigo-400 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Sign in

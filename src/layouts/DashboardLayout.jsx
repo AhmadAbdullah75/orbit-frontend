@@ -931,6 +931,10 @@ export default function DashboardLayout() {
       <div
         className={`orbit-drawer-backdrop ${drawerOpen ? 'open' : ''}`}
         onClick={() => setDrawerOpen(false)}
+        /* Extra safety: ensure no blocking when closed */
+        style={{
+          pointerEvents: drawerOpen ? 'auto' : 'none',
+        }}
       />
 
       {/* ── MOBILE DRAWER ───────────────── */}

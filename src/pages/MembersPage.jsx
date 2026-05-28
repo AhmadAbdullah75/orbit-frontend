@@ -430,7 +430,13 @@ const MembersPage = () => {
 
               {openMenuId === m._id && (
                 <div className="absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
-                  {perms.canChangeRoles && (
+                  {/* Show role change ONLY if:
+                      - Current user has canChangeRoles permission
+                      - Target is not the owner (already filtered by m.role !== 'owner' above)
+                      - Target is not the current user (if admin) */}
+                  {perms.canChangeRoles &&
+                   m.role !== 'owner' &&
+                   !(userRole === 'admin' && m.user?._id === user?._id) && (
                     <>
                       <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                         Change Role

@@ -11,6 +11,16 @@ import './index.css';
 // Remove initial body background set in index.html
 document.body.style.background = ''
 
+// Mark fonts as loaded when ready
+document.fonts.ready.then(() => {
+  document.documentElement.classList.add('fonts-loaded')
+})
+
+// Fallback: force-show after 1 second even if fonts.ready doesn't fire
+setTimeout(() => {
+  document.documentElement.classList.add('fonts-loaded')
+}, 1000)
+
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <BrowserRouter>

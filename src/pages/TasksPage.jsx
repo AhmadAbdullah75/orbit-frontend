@@ -511,7 +511,12 @@ export default function TasksPage() {
         /* Normal full-width list view */
         <>
           {/* HEADER SECTION */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{
+            marginBottom: '24px',
+            paddingBottom: '16px',
+            borderBottom: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+          }}>
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Workspace Tasks
@@ -551,7 +556,7 @@ export default function TasksPage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: '12px',
-            marginBottom: '20px',
+            marginBottom: '24px',
           }}>
             {[
               { icon: 'assignment', label: 'All Tasks',
