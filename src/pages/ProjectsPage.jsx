@@ -29,14 +29,14 @@ const ProjectsPage = () => {
     return localStorage.getItem('projectsViewMode') || 'grid'
   })
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
 
   useEffect(() => {
     localStorage.setItem('projectsViewMode', viewMode)
   }, [viewMode])
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640)
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -674,32 +674,50 @@ const ProjectsPage = () => {
 
       {/* CREATE MODAL */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 50,
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          padding: '16px',
-          paddingTop: 'max(16px, env(safe-area-inset-top))',
-          overflowY: 'auto',
-        }}>
-          <div className="p-6" style={{
-            width: '100%',
-            maxWidth: '520px',
-            maxHeight: 'calc(100vh - 32px)',
+        <div 
+          className="orbit-modal-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: isMobile ? 'flex-end' : 'flex-start',
+            justifyContent: 'center',
+            padding: isMobile ? '0' : '16px',
+            paddingTop: isMobile ? '0' : 'max(16px, env(safe-area-inset-top))',
             overflowY: 'auto',
-            borderRadius: '16px',
-            background: isDark ? '#141414' : '#ffffff',
-            border: `1px solid ${isDark
-              ? 'rgba(255,255,255,0.08)'
-              : '#e2e8f0'}`,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
-            WebkitOverflowScrolling: 'touch',
-          }}>
+          }}
+        >
+          <div 
+            className="orbit-modal-content p-6" 
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              maxHeight: isMobile ? '90vh' : 'calc(100vh - 32px)',
+              overflowY: 'auto',
+              borderRadius: isMobile ? '24px 24px 0 0' : '16px',
+              background: isDark ? '#141414' : '#ffffff',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.08)'
+                : '#e2e8f0'}`,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: isMobile ? 'calc(24px + env(safe-area-inset-bottom))' : '24px',
+            }}
+          >
+            {/* Grabber indicator for mobile bottom sheets */}
+            {isMobile && (
+              <div style={{
+                width: '40px',
+                height: '4px',
+                borderRadius: '2px',
+                background: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                margin: '0 auto 16px',
+              }} />
+            )}
+
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create New Project</h2>
             <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">Set up a new space for your team to collaborate.</p>
             

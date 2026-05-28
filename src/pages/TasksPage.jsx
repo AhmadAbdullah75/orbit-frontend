@@ -7,6 +7,124 @@ import Toast from '../components/Toast'
 import EmptyOrg from '../components/EmptyOrg'
 import useAutoRefresh from '../hooks/useAutoRefresh'
 
+function FilterPanel({
+  isDark, search, setSearch,
+  selectedProject, setSelectedProject,
+  filterPriority, setFilterPriority,
+  filterStatus, setFilterStatus,
+  projects,
+}) {
+  const [open, setOpen] = useState(
+    () => typeof window !== 'undefined'
+      ? window.innerWidth >= 768
+      : true
+  )
+
+  const inputStyle = {
+    padding: '9px 14px',
+    borderRadius: '10px',
+    border: `1px solid ${isDark
+      ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+    background: isDark ? '#1e293b' : '#f8fafc',
+    color: isDark ? '#f1f5f9' : '#0f172a',
+    fontSize: '16px',
+    outline: 'none',
+    width: '100%',
+  }
+
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      {/* Mobile toggle */}
+      <button
+        onClick={() => setOpen(p => !p)}
+        className="mobile-filter-toggle"
+        style={{
+          display: 'none',
+          alignItems: 'center', gap: '6px',
+          padding: '8px 14px',
+          borderRadius: '10px',
+          border: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+          background: isDark
+            ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+          color: isDark ? '#94a3b8' : '#64748b',
+          fontSize: '13px', fontWeight: 600,
+          cursor: 'pointer',
+          width: '100%',
+          justifyContent: 'center',
+          marginBottom: open ? '8px' : '0',
+        }}>
+        <span className="material-symbols-outlined"
+          style={{ fontSize: '16px' }}>
+          tune
+        </span>
+        {open ? 'Hide Filters' : 'Show Filters'}
+      </button>
+
+      {open && (
+        <div className="p-4 sm:p-5 rounded-2xl"
+          style={{
+            background: isDark ? '#101010' : 'white',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.1)'}`,
+          }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: '8px',
+          }}>
+            <div style={{ position: 'relative' }}>
+              <span className="material-symbols-outlined"
+                style={{
+                  position: 'absolute', left: '10px', top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: '16px',
+                  color: isDark ? '#475569' : '#94a3b8',
+                  pointerEvents: 'none',
+                }}>
+                search
+              </span>
+              <input
+                placeholder="Search tasks..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ ...inputStyle, paddingLeft: '34px' }}
+              />
+            </div>
+            <select
+              value={selectedProject}
+              onChange={e => setSelectedProject(e.target.value)}
+              style={inputStyle}>
+              <option value="all">All Projects</option>
+              {projects.map(p => (
+                <option key={p._id} value={p._id}>{p.name}</option>
+              ))}
+            </select>
+            <select
+              value={filterPriority}
+              onChange={e => setFilterPriority(e.target.value)}
+              style={inputStyle}>
+              <option value="all">All Priorities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              style={inputStyle}>
+              <option value="all">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TasksPage() {
   const navigate = useNavigate()
   const { user, activeOrgId } = useSelector(s => s.auth)
@@ -428,115 +546,87 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* QUICK STATS CARDS */}
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* QUICK STATS CARDS — 2-col mobile, 4-col desktop */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '12px',
+            marginBottom: '20px',
+          }}>
             {[
-              { label: 'All Tasks', value: totalTasksCount, icon: 'task', color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
-              { label: 'My Tasks', value: myTasksCount, icon: 'assignment_ind', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
-              { label: 'Urgent & High', value: urgentCount, icon: 'warning', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-              { label: 'Completed', value: completedCount, icon: 'task_alt', color: '#ec4899', bg: 'rgba(236,72,153,0.1)' },
-            ].map((card, i) => (
+              { icon: 'assignment', label: 'All Tasks',
+                value: allTasks.length, color: '#6366f1' },
+              { icon: 'person', label: 'My Tasks',
+                value: myTasks.length, color: '#10b981' },
+              { icon: 'warning', label: 'Urgent & High',
+                value: urgentHigh.length, color: '#ef4444' },
+              { icon: 'task_alt', label: 'Completed',
+                value: completed.length, color: '#f59e0b' },
+            ].map((s, i) => (
               <div
                 key={i}
                 className="orbit-stat-card"
                 style={{
                   padding: '16px',
-                  borderRadius: '12px',
-                  background: isDark ? '#161616' : 'white',
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e2e8f0'}`,
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    style={{
-                      width: '32px', height: '32px',
-                      borderRadius: '8px',
-                      background: card.bg,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px', color: card.color }}>
-                      {card.icon}
-                    </span>
-                  </div>
+                  borderRadius: '14px',
+                  background: isDark ? '#111' : 'white',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.06)'
+                    : 'rgba(99,102,241,0.1)'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}>
+                <div style={{
+                  width: '36px', height: '36px',
+                  borderRadius: '10px',
+                  background: `${s.color}18`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '18px', color: s.color }}>
+                    {s.icon}
+                  </span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-900 dark:text-white mb-0.5">
-                  {card.value}
-                </p>
-                <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
-                  {card.label}
-                </p>
+                <div>
+                  <p style={{
+                    fontSize: '24px', fontWeight: 800,
+                    color: isDark ? '#f1f5f9' : '#0f172a',
+                    margin: 0, lineHeight: 1,
+                  }}>
+                    {s.value}
+                  </p>
+                  <p style={{
+                    fontSize: '11px', fontWeight: 500,
+                    color: isDark ? '#475569' : '#94a3b8',
+                    margin: '3px 0 0',
+                  }}>
+                    {s.label}
+                  </p>
+                </div>
               </div>
             ))}
-          </section>
-
-          {/* FILTER PANEL */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#101010] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
-            <div className="tasks-filter-panel">
-              <div className="tasks-filter-search flex flex-col">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Search text</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">search</span>
-                  <input
-                    type="text"
-                    placeholder="Search tasks..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
-                </div>
-              </div>
-
-              <div className="tasks-filter-selects">
-                <div className="tasks-filter-select flex flex-col">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Project</label>
-                  <select
-                    value={selectedProject}
-                    onChange={e => setSelectedProject(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="all">All Projects</option>
-                    {projects.map(p => (
-                      <option key={p._id} value={p._id}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="tasks-filter-select flex flex-col">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Priority</label>
-                  <select
-                    value={filterPriority}
-                    onChange={e => setFilterPriority(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="all">All Priorities</option>
-                    <option value="urgent">Urgent</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                  </select>
-                </div>
-
-                <div className="tasks-filter-select flex flex-col">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">Status</label>
-                  <select
-                    value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-slate-50 dark:bg-[#0c0c0c] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="open">Open</option>
-                    <option value="done">Done</option>
-                  </select>
-                </div>
-              </div>
-            </div>
           </div>
 
+          {/* FILTER PANEL — collapsible on mobile */}
+          <FilterPanel
+            isDark={isDark}
+            search={search}
+            setSearch={setSearch}
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+            filterPriority={filterPriority}
+            setFilterPriority={setFilterPriority}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+            projects={projects}
+          />
+
           {/* TASKS LIST */}
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -549,148 +639,109 @@ export default function TasksPage() {
                 </div>
                 <h3 className="font-bold text-lg text-slate-900 dark:text-white">No tasks found</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-                  We couldn't find any tasks matching your filters. Try adjusting your query or filters.
+                  We couldn't find any tasks matching your filters.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3">
-                {filteredTasks.map((task) => {
-                  const prioInfo = getPriorityColor(task.priority)
-                  const statusInfo = getStatusColor(task.column?.name)
-                  const overdue = isOverdue(task.dueDate, task.column)
-                  
-                  return (
-                    <div
-                      key={task._id}
-                      onClick={() => openTaskDetail(task)}
-                      className="orbit-card group relative flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 rounded-2xl shadow-sm"
-                      style={{
-                        background: selectedTask?._id === task._id
-                          ? isDark
-                            ? 'rgba(99,102,241,0.12)'
-                            : 'rgba(99,102,241,0.06)'
-                          : isDark ? '#161616' : 'white',
-                        border: `1px solid ${
-                          selectedTask?._id === task._id
-                            ? 'rgba(99,102,241,0.3)'
-                            : isDark
-                              ? 'rgba(255,255,255,0.07)'
-                              : '#e2e8f0'
-                        }`,
-                        cursor: 'pointer',
-                        transition: 'all 150ms ease',
-                      }}
-                    >
-                      <div className="flex-1 min-w-0 pr-4">
-                        {/* Project & Tag row */}
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span
-                            className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-white"
-                            style={{ backgroundColor: task.projectColor }}
-                          >
-                            {task.projectName}
+              filteredTasks.map((task) => {
+                const prioInfo = getPriorityColor(task.priority)
+                const overdue = isOverdue(task.dueDate, task.column)
+                return (
+                  <div
+                    key={task._id}
+                    className="orbit-card orbit-task-list-item"
+                    onClick={() => openTaskDetail(task)}
+                    style={{
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      background: isDark ? '#111' : 'white',
+                      border: `1px solid ${isDark
+                        ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'flex-start',
+                    }}>
+                    {/* Priority bar */}
+                    <div style={{
+                      width: '4px', height: '44px',
+                      borderRadius: '2px', flexShrink: 0,
+                      marginTop: '2px',
+                      background:
+                        task.priority === 'urgent' ? '#ef4444'
+                        : task.priority === 'high' ? '#f97316'
+                        : task.priority === 'low' ? '#94a3b8'
+                        : '#eab308',
+                    }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{
+                        fontSize: '14px', fontWeight: 600,
+                        color: isDark ? '#f1f5f9' : '#0f172a',
+                        margin: '0 0 4px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {task.title}
+                      </p>
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap', gap: '6px',
+                        alignItems: 'center',
+                      }}>
+                        <span style={{
+                          display: 'flex',
+                          alignItems: 'center', gap: '4px',
+                          fontSize: '11px',
+                          color: isDark ? '#475569' : '#94a3b8',
+                        }}>
+                          <div style={{
+                            width: '6px', height: '6px',
+                            borderRadius: '50%',
+                            background: task.projectColor || '#6366f1',
+                          }} />
+                          {task.projectName}
+                        </span>
+                        {task.dueDate && (
+                          <span style={{
+                            fontSize: '11px',
+                            color: overdue ? '#ef4444' : '#94a3b8',
+                            display: 'flex',
+                            alignItems: 'center', gap: '3px',
+                          }}>
+                            <span className="material-symbols-outlined"
+                              style={{ fontSize: '12px' }}>
+                              schedule
+                            </span>
+                            {new Date(task.dueDate)
+                              .toLocaleDateString('en-US', {
+                                month: 'short', day: 'numeric',
+                              })}
+                            {overdue && ' (OVERDUE)'}
                           </span>
-                          
-                          <span
-                            className="px-2 py-0.5 rounded-md text-[10px] font-extrabold"
-                            style={{ backgroundColor: prioInfo.bg, color: prioInfo.text }}
-                          >
-                            {prioInfo.label}
-                          </span>
-
-                          <span
-                            className="px-2 py-0.5 rounded-md text-[10px] font-extrabold"
-                            style={{ backgroundColor: statusInfo.bg, color: statusInfo.text }}
-                          >
-                            {getStatusLabel(task.column?.name)}
-                          </span>
-                        </div>
-
-                        {/* Task Title */}
-                        <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
-                          {task.title}
-                        </h3>
-
-                        {/* Task description snippet */}
-                        {task.description && (
-                          <div
-                            className="task-description-preview"
-                            dangerouslySetInnerHTML={{
-                              __html: task.description
-                                .replace(/<[^>]*>/g, '')
-                                .substring(0, 80) +
-                                (task.description.replace(
-                                  /<[^>]*>/g, ''
-                                ).length > 80 ? '...' : '')
-                            }}
-                            style={{
-                              fontSize: '12px',
-                              color: isDark ? '#475569' : '#94a3b8',
-                              lineHeight: 1.4,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              maxWidth: '100%',
-                              marginTop: '4px',
-                            }}
-                          />
                         )}
-                      </div>
-
-                      {/* Right side info (due date, assignees, actions) */}
-                      <div className="flex items-center justify-between md:justify-end gap-6 mt-4 md:mt-0 pt-3 md:pt-0 border-t md:border-0 border-slate-100 dark:border-[rgba(255,255,255,0.05)]">
-                        {/* Due Date */}
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <span
-                            className="material-symbols-outlined text-[16px]"
-                            style={{ color: overdue ? '#ef4444' : '#94a3b8' }}
-                          >
-                            calendar_today
-                          </span>
-                          <span
-                            className="text-xs font-semibold"
-                            style={{ color: overdue ? '#ef4444' : isDark ? '#94a3b8' : '#64748b' }}
-                          >
-                            {formatDate(task.dueDate)}
-                            {overdue && <span className="ml-1 text-[10px] font-bold uppercase">(Overdue)</span>}
-                          </span>
-                        </div>
-
-                        {/* Assignees */}
-                        <div className="flex -space-x-2 overflow-hidden shrink-0">
-                          {task.assignees && task.assignees.length > 0 ? (
-                            task.assignees.map((assignee) => (
-                              <div
-                                key={assignee._id}
-                                className="inline-block size-7 rounded-full border-2 border-white dark:border-[#161616] bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden"
-                                title={assignee.name}
-                              >
-                                {assignee.avatar ? (
-                                   <img src={assignee.avatar} className="size-full object-cover" alt="" />
-                                ) : (
-                                  (assignee.name?.charAt(0) || '?').toUpperCase()
-                                )}
-                              </div>
-                            ))
-                          ) : (
-                            <div
-                              className="inline-block size-7 rounded-full border-2 border-white dark:border-[#161616] bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-semibold text-slate-400"
-                              title="Unassigned"
-                            >
-                              —
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Arrow indicator */}
-                        <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 group-hover:text-indigo-500 transition-colors hidden md:block">
-                          arrow_forward
+                        <span style={{
+                          fontSize: '10px', fontWeight: 700,
+                          padding: '2px 7px',
+                          borderRadius: '6px',
+                          background: prioInfo.bg,
+                          color: prioInfo.text,
+                        }}>
+                          {prioInfo.label}
                         </span>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
+                    <span className="material-symbols-outlined"
+                      style={{
+                        fontSize: '16px',
+                        color: isDark ? '#334155' : '#cbd5e1',
+                        flexShrink: 0, marginTop: '2px',
+                      }}>
+                      chevron_right
+                    </span>
+                  </div>
+                )
+              })
             )}
           </div>
         </>

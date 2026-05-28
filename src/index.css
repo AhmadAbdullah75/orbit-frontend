@@ -258,100 +258,267 @@ button:disabled,
   animation: slide-up 0.2s ease forwards;
 }
 
-/* ── Mobile Responsive Fixes ─────────────── */
+/* ══════════════════════════════════════════
+   ORBIT MOBILE FOUNDATION
+   Viewport: 360–430px phones
+   ════════════════════════════════════════ */
 
-/* Sidebar hidden on mobile */
+/* Prevent ALL horizontal overflow globally */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Mobile custom properties */
+:root {
+  --mobile-pad: 16px;
+  --card-radius: 14px;
+  --gap-sm: 8px;
+  --gap-md: 12px;
+  --gap-lg: 16px;
+}
+
+/* ── Bottom nav ───────────────────────────── */
+.orbit-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  z-index: 60;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Mobile sidebar drawer ───────────────── */
+.orbit-sidebar-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 280px;
+  z-index: 80;
+  transform: translateX(-100%);
+  transition: transform 280ms
+    cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.orbit-sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+.orbit-drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 70;
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.orbit-drawer-backdrop.open {
+  opacity: 1;
+}
+
 @media (max-width: 768px) {
+  /* Show bottom nav */
+  .orbit-bottom-nav {
+    display: flex !important;
+  }
 
-  /* Dashboard Layout - sidebar becomes bottom nav */
-  .sidebar {
+  /* Show drawer backdrop when needed */
+  .orbit-drawer-backdrop {
+    display: block;
+  }
+
+  /* Main content: no sidebar margin */
+  .orbit-main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-bottom: 72px !important;
+  }
+
+  /* Desktop sidebar: hide on mobile */
+  .orbit-desktop-sidebar {
     display: none !important;
   }
 
-  /* Main content takes full width */
+  /* Page padding */
+  .orbit-page {
+    padding: var(--mobile-pad) !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  /* All cards: respect viewport */
+  .orbit-card,
+  [class*="rounded-xl"],
+  [class*="rounded-2xl"] {
+    max-width: 100% !important;
+    overflow: hidden;
+  }
+
+  /* Tables: horizontal scroll wrapper */
+  table {
+    min-width: unset !important;
+  }
+
+  .orbit-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--card-radius);
+  }
+
+  /* Stat cards: 2 columns with good spacing */
+  .orbit-stats-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--gap-md) !important;
+    margin-bottom: var(--gap-lg) !important;
+  }
+
+  .orbit-stat-card {
+    padding: 16px !important;
+    min-height: 96px !important;
+  }
+
+  .orbit-stat-number {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .orbit-stat-label {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    opacity: 0.7;
+  }
+
+  /* Header: clean on mobile */
+  .orbit-header {
+    padding: 0 var(--mobile-pad) !important;
+    height: 56px !important;
+  }
+
+  /* Page headers */
+  h1 { font-size: 22px !important; }
+  h2 { font-size: 18px !important; }
+
+  /* Inputs: prevent iOS zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Buttons: min touch target */
+  button {
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+
+  /* Mobile menu button: show */
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  /* Mobile filter toggle: show */
+  .mobile-filter-toggle {
+    display: flex !important;
+  }
+
+  /* Project list cards: full width */
+  .orbit-project-list-item {
+    padding: 14px var(--mobile-pad) !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+  }
+
+  /* Board: horizontal scroll */
+  .orbit-board-outer {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--mobile-pad) !important;
+    gap: var(--gap-md) !important;
+  }
+
+  .orbit-board-column {
+    min-width: 280px !important;
+    max-width: 85vw !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Task list items */
+  .orbit-task-list-item {
+    padding: 14px var(--mobile-pad) !important;
+    gap: var(--gap-md) !important;
+  }
+
+  /* Activity items */
+  .orbit-activity-item {
+    padding: 12px 0 !important;
+    gap: 10px !important;
+  }
+
+  /* Modals: bottom sheet on mobile */
+  .orbit-modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .orbit-modal-content {
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 24px var(--mobile-pad) !important;
+  }
+
+  /* Filter sections: compact */
+  .orbit-filter-row {
+    flex-direction: column !important;
+    gap: var(--gap-sm) !important;
+  }
+
+  .orbit-filter-row select,
+  .orbit-filter-row input {
+    width: 100% !important;
+  }
+
+  /* Notification dropdown: full width on mobile */
+  .orbit-notification-dropdown {
+    position: fixed !important;
+    top: 56px !important;
+    left: var(--mobile-pad) !important;
+    right: var(--mobile-pad) !important;
+    width: auto !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Avatar dropdown: anchor under avatar */
+  .orbit-profile-dropdown {
+    position: fixed !important;
+    top: 56px !important;
+    right: var(--mobile-pad) !important;
+    width: 220px !important;
+  }
+
+  /* Legacy compat — keep old classes working */
   .main-content {
     margin-left: 0 !important;
     width: 100% !important;
-    padding: 12px !important;
+    padding-bottom: 72px !important;
   }
 
-  /* Board page - horizontal scroll */
-  .board-container {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Task cards - full width on mobile */
-  .task-card {
-    min-width: 260px !important;
-  }
-
-  /* Modals - full screen on mobile */
-  .modal-container {
-    max-width: 100% !important;
-    margin: 0 !important;
-    border-radius: 16px 16px 0 0 !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-  }
-
-  /* Tables - scroll horizontally */
-  .table-container {
-    overflow-x: auto !important;
-  }
-
-  /* Stats cards - stack vertically */
-  .stats-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-  }
-
-  /* Header - reduce padding */
-  header {
-    padding: 8px 12px !important;
-  }
-
-  /* Typography - reduce font sizes */
-  h1 { font-size: 20px !important; }
-  h2 { font-size: 18px !important; }
-
-  /* Buttons - larger touch targets */
-  button {
-    min-height: 40px;
-  }
-
-  /* Forms - full width inputs */
-  input, select, textarea {
-    font-size: 16px !important; /* Prevents iOS zoom */
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Stats cards - single column on very small screens */
-  .stats-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Hide less important columns in tables */
-  .hide-mobile {
+  .sidebar {
     display: none !important;
-  }
-
-  /* Compact padding */
-  .px-6 {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-}
-
-/* Mobile bottom navigation bar and board responsive fixes */
-@media (max-width: 768px) {
-  /* Ensure modals don't go behind bottom nav */
-  .modal-overlay {
-    padding-bottom: 80px !important;
   }
 
   /* Board horizontal scroll on mobile */
@@ -363,110 +530,82 @@ button:disabled,
     padding-bottom: 16px;
   }
 
-  /* Each column snaps on mobile */
   .board-column {
     scroll-snap-align: start;
     min-width: 280px !important;
     max-width: 85vw !important;
   }
 
-  /* Task cards full width */
-  .task-card {
-    width: 100% !important;
-  }
-
-  /* Fix iOS input zoom */
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-
-  /* Table list view on mobile */
-  .projects-table th:nth-child(3),
-  .projects-table td:nth-child(3),
-  .projects-table th:nth-child(4),
-  .projects-table td:nth-child(4) {
-    display: none;
-  }
-}
-
-/* ══ Mobile Layout ══════════════════════════ */
-
-:root {
-  --sidebar-width: 240px;
-}
-
-@media (max-width: 767px) {
-  main, .main-content {
-    margin-left: 0 !important;
-    width: 100% !important;
-  }
-
-  .px-6 { padding-left: 12px !important;
-           padding-right: 12px !important; }
-  .py-8 { padding-top: 16px !important;
-           padding-bottom: 16px !important; }
-
-  .stats-grid,
-  [class*="grid-cols-4"],
-  [class*="grid-cols-3"] {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-  }
-
-  .projects-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .board-outer {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .modal-wrapper {
-    align-items: flex-end !important;
-    padding: 0 !important;
-  }
-  .modal-content {
-    border-radius: 20px 20px 0 0 !important;
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-  }
-
-  .table-wrapper {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .col-hide-mobile { display: none !important; }
-
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-
-  button { min-height: 40px; }
-
   .notification-dropdown {
     right: -60px !important;
     width: calc(100vw - 24px) !important;
   }
-
-  .header-inner {
-    padding: 0 12px !important;
-  }
-
-  h1 { font-size: 20px !important; }
-  h2 { font-size: 17px !important; }
 }
 
-@media (max-width: 380px) {
-  .stats-grid {
-    grid-template-columns: 1fr !important;
-  }
+/* ── Bottom nav styles ────────────────────── */
+.orbit-bottom-nav {
+  background: var(--nav-bg, #0e0e0e);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 4px;
 }
 
+.orbit-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  border-radius: 12px;
+  transition: background 150ms ease;
+  min-height: 52px;
+}
+
+.orbit-nav-btn.active {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.orbit-nav-btn .nav-icon {
+  font-size: 22px !important;
+  transition: transform 150ms ease;
+}
+
+.orbit-nav-btn.active .nav-icon {
+  transform: translateY(-1px);
+}
+
+.orbit-nav-btn .nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Mobile menu button: hidden by default, shown via media query */
+.mobile-menu-btn {
+  display: none;
+}
+
+/* Safe area bottom */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .bottom-nav {
+  .orbit-bottom-nav {
+    height: calc(64px + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
+  }
+  @media (max-width: 768px) {
+    .orbit-main-content,
+    .main-content {
+      padding-bottom: calc(
+        72px + env(safe-area-inset-bottom)
+      ) !important;
+    }
   }
 }
 
@@ -479,8 +618,6 @@ button:disabled,
     padding-right: 12px !important;
   }
 
-
-
   /* Full width buttons on mobile */
   .sm\:w-auto {
     width: 100% !important;
@@ -489,6 +626,22 @@ button:disabled,
   /* Compact page headers */
   .mb-8 { margin-bottom: 16px !important; }
   .mb-6 { margin-bottom: 12px !important; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid,
+  .orbit-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* ══ Sidebar width root variable ════════════ */
+:root {
+  --sidebar-width: 240px;
 }
 
 /* ══════════════════════════════════════════

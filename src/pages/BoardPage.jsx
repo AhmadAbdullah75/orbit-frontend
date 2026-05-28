@@ -10,6 +10,8 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
+  MouseSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -127,7 +129,7 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, touchAction: 'none' }}
       data-is-dragging={isSortableDragging ? 'true' : 'false'}
       {...attributes}
       {...listeners}
@@ -3734,15 +3736,29 @@ export default function BoardPage() {
   const socketRef = useRef()
 
   const sensors = useSensors(
+    // Mouse — desktop
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    // Touch — mobile (requires 250ms hold)
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 8,
+      },
+    }),
+    // Pointer — stylus/hybrid devices
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  )  
+  )
 
   const showConfirm = useCallback(({
     title, message, confirmText,

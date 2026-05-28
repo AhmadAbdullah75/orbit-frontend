@@ -45,6 +45,7 @@ export default function DashboardLayout() {
   // 3. useState calls
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [orgs, setOrgs] = useState(() => {
     try {
       const cached = localStorage.getItem('orbit_orgs_cache')
@@ -57,6 +58,23 @@ export default function DashboardLayout() {
   useEffect(() => {
     setMobileMenuOpen(false)
   }, [currentPath.pathname])
+
+  // Close drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false)
+  }, [currentPath.pathname])
+
+  // Prevent body scroll when drawer is open
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [drawerOpen])
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
   const [newOrgName, setNewOrgName] = useState('')
   const [creatingOrg, setCreatingOrg] = useState(false)
@@ -519,7 +537,7 @@ export default function DashboardLayout() {
 
       {/* ── SIDEBAR ── */}
       <aside
-        className="flex flex-col flex-shrink-0 z-50"
+        className="orbit-desktop-sidebar flex flex-col flex-shrink-0 z-50"
         style={{
           width: `${sidebarWidth}px`,
           transition: 'width 250ms cubic-bezier(0.4,0,0.2,1)',
@@ -908,23 +926,319 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Mobile backdrop */}
-      {mobileMenuOpen && (
-        <div
-          onClick={() => setMobileMenuOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 40,
-            display: !isDesktop
-              ? 'block' : 'none',
-          }}
-        />
-      )}
+
+      {/* ── MOBILE DRAWER BACKDROP ──────── */}
+      <div
+        className={`orbit-drawer-backdrop ${drawerOpen ? 'open' : ''}`}
+        onClick={() => setDrawerOpen(false)}
+      />
+
+      {/* ── MOBILE DRAWER ───────────────── */}
+      <aside
+        className={`orbit-sidebar-drawer ${drawerOpen ? 'open' : ''}`}
+        style={{
+          background: isDark ? '#0e0e0e' : '#fafaff',
+          borderRight: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.08)' : '#e8e6ff'}`,
+        }}>
+
+        {/* Drawer header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px',
+          borderBottom: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+        }}>
+          <OrbitLogo size={28} textSize={16} />
+          <button
+            onClick={() => setDrawerOpen(false)}
+            style={{
+              background: 'none', border: 'none',
+              cursor: 'pointer',
+              color: isDark ? '#64748b' : '#94a3b8',
+              padding: '4px',
+            }}>
+            <span className="material-symbols-outlined"
+              style={{ fontSize: '20px' }}>
+              close
+            </span>
+          </button>
+        </div>
+
+        {/* Org switcher — ALWAYS VISIBLE */}
+        <div style={{ padding: '12px 16px' }}>
+          <button
+            onClick={() => setShowOrgDropdown(p => !p)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '10px 12px',
+              borderRadius: '10px',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(99,102,241,0.15)'}`,
+              background: isDark
+                ? 'rgba(255,255,255,0.04)'
+                : 'rgba(99,102,241,0.06)',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}>
+            <div style={{
+              width: '28px', height: '28px',
+              borderRadius: '8px',
+              background: '#6366f1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '13px', fontWeight: 700,
+              color: 'white', flexShrink: 0,
+            }}>
+              {(displayedOrg?.name || 'W')
+                .charAt(0).toUpperCase()}
+            </div>
+            <span style={{
+              fontSize: '14px', fontWeight: 600,
+              color: isDark ? '#e2e8f0' : '#0f172a',
+              flex: 1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              {displayedOrg?.name || 'Workspace'}
+            </span>
+            <span className="material-symbols-outlined"
+              style={{ fontSize: '16px',
+                color: isDark ? '#475569' : '#94a3b8' }}>
+              unfold_more
+            </span>
+          </button>
+
+          {showOrgDropdown && (
+            <div style={{
+              marginTop: '6px',
+              borderRadius: '10px',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+              background: isDark ? '#111' : 'white',
+              overflow: 'hidden',
+            }}>
+              {orgs.map(org => (
+                <button
+                  key={org._id}
+                  onClick={() => {
+                    dispatch(setActiveOrg(org._id))
+                    setShowOrgDropdown(false)
+                    setDrawerOpen(false)
+                    navigate('/dashboard')
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    border: 'none',
+                    background: org._id === activeOrgId
+                      ? 'rgba(99,102,241,0.1)'
+                      : 'transparent',
+                    cursor: 'pointer',
+                  }}>
+                  <div style={{
+                    width: '24px', height: '24px',
+                    borderRadius: '6px',
+                    background: '#6366f1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px', fontWeight: 700,
+                    color: 'white',
+                  }}>
+                    {org.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{
+                    fontSize: '13px',
+                    color: isDark ? '#e2e8f0' : '#1e293b',
+                    flex: 1, textAlign: 'left',
+                  }}>
+                    {org.name}
+                  </span>
+                  {org._id === activeOrgId && (
+                    <span className="material-symbols-outlined"
+                      style={{ fontSize: '14px',
+                               color: '#6366f1' }}>
+                      check
+                    </span>
+                  )}
+                </button>
+              ))}
+              <div style={{
+                borderTop: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+                padding: '4px',
+              }}>
+                <button
+                  onClick={() => {
+                    setShowOrgDropdown(false)
+                    setShowCreateOrgModal(true)
+                    setDrawerOpen(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#6366f1',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    borderRadius: '8px',
+                  }}>
+                  <span className="material-symbols-outlined"
+                    style={{ fontSize: '16px' }}>
+                    add
+                  </span>
+                  Create Organization
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Nav items WITH labels */}
+        <nav style={{ padding: '8px', paddingBottom: '80px' }}>
+          {navLinks.map(link => {
+            const isActive =
+              currentPath.pathname === link.to ||
+              (link.to !== '/dashboard' &&
+               currentPath.pathname.startsWith(link.to + '/'))
+            return (
+              <button
+                key={link.to}
+                onClick={() => {
+                  navigate(link.to)
+                  setDrawerOpen(false)
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: isActive
+                    ? isDark
+                      ? 'rgba(99,102,241,0.12)'
+                      : 'rgba(99,102,241,0.08)'
+                    : 'transparent',
+                  color: isActive
+                    ? '#6366f1'
+                    : isDark ? '#64748b' : '#94a3b8',
+                  cursor: 'pointer',
+                  marginBottom: '2px',
+                  textAlign: 'left',
+                }}>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '20px', flexShrink: 0 }}>
+                  {link.icon}
+                </span>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: isActive ? 600 : 500,
+                }}>
+                  {link.label}
+                </span>
+                {isActive && (
+                  <div style={{
+                    marginLeft: 'auto',
+                    width: '6px', height: '6px',
+                    borderRadius: '50%',
+                    background: '#6366f1',
+                  }} />
+                )}
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* User info at bottom of drawer */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0,
+          padding: '12px 16px',
+          borderTop: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+          background: isDark ? '#0e0e0e' : '#fafaff',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center', gap: '10px',
+          }}>
+            <div style={{
+              width: '32px', height: '32px',
+              borderRadius: '50%',
+              background: '#6366f1',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '13px', fontWeight: 700,
+              color: 'white', flexShrink: 0,
+            }}>
+              {user?.avatar
+                ? <img src={user.avatar}
+                    style={{ width: '100%',
+                             height: '100%',
+                             objectFit: 'cover' }} alt="" />
+                : (user?.name || 'U').charAt(0)
+              }
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                fontSize: '13px', fontWeight: 600,
+                color: isDark ? '#f1f5f9' : '#0f172a',
+                margin: 0, overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {user?.name}
+              </p>
+              <p style={{
+                fontSize: '11px', margin: 0,
+                color: isDark ? '#475569' : '#94a3b8',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {user?.email}
+              </p>
+            </div>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: 'none', border: 'none',
+                cursor: 'pointer',
+                color: '#ef4444', padding: '4px',
+              }}
+              title="Sign out">
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '18px' }}>
+                logout
+              </span>
+            </button>
+          </div>
+        </div>
+      </aside>
 
       {/* ── MAIN AREA ── */}
-      <main className="main-content flex-1 flex flex-col min-w-0 overflow-hidden" style={{
+      <main className="orbit-main-content main-content flex-1 flex flex-col min-w-0 overflow-hidden" style={{
         marginLeft: isDesktop ? `${sidebarWidth}px` : '0',
         transition: 'margin-left 250ms cubic-bezier(0.4,0,0.2,1)',
       }}>
@@ -935,9 +1249,10 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
             <button
-              onClick={() => setMobileMenuOpen(p => !p)}
+              onClick={() => setDrawerOpen(p => !p)}
+              className="mobile-menu-btn"
               style={{
-                display: !isDesktop ? 'flex' : 'none',
+                display: 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '36px',
@@ -956,7 +1271,7 @@ export default function DashboardLayout() {
                   fontSize: '20px',
                   color: isDark ? '#e2e8f0' : '#1e293b',
                 }}>
-                {mobileMenuOpen ? 'close' : 'menu'}
+                menu
               </span>
             </button>
 
@@ -1484,70 +1799,36 @@ export default function DashboardLayout() {
         </div>
       </main>
 
-      {/* ── MOBILE BOTTOM NAV (5 items) ── */}
-      <nav
-        className="mobile-bottom-nav"
+      {/* ── BOTTOM NAV (mobile only) ─────── */}
+      <nav className="orbit-bottom-nav"
         style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          display: 'none',
-          height: '60px',
-          background: isDark ? '#0e0e0e' : 'white',
-          borderTop: `1px solid ${isDark
-            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-          zIndex: 60,
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          height: '100%',
-          justifyContent: 'space-around',
-          alignItems: 'center',
+          '--nav-bg': isDark ? '#0e0e0e' : 'white',
         }}>
-          {mobileNavItems.map(item => {
-            const isActive =
-              currentPath.pathname === item.path ||
-              currentPath.pathname.startsWith(item.path + '/')
-            return (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => navigate(item.path)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '2px',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '8px 12px',
-                  flex: 1,
-                }}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontSize: '22px',
-                    color: isActive ? '#6366f1' : '#94a3b8',
-                  }}
-                >
-                  {item.icon}
-                </span>
-                <span style={{
-                  fontSize: '9px',
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#6366f1' : '#94a3b8',
-                }}>
-                  {item.label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+        {mobileNavItems.map(item => {
+          const isActive =
+            currentPath.pathname === item.path ||
+            currentPath.pathname.startsWith(item.path + '/')
+          return (
+            <button
+              key={item.path}
+              type="button"
+              className={`orbit-nav-btn ${isActive ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
+              style={{
+                color: isActive
+                  ? '#6366f1'
+                  : isDark ? '#64748b' : '#94a3b8',
+              }}>
+              <span
+                className="material-symbols-outlined nav-icon">
+                {item.icon}
+              </span>
+              <span className="nav-label">
+                {item.label}
+              </span>
+            </button>
+          )
+        })}
       </nav>
 
       {/* Create Org Modal */}
