@@ -518,7 +518,11 @@ function BoardColumn({
           style={{
             flex: 1,
             overflowY: 'auto',
+            overflowX: 'hidden',
             minHeight: 0,
+            overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-y',
           }}
         >
           {isOver && (
@@ -4378,14 +4382,19 @@ export default function BoardPage() {
         </>
       )}
 
-      {/* Board Header */}
-      <div className={`px-6 py-4 flex flex-wrap items-center
-        justify-between gap-4 border-b shrink-0
+      {/* Board Header — mobile safe layout */}
+      <div className={`px-4 py-3 flex items-center
+        justify-between gap-3 border-b shrink-0
         ${isDark
           ? 'bg-[#0f0f0f] border-[rgba(255,255,255,0.06)]'
           : 'bg-white border-slate-200'
-        }`}>
-        <div className="flex items-center gap-4">
+        }`}
+        style={{
+          flexWrap: 'nowrap',
+          overflowX: 'auto',
+        }}>
+        <div className="flex items-center gap-3"
+          style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
           <button
             onClick={() => navigate('/projects')}
             className={`p-1.5 rounded-lg transition-colors
@@ -4399,9 +4408,14 @@ export default function BoardPage() {
               arrow_back
             </span>
           </button>
-          <div>
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
             <h1 className={`text-lg font-bold
-              ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              ${isDark ? 'text-white' : 'text-slate-900'}`}
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
               {board?.name || project?.name || 'Project Board'}
             </h1>
             <p className="text-xs text-slate-500 font-medium">
@@ -4410,7 +4424,9 @@ export default function BoardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Action buttons — shrink on mobile */}
+        <div className="flex items-center gap-2"
+          style={{ flexShrink: 0 }}>
           <div className="relative">
             <button
               onClick={() => setShowFilterPanel(p => !p)}
@@ -4425,7 +4441,7 @@ export default function BoardPage() {
                 }`}>
               <span className="material-symbols-outlined
                                text-[14px]">tune</span>
-              Filter
+              <span className="hide-on-mobile">Filter</span>
               {activeFilterCount > 0 && (
                 <span className="bg-white text-indigo-600
                   rounded-full size-4 text-[10px] font-bold
@@ -4449,7 +4465,7 @@ export default function BoardPage() {
             onClick={() => setShowMembersPanel(p => !p)}
             className={`flex items-center gap-1.5 px-3
               py-1.5 rounded-lg text-xs font-medium
-              transition-colors
+              transition-colors hide-on-mobile
               ${isDark
                 ? 'border border-[rgba(255,255,255,0.08)] text-slate-400 hover:bg-[rgba(255,255,255,0.06)]'
                 : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -4460,7 +4476,7 @@ export default function BoardPage() {
             </span>
             Members
           </button>
-          <div className="relative">
+          <div className="relative hide-on-mobile">
             <span className="material-symbols-outlined
                              absolute left-3 top-1/2 -translate-y-1/2
                              text-[16px] text-slate-500">
@@ -4479,21 +4495,35 @@ export default function BoardPage() {
                 }`}
             />
           </div>
+
+          {/* New Task — ALWAYS fully visible */}
           <button
             onClick={() => {
               setTargetColumnId(columns[0]?._id)
               setShowCreateModal(true)
             }}
-            className="orbit-btn-primary flex items-center gap-1.5 px-4 py-1.5
-                       bg-indigo-600 hover:bg-indigo-700
-                       text-white text-sm font-semibold
-                       rounded-lg shadow-lg shadow-indigo-600/20"
+            style={{
+              padding: '8px 14px',
+              borderRadius: '10px',
+              background: '#6366f1',
+              color: 'white',
+              border: 'none',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 12px rgba(99,102,241,0.3)',
+            }}
           >
-            <span className="material-symbols-outlined
-                             text-[18px]">
+            <span className="material-symbols-outlined"
+              style={{ fontSize: '16px' }}>
               add
             </span>
-            New Task
+            <span>New Task</span>
           </button>
         </div>
       </div>

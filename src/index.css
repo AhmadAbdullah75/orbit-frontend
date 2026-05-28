@@ -1223,3 +1223,82 @@ body:not(.dark) .orbit-nav-item[data-active="true"] {
       drop-shadow(0 0 8px rgba(99, 102, 241, 0.4))
       drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
+
+  /* ── Responsive & Mobile Layout Improvements (FIX 4, 7, 8) ── */
+
+  @media (max-width: 768px) {
+    /* Hide desktop controls on mobile screens */
+    .hide-on-mobile {
+      display: none !important;
+    }
+
+    /* All page containers: full width */
+    .max-w-5xl,
+    .max-w-4xl,
+    .max-w-6xl,
+    [style*="max-width: 900"],
+    [style*="max-width: 800"],
+    [style*="maxWidth: 900"],
+    [style*="maxWidth: 800"] {
+      max-width: 100% !important;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    /* Cards: full viewport width with margin */
+    .orbit-card {
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    /* Action menu bottom sheet */
+    .orbit-action-menu {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      top: auto !important;
+      width: 100% !important;
+      border-radius: 24px 24px 0 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-bottom: none !important;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2) !important;
+      z-index: 100 !important;
+      animation: orbit-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    /* Settings profile name stack */
+    .settings-name-row {
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+    .settings-name-row button {
+      width: 100% !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+    }
+
+    /* 360-480px: everything single column */
+    .grid-auto-fill {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* Cards: just 8px margin each side */
+    .orbit-card {
+      margin: 0 !important;
+      border-radius: 12px !important;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    /* 481-768px: 2 columns for stats, 1 for cards */
+    .orbit-stats-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }

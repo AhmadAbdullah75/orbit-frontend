@@ -105,7 +105,7 @@ const RegisterPage = () => {
     const glassCardStyle = {
         background: isDark
             ? 'rgba(17, 17, 27, 0.88)'
-            : 'rgba(255, 255, 255, 0.75)',
+            : 'rgba(255, 255, 255, 0.82)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '20px',
@@ -113,9 +113,9 @@ const RegisterPage = () => {
             ? 'rgba(255,255,255,0.08)'
             : 'rgba(255,255,255,0.9)'}`,
         boxShadow: isDark
-            ? '0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
-            : '0 24px 64px rgba(99,102,241,0.15), 0 0 0 1px rgba(255,255,255,0.5)',
-        padding: '36px',
+            ? '0 24px 64px rgba(0,0,0,0.5)'
+            : '0 24px 64px rgba(99,102,241,0.12)',
+        padding: '32px 28px',
     }
 
     return (
@@ -141,33 +141,35 @@ const RegisterPage = () => {
                 maxWidth: '480px',
             }}>
             <main className="w-full">
+                {/* Logo section — NO background */}
                 <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginBottom: '8px',
+                    textAlign: 'center',
+                    marginBottom: '24px',
                 }}>
-                    <OrbitLogo size={52} showText={false} />
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginBottom: '8px',
+                    }}>
+                        <OrbitLogo size={48} showText={false} />
+                    </div>
+                    <h1 style={{
+                        fontSize: '24px',
+                        fontWeight: 900,
+                        letterSpacing: '-1px',
+                        margin: '0 0 4px',
+                        color: isDark ? '#f1f5f9' : '#1e293b',
+                    }}>
+                        Orbit
+                    </h1>
+                    <p style={{
+                        fontSize: '14px',
+                        color: isDark ? '#475569' : '#94a3b8',
+                        margin: 0,
+                    }}>
+                        Create your project workspace
+                    </p>
                 </div>
-                <h1
-                    className={`text-3xl font-bold tracking-tight mb-1 text-center
-    ${isDark ? 'text-white' : 'text-gray-900'}`}
-                    style={isDark ? {
-                        background: 'linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                    } : {
-                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                    }}
-                >
-                    Orbit
-                </h1>
-                <p className={`text-sm text-center mb-8 ${isDark ? 'text-neutral-500' : 'text-gray-500'}`}>
-                    Create your project workspace
-                </p>
 
                 <div style={glassCardStyle}>
                 <section className="w-full">

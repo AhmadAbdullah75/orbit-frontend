@@ -439,7 +439,7 @@ export default function SettingsPage() {
             <div className="flex-1 space-y-4 w-full">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-0.5">Full Name</label>
-                <div className="flex gap-2">
+                <div className="settings-name-row flex gap-2">
                   <input 
                     type="text" 
                     value={profileName}

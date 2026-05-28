@@ -333,7 +333,8 @@ export default function AnalyticsPage() {
             <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Contributor Output</h3>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-6">Assigned work counts and completion logs for organization members.</p>
             
-            <div className="overflow-x-auto">
+            {/* Desktop: table view */}
+            <div className="overflow-x-auto hidden sm:block">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] text-[11px] font-black text-slate-400 uppercase tracking-wider">
@@ -373,7 +374,7 @@ export default function AnalyticsPage() {
                         {member.assigned > 0 ? (
                           <div className="flex items-center justify-end gap-2">
                             <span>{member.rate}%</span>
-                            <div className="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden hidden sm:block">
+                            <div className="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                               <div
                                 className="h-full bg-emerald-500"
                                 style={{ width: `${member.rate}%` }}
@@ -388,6 +389,90 @@ export default function AnalyticsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile: card view */}
+            <div className="sm:hidden" style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr',
+              gap: '10px',
+            }}>
+              {membersAnalytics.map(m => (
+                <div key={m._id} style={{
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                }}
+                className="bg-white dark:bg-[#111] border border-slate-200/80 dark:border-[rgba(255,255,255,0.06)]"
+                >
+                  {/* Avatar */}
+                  <div style={{
+                    width: '36px', height: '36px',
+                    borderRadius: '50%',
+                    background: '#6366f1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px', fontWeight: 700,
+                    color: 'white', flexShrink: 0,
+                    overflow: 'hidden',
+                  }}>
+                    {(m.user?.avatar || m.avatar)
+                      ? <img src={m.user?.avatar || m.avatar}
+                          style={{ width: '100%',
+                                   height: '100%',
+                                   objectFit: 'cover' }}
+                          alt="" />
+                      : ((m.user?.name || m.name || '?').charAt(0)).toUpperCase()
+                    }
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontSize: '13px', fontWeight: 600,
+                      margin: '0 0 2px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                    className="text-slate-900 dark:text-slate-100"
+                    >
+                      {m.user?.name || m.name || 'Unknown'}
+                    </p>
+                    <p style={{
+                      fontSize: '11px', margin: 0,
+                    }}
+                    className="text-slate-400 dark:text-slate-500"
+                    >
+                      {m.assigned} assigned · {m.done} done
+                    </p>
+                  </div>
+
+                  {/* Completion rate */}
+                  <div style={{
+                    textAlign: 'right', flexShrink: 0,
+                  }}>
+                    <p style={{
+                      fontSize: '16px', fontWeight: 800,
+                      color: m.assigned > 0
+                        ? '#10b981' : '#94a3b8',
+                      margin: 0,
+                    }}>
+                      {m.assigned > 0 ? `${m.rate}%` : '—'}
+                    </p>
+                    <p style={{
+                      fontSize: '10px', margin: 0,
+                    }}
+                    className="text-slate-400 dark:text-slate-500"
+                    >
+                      completion
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </>
