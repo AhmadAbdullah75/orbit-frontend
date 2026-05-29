@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useTheme } from '../context/ThemeContext'
 import api from '../services/axios'
+import { getPermissions } from '../utils/permissions'
 import RichTextEditor from '../components/RichTextEditor'
 import { motion, AnimatePresence } from 'framer-motion'
 import { slideUp, slideRight, scaleIn, staggerContainer, taskCardVariant, EASE } from '../utils/animations'
@@ -96,7 +97,7 @@ const timeAgo = (date) => {
     { month: 'short', day: 'numeric' })
 }
 
-function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
+function TaskCard({ task, isDark, onClick, onDelete, showConfirm, canDelete = true, canUpdate = true }) {
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef(null)
 
@@ -112,7 +113,7 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
   const {
     attributes, listeners, setNodeRef,
     transform, transition, isDragging: isSortableDragging,
-  } = useSortable({ id: task._id })
+  } = useSortable({ id: task._id, disabled: !canUpdate })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -136,8 +137,8 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
       onClick={() => {
         if (!isSortableDragging) onClick(task)
       }}
-      className={`orbit-task-card group p-3 rounded-lg border cursor-grab
-        active:cursor-grabbing select-none
+      className={`orbit-task-card group p-3 rounded-lg border
+        ${canUpdate ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} select-none
         ${isDark
           ? 'bg-[#1c1c1c] border-[rgba(255,255,255,0.08)]'
           : 'bg-white border-slate-200 shadow-sm'
@@ -191,27 +192,29 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
                 <span className="material-symbols-outlined text-[14px]">open_in_new</span>
                 Open
               </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowMenu(false)
-                  showConfirm({
-                    title: 'Delete Task',
-                    message: `Are you sure? ${task.title} will be gone forever.`,
-                    confirmText: 'Delete',
-                    confirmColor: 'red',
-                    onConfirm: () => onDelete(task._id),
-                    narrow: true
-                  })
-                }}
-                className="w-full flex items-center gap-2
-                           px-3 py-2 text-xs text-red-500
-                           hover:bg-red-500/10 transition-colors
-                           cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[14px]">delete</span>
-                Delete
-              </button>
+              {canDelete && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowMenu(false)
+                    showConfirm({
+                      title: 'Delete Task',
+                      message: `Are you sure? ${task.title} will be gone forever.`,
+                      confirmText: 'Delete',
+                      confirmColor: 'red',
+                      onConfirm: () => onDelete(task._id),
+                      narrow: true
+                    })
+                  }}
+                  className="w-full flex items-center gap-2
+                             px-3 py-2 text-xs text-red-500
+                             hover:bg-red-500/10 transition-colors
+                             cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[14px]">delete</span>
+                  Delete
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -393,7 +396,7 @@ function TaskCard({ task, isDark, onClick, onDelete, showConfirm }) {
 function BoardColumn({
   column, tasks, isDark, width,
   onAddTask, onTaskClick, onDeleteColumn, onDeleteTask,
-  showConfirm
+  showConfirm, canDeleteColumn = true, perms = getPermissions('viewer')
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column._id,
@@ -452,53 +455,55 @@ function BoardColumn({
           {tasks.length}
         </div>
         <div className="flex-1" />
-        <div className="relative">
-          <button
-            onClick={() => setShowMenu(p => !p)}
-            className={`p-0.5 rounded transition-colors
-              ${isDark
-                ? 'text-slate-600 hover:text-slate-300 hover:bg-[rgba(255,255,255,0.06)]'
-                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-300/40'
-              }`}
-          >
-            <span className="material-symbols-outlined
-                             text-[18px]">
-              more_horiz
-            </span>
-          </button>
-          {showMenu && (
-            <div className={`absolute right-0 top-7 w-40
-              rounded-xl shadow-xl z-20 overflow-hidden
-              ${isDark
-                ? 'bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)]'
-                : 'bg-white border border-slate-200'
-              }`}>
-              {!column.isDefault && (
-                <button
-                  onClick={() => {
-                    setShowMenu(false)
-                    onDeleteColumn(column._id)
-                  }}
-                  className="w-full flex items-center gap-2
-                             px-3 py-2 text-sm text-red-500
-                             hover:bg-red-500/10 transition-colors"
-                >
-                  <span className="material-symbols-outlined
-                                   text-[16px]">
-                    delete
-                  </span>
-                  Delete column
-                </button>
-              )}
-              {column.isDefault && (
-                <div className="px-3 py-2 text-xs
-                                text-slate-500">
-                  Default columns cannot be deleted
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {canDeleteColumn && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(p => !p)}
+              className={`p-0.5 rounded transition-colors
+                ${isDark
+                  ? 'text-slate-600 hover:text-slate-300 hover:bg-[rgba(255,255,255,0.06)]'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-300/40'
+                }`}
+            >
+              <span className="material-symbols-outlined
+                               text-[18px]">
+                more_horiz
+              </span>
+            </button>
+            {showMenu && (
+              <div className={`absolute right-0 top-7 w-40
+                rounded-xl shadow-xl z-20 overflow-hidden
+                ${isDark
+                  ? 'bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)]'
+                  : 'bg-white border border-slate-200'
+                }`}>
+                {!column.isDefault && (
+                  <button
+                    onClick={() => {
+                      setShowMenu(false)
+                      onDeleteColumn(column._id)
+                    }}
+                    className="w-full flex items-center gap-2
+                               px-3 py-2 text-sm text-red-500
+                               hover:bg-red-500/10 transition-colors"
+                  >
+                    <span className="material-symbols-outlined
+                                     text-[16px]">
+                      delete
+                    </span>
+                    Delete column
+                  </button>
+                )}
+                {column.isDefault && (
+                  <div className="px-3 py-2 text-xs
+                                  text-slate-500">
+                    Default columns cannot be deleted
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Column body */}
@@ -576,6 +581,8 @@ function BoardColumn({
                   onDelete={onDeleteTask}
                   isDragging={isOver}
                   showConfirm={showConfirm}
+                  canDelete={perms.canDeleteTask}
+                  canUpdate={perms.canUpdateTask}
                 />
               </motion.div>
             ))}
@@ -614,7 +621,8 @@ function TaskDetailPanel({
   task, columns, tasksByColumn, members, orgMembers, isDark,
   onClose, onUpdate, onDelete,
   showConfirm, showToast,
-  attachments: externalAttachments, onAttachmentsChange
+  attachments: externalAttachments, onAttachmentsChange,
+  canDelete = true, canUpdate = true, canAssign = true
 }) {
   const { user } = useSelector(s => s.auth)
   const [editTitle, setEditTitle] = useState(task.title)
@@ -1079,29 +1087,31 @@ function TaskDetailPanel({
           <span>{currentColumn?.name || 'Column'}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              showConfirm({
-                title: 'Delete Task',
-                message: `Are you sure? ${task.title} will be gone forever.`,
-                confirmText: 'Delete',
-                confirmColor: 'red',
-                narrow: true,
-                onConfirm: () => {
-                  onClose()
-                  onDelete(task._id)
-                }
-              })
-            }}
-            className={`p-1.5 rounded-md transition-colors
-              text-red-400 hover:bg-red-500/10
-              cursor-pointer`}
-          >
-            <span className="material-symbols-outlined
-                             text-[18px]">
-              delete
-            </span>
-          </button>
+          {canDelete && (
+            <button
+              onClick={() => {
+                showConfirm({
+                  title: 'Delete Task',
+                  message: `Are you sure? ${task.title} will be gone forever.`,
+                  confirmText: 'Delete',
+                  confirmColor: 'red',
+                  narrow: true,
+                  onConfirm: () => {
+                    onClose()
+                    onDelete(task._id)
+                  }
+                })
+              }}
+              className={`p-1.5 rounded-md transition-colors
+                text-red-400 hover:bg-red-500/10
+                cursor-pointer`}
+            >
+              <span className="material-symbols-outlined
+                               text-[18px]">
+                delete
+              </span>
+            </button>
+          )}
           <button
             onClick={onClose}
             className={`p-1.5 rounded-md transition-colors
@@ -1180,11 +1190,13 @@ function TaskDetailPanel({
                   ))
                 )}
               </div>
-              <button
-                onClick={() => setShowAssignMenu(p => !p)}
-                style={{ padding: '2px 6px', borderRadius: '12px', border: 'none', background: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9', color: isDark ? '#64748b' : '#94a3b8', fontSize: '11px', cursor: 'pointer' }}>
-                +
-              </button>
+              {canAssign && (
+                <button
+                  onClick={() => setShowAssignMenu(p => !p)}
+                  style={{ padding: '2px 6px', borderRadius: '12px', border: 'none', background: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9', color: isDark ? '#64748b' : '#94a3b8', fontSize: '11px', cursor: 'pointer' }}>
+                  +
+                </button>
+              )}
             </div>
             {showAssignMenu && (
               <div className={`absolute left-28 top-9
@@ -3689,12 +3701,17 @@ export default function BoardPage() {
   const { orgId, projectId } = useParams()
   const { isDark } = useTheme()
   const navigate = useNavigate()
+  const { user } = useSelector(s => s.auth)
   const [board, setBoard] = useState(null)
   const [project, setProject] = useState(null)
   const [columns, setColumns] = useState([])
   const [tasksByColumn, setTasksByColumn] = useState({})
   const [members, setMembers] = useState([])
   const [orgMembers, setOrgMembers] = useState([])
+
+  const currentUserMembership = orgMembers.find(m => m.user?._id === user?._id || m.user === user?._id)
+  const userRole = currentUserMembership?.role || 'viewer'
+  const perms = getPermissions(userRole)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selectedTask, setSelectedTask] = useState(null)
@@ -4564,24 +4581,28 @@ export default function BoardPage() {
                 onDeleteColumn={handleDeleteColumn}
                 onDeleteTask={handleDeleteTask}
                 showConfirm={showConfirm}
+                canDeleteColumn={perms.canDeleteColumn}
+                perms={perms}
               />
             ))}
 
             {/* Add Column Button */}
-            <div className="shrink-0" style={{ minWidth: '200px', flexShrink: 0 }}>
-              <button
-                onClick={handleAddColumn}
-                className={`w-full h-12 rounded-xl border border-dashed
-                  flex items-center justify-center gap-2 transition-all
-                  ${isDark
-                    ? 'border-[rgba(255,255,255,0.08)] text-slate-500 hover:bg-white/5 hover:border-slate-700'
-                    : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:border-slate-300'
-                  }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">add</span>
-                <span className="text-sm font-semibold">Add Column</span>
-              </button>
-            </div>
+            {perms.canCreateColumn && (
+              <div className="shrink-0" style={{ minWidth: '200px', flexShrink: 0 }}>
+                <button
+                  onClick={handleAddColumn}
+                  className={`w-full h-12 rounded-xl border border-dashed
+                    flex items-center justify-center gap-2 transition-all
+                    ${isDark
+                      ? 'border-[rgba(255,255,255,0.08)] text-slate-500 hover:bg-white/5 hover:border-slate-700'
+                      : 'border-slate-200 text-slate-400 hover:bg-slate-50 hover:border-slate-300'
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">add</span>
+                  <span className="text-sm font-semibold">Add Column</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -4625,6 +4646,9 @@ export default function BoardPage() {
               onDelete={handleDeleteTask}
               showConfirm={showConfirm}
               showToast={showToast}
+              canDelete={perms.canDeleteTask}
+              canUpdate={perms.canUpdateTask}
+              canAssign={perms.canAssignTask}
               attachments={
                 taskAttachments[selectedTask?._id] || []
               }

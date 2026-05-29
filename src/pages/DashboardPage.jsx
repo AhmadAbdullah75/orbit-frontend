@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import { setCredentials } from '../store/slices/authSlice'
 import api from '../services/axios'
 import { useTheme } from '../context/ThemeContext'
@@ -11,6 +11,8 @@ import { staggerContainer, scaleIn } from '../utils/animations'
 import { useCountUp } from '../hooks/useCountUp'
 import useAutoRefresh from '../hooks/useAutoRefresh'
 import OrbitLogo from '../components/OrbitLogo'
+import { getPermissions } from '../utils/permissions'
+
 
 function StatNumber({ value }) {
   const isPercentage = typeof value === 'string' && value.includes('%')
@@ -27,6 +29,8 @@ const DashboardPage = () => {
   const navigate = useNavigate()
   const { user, token, activeOrgId } = useSelector(s => s.auth)
   const { isDark } = useTheme()
+  const { userRole } = useOutletContext() || { userRole: 'viewer' }
+  const perms = getPermissions(userRole)
 
   const formatAction = (action) => {
     if (!action || typeof action !== 'string') {
@@ -551,21 +555,42 @@ const DashboardPage = () => {
                     : "Your organization is ready. Now create your first project."}
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-                <button 
-                  onClick={() => navigate('/projects')}
-                  className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25"
-                >
-                  <span className="material-symbols-outlined text-[20px]">
-                    {stats.totalProjects > 0 ? 'add_box' : 'create_new_folder'}
-                  </span>
-                  {stats.totalProjects > 0 ? 'New Project' : 'Create First Project'}
-                </button>
-                <button 
-                  onClick={() => navigate('/members')}
-                  className="px-6 py-3 rounded-lg font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[rgba(255,255,255,0.1)] bg-white/80 dark:bg-[rgba(255,255,255,0.04)] backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.08)] hover:border-slate-300 dark:hover:border-[rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Invite Members
-                </button>
+                {perms.canCreateProject ? (
+                  <button 
+                    onClick={() => navigate('/projects')}
+                    className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {stats.totalProjects > 0 ? 'add_box' : 'create_new_folder'}
+                    </span>
+                    {stats.totalProjects > 0 ? 'New Project' : 'Create First Project'}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate('/projects')}
+                    className="orbit-btn-primary bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 px-6 py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      folder
+                    </span>
+                    View Projects
+                  </button>
+                )}
+                {perms.canInviteMembers ? (
+                  <button 
+                    onClick={() => navigate('/members')}
+                    className="px-6 py-3 rounded-lg font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[rgba(255,255,255,0.1)] bg-white/80 dark:bg-[rgba(255,255,255,0.04)] backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.08)] hover:border-slate-300 dark:hover:border-[rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Invite Members
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate('/tasks')}
+                    className="px-6 py-3 rounded-lg font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[rgba(255,255,255,0.1)] bg-white/80 dark:bg-[rgba(255,255,255,0.04)] backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.08)] hover:border-slate-300 dark:hover:border-[rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    View Tasks
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -732,6 +757,11 @@ const DashboardPage = () => {
                     </p>
                     <p className="text-xs text-slate-500 mt-0.5">{item.sub}</p>
                     {item.isCurrentStep && (
+                      item.id === 1 ||
+                      item.id === 2 ||
+                      (item.id === 3 && perms.canCreateProject) ||
+                      (item.id === 4 && perms.canInviteMembers)
+                    ) && (
                       <button 
                         onClick={() => {
                           if (item.id === 2) setShowOrgModal(true)

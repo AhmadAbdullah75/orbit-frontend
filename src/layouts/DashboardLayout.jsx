@@ -1798,7 +1798,7 @@ export default function DashboardLayout() {
             exit="exit"
             style={{ flex: 1, minHeight: '100%' }}
           >
-            <Outlet />
+            <Outlet context={{ userRole }} />
           </motion.main>
         </div>
       </main>
