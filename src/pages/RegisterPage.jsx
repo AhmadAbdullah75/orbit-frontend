@@ -157,7 +157,7 @@ const RegisterPage = () => {
                     <h1
                         className="orbit-wordmark"
                         style={{
-                            fontSize: '42px',
+                            fontSize: '58px',
                             margin: '0 0 6px',
                             letterSpacing: '-1.5px',
                             lineHeight: 1,
