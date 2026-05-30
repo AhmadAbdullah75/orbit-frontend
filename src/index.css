@@ -5,7 +5,7 @@
 .orbit-wordmark {
   font-weight: 900 !important;
   letter-spacing: -1px !important;
-  font-size: inherit !important;
+  /* NO font-size here — set it on the element */
   background: linear-gradient(
     135deg, #6366f1 0%, #8b5cf6 100%
   ) !important;
