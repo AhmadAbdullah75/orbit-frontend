@@ -140,30 +140,41 @@ const LoginPage = () => {
                     padding: '36px',
                 }}>
                     <main className="w-full">
+                        {/* Logo + Title — centered block */}
                         <div style={{
                             display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
                             justifyContent: 'center',
-                            marginBottom: '8px',
-                        }}>
-                            <OrbitLogo size={52} showText={false} />
-                        </div>
-                        <h1
-                            className="orbit-wordmark"
-                            style={{
-                                fontSize: '26px',
-                                margin: '6px 0 4px',
-                                textAlign: 'center',
-                            }}>
-                            Orbit
-                        </h1>
-                        <p style={{
                             textAlign: 'center',
-                            fontSize: '14px',
-                            color: isDark ? '#475569' : '#94a3b8',
                             marginBottom: '28px',
                         }}>
-                            Sign in to your project workspace
-                        </p>
+                            <div style={{
+                                marginBottom: '12px',
+                            }}>
+                                <OrbitLogo size={56} showText={false} />
+                            </div>
+
+                            <h1
+                                className="orbit-wordmark"
+                                style={{
+                                    fontSize: '32px',
+                                    margin: '0 0 6px',
+                                    letterSpacing: '-1.5px',
+                                    lineHeight: 1,
+                                }}>
+                                Orbit
+                            </h1>
+
+                            <p style={{
+                                fontSize: '14px',
+                                color: isDark ? '#475569' : '#94a3b8',
+                                margin: 0,
+                                fontWeight: 400,
+                            }}>
+                                Sign in to your project workspace
+                            </p>
+                        </div>
 
                         <section className="w-full">
                     <form className="space-y-5" onSubmit={handleSubmit}>

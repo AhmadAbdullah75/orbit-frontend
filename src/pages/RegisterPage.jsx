@@ -141,30 +141,35 @@ const RegisterPage = () => {
                 maxWidth: '480px',
             }}>
             <main className="w-full">
-                {/* Logo section — NO background */}
+                {/* Logo + Title — centered */}
                 <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     textAlign: 'center',
-                    marginBottom: '24px',
+                    marginBottom: '20px',
                 }}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        marginBottom: '8px',
-                    }}>
-                        <OrbitLogo size={48} showText={false} />
+                    <div style={{ marginBottom: '12px' }}>
+                        <OrbitLogo size={56} showText={false} />
                     </div>
+
                     <h1
                         className="orbit-wordmark"
                         style={{
-                            fontSize: '26px',
-                            margin: '6px 0 4px',
+                            fontSize: '32px',
+                            margin: '0 0 6px',
+                            letterSpacing: '-1.5px',
+                            lineHeight: 1,
                         }}>
                         Orbit
                     </h1>
+
                     <p style={{
                         fontSize: '14px',
                         color: isDark ? '#475569' : '#94a3b8',
                         margin: 0,
+                        fontWeight: 400,
                     }}>
                         Create your project workspace
                     </p>
