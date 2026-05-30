@@ -15,6 +15,7 @@ function FilterPanel({
   projects,
   onReset,
   onApply,
+  formOnly = false,
 }) {
   const inputStyle = {
     padding: '9px 14px',
@@ -26,6 +27,182 @@ function FilterPanel({
     fontSize: '16px',
     outline: 'none',
     width: '100%',
+    boxSizing: 'border-box',
+  }
+
+  const formFields = (
+    <div style={{ padding: formOnly ? 0 : '16px' }}>
+      <div style={{ marginBottom: '14px' }}>
+        <label style={{
+          fontSize: '11px', fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: isDark ? '#64748b' : '#94a3b8',
+          display: 'block', marginBottom: '8px',
+        }}>
+          Search
+        </label>
+        <input
+          placeholder="Search tasks..."
+          value={pendingSearch}
+          onChange={e => setPendingSearch(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={{ marginBottom: '14px' }}>
+        <label style={{
+          fontSize: '11px', fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: isDark ? '#64748b' : '#94a3b8',
+          display: 'block', marginBottom: '8px',
+        }}>
+          Project
+        </label>
+        <select
+          value={pendingProject}
+          onChange={e => setPendingProject(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="all">All Projects</option>
+          {projects.map(p => (
+            <option key={p._id} value={p._id}>{p.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ marginBottom: '14px' }}>
+        <label style={{
+          fontSize: '11px', fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: isDark ? '#64748b' : '#94a3b8',
+          display: 'block', marginBottom: '8px',
+        }}>
+          Priority
+        </label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {[
+            { v: 'all', l: 'All', c: '#6366f1' },
+            { v: 'urgent', l: 'Urgent', c: '#ef4444' },
+            { v: 'high', l: 'High', c: '#f97316' },
+            { v: 'medium', l: 'Medium', c: '#eab308' },
+            { v: 'low', l: 'Low', c: '#94a3b8' },
+          ].map(p => (
+            <button
+              key={p.v}
+              type="button"
+              onClick={() => setPendingPriority(p.v)}
+              style={{
+                padding: '5px 12px',
+                borderRadius: '20px',
+                border: `1.5px solid ${pendingPriority === p.v ? p.c : 'transparent'}`,
+                background: pendingPriority === p.v
+                  ? `${p.c}18`
+                  : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                color: pendingPriority === p.v
+                  ? p.c
+                  : isDark ? '#64748b' : '#94a3b8',
+                fontSize: '12px', fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 150ms',
+              }}
+            >
+              {p.l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: formOnly ? 0 : '20px' }}>
+        <label style={{
+          fontSize: '11px', fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: isDark ? '#64748b' : '#94a3b8',
+          display: 'block', marginBottom: '8px',
+        }}>
+          Status
+        </label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {[
+            { v: 'all', l: 'All' },
+            { v: 'open', l: 'Open' },
+            { v: 'done', l: 'Done' },
+          ].map(s => (
+            <button
+              key={s.v}
+              type="button"
+              onClick={() => setPendingStatus(s.v)}
+              style={{
+                padding: '5px 14px',
+                borderRadius: '20px',
+                border: `1.5px solid ${pendingStatus === s.v ? '#6366f1' : 'transparent'}`,
+                background: pendingStatus === s.v
+                  ? 'rgba(99,102,241,0.1)'
+                  : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                color: pendingStatus === s.v
+                  ? '#6366f1'
+                  : isDark ? '#64748b' : '#94a3b8',
+                fontSize: '12px', fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 150ms',
+              }}
+            >
+              {s.l}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  const actionButtons = (
+    <div style={{
+      padding: formOnly ? 0 : '12px 16px',
+      borderTop: formOnly ? 'none' : `1px solid ${isDark
+        ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+      display: 'flex', gap: formOnly ? '10px' : '8px',
+    }}>
+      <button
+        type="button"
+        onClick={onReset}
+        style={{
+          flex: 1,
+          padding: formOnly ? '13px' : '10px',
+          borderRadius: formOnly ? '12px' : '10px',
+          border: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+          background: 'transparent',
+          color: isDark ? '#64748b' : '#94a3b8',
+          fontSize: formOnly ? '14px' : '13px',
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}>
+        Reset
+      </button>
+      <button
+        type="button"
+        onClick={onApply}
+        style={{
+          flex: 2,
+          padding: formOnly ? '13px' : '10px',
+          borderRadius: formOnly ? '12px' : '10px',
+          background: '#6366f1',
+          color: 'white',
+          border: 'none',
+          fontSize: formOnly ? '14px' : '13px',
+          fontWeight: 700,
+          cursor: 'pointer',
+        }}>
+        Apply Filters
+      </button>
+    </div>
+  )
+
+  if (formOnly) {
+    return formFields
   }
 
   return (
@@ -38,188 +215,32 @@ function FilterPanel({
         overflow: 'hidden',
       }}>
         <div style={{
-          padding: '20px 24px',
+          padding: '16px',
           borderBottom: `1px solid ${isDark
             ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}>
-          <h2 style={{
-            fontSize: '16px',
-            fontWeight: 700,
+          <span style={{
+            fontSize: '14px', fontWeight: 700,
             color: isDark ? '#f1f5f9' : '#0f172a',
-            margin: '0 0 4px',
           }}>
             Filter Tasks
-          </h2>
-          <p style={{
-            fontSize: '13px',
-            margin: 0,
-            color: isDark ? '#475569' : '#94a3b8',
-          }}>
-            Refine task results before applying the view.
-          </p>
-        </div>
-
-        <div style={{ padding: '16px' }}>
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{
-              fontSize: '11px', fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: isDark ? '#64748b' : '#94a3b8',
-              display: 'block', marginBottom: '8px',
-            }}>
-              Search
-            </label>
-            <input
-              placeholder="Search tasks..."
-              value={pendingSearch}
-              onChange={e => setPendingSearch(e.target.value)}
-              style={{ ...inputStyle, width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{
-              fontSize: '11px', fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: isDark ? '#64748b' : '#94a3b8',
-              display: 'block', marginBottom: '8px',
-            }}>
-              Project
-            </label>
-            <select
-              value={pendingProject}
-              onChange={e => setPendingProject(e.target.value)}
-              style={inputStyle}
-            >
-              <option value="all">All Projects</option>
-              {projects.map(p => (
-                <option key={p._id} value={p._id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{
-              fontSize: '11px', fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: isDark ? '#64748b' : '#94a3b8',
-              display: 'block', marginBottom: '8px',
-            }}>
-              Priority
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {[
-                { v: 'all', l: 'All', c: '#6366f1' },
-                { v: 'urgent', l: 'Urgent', c: '#ef4444' },
-                { v: 'high', l: 'High', c: '#f97316' },
-                { v: 'medium', l: 'Medium', c: '#eab308' },
-                { v: 'low', l: 'Low', c: '#94a3b8' },
-              ].map(p => (
-                <button
-                  key={p.v}
-                  type="button"
-                  onClick={() => setPendingPriority(p.v)}
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: '20px',
-                    border: `1.5px solid ${pendingPriority === p.v ? p.c : 'transparent'}`,
-                    background: pendingPriority === p.v
-                      ? `${p.c}18`
-                      : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
-                    color: pendingPriority === p.v
-                      ? p.c
-                      : isDark ? '#64748b' : '#94a3b8',
-                    fontSize: '12px', fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 150ms',
-                  }}
-                >
-                  {p.l}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              fontSize: '11px', fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: isDark ? '#64748b' : '#94a3b8',
-              display: 'block', marginBottom: '8px',
-            }}>
-              Status
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {[
-                { v: 'all', l: 'All' },
-                { v: 'open', l: 'Open' },
-                { v: 'done', l: 'Done' },
-              ].map(s => (
-                <button
-                  key={s.v}
-                  type="button"
-                  onClick={() => setPendingStatus(s.v)}
-                  style={{
-                    padding: '5px 14px',
-                    borderRadius: '20px',
-                    border: `1.5px solid ${pendingStatus === s.v ? '#6366f1' : 'transparent'}`,
-                    background: pendingStatus === s.v
-                      ? 'rgba(99,102,241,0.1)'
-                      : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
-                    color: pendingStatus === s.v
-                      ? '#6366f1'
-                      : isDark ? '#64748b' : '#94a3b8',
-                    fontSize: '12px', fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 150ms',
-                  }}
-                >
-                  {s.l}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div style={{
-          padding: '12px 16px',
-          borderTop: `1px solid ${isDark
-            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-          display: 'flex', gap: '8px',
-        }}>
+          </span>
           <button
             type="button"
             onClick={onReset}
             style={{
-              flex: 1, padding: '10px',
-              borderRadius: '10px',
-              border: `1px solid ${isDark
-                ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-              background: 'transparent',
-              color: isDark ? '#64748b' : '#94a3b8',
-              fontSize: '13px', fontWeight: 600,
-              cursor: 'pointer',
+              background: 'none', border: 'none',
+              cursor: 'pointer', fontSize: '12px',
+              color: '#6366f1', fontWeight: 600,
             }}>
-            Reset
-          </button>
-          <button
-            type="button"
-            onClick={onApply}
-            style={{
-              flex: 2, padding: '10px',
-              borderRadius: '10px',
-              background: '#6366f1',
-              color: 'white', border: 'none',
-              fontSize: '13px', fontWeight: 700,
-              cursor: 'pointer',
-            }}>
-            Apply Filters
+            Reset all
           </button>
         </div>
+        {formFields}
+        {actionButtons}
       </div>
     </div>
   )
@@ -296,10 +317,6 @@ export default function TasksPage() {
   }
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-
-  const showToast = useCallback((message, type = 'success') => {
-    setToast({ message, type })
-  }, [])
 
   const fetchAllTasks = async () => {
     if (!activeOrgId) {
@@ -670,77 +687,55 @@ export default function TasksPage() {
               <h1 className="orbit-page-title">
                 Workspace Tasks
               </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Manage, filter, and track all deliverables across your active organization projects.
+              <p style={{
+                fontSize: '14px', margin: 0,
+                color: isDark ? '#475569' : '#94a3b8',
+              }}>
+                Manage, filter, and track all deliverables across your projects.
               </p>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <div className="flex bg-slate-100 dark:bg-[rgba(255,255,255,0.04)] p-1 rounded-xl border border-slate-200/60 dark:border-[rgba(255,255,255,0.06)]">
-                <button
-                  onClick={() => setAssignedFilter('me')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    assignedFilter === 'me'
-                      ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Assigned to Me ({myTasksCount})
-                </button>
-                <button
-                  onClick={() => setAssignedFilter('all')}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    assignedFilter === 'all'
-                      ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  All Tasks ({allTasks.length})
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={filterOpen ? () => setFilterOpen(false) : handleOpenFilter}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '9px 16px',
-                  borderRadius: '10px',
-                  border: `1px solid ${
-                    activeFilterCount > 0
-                      ? '#6366f1'
-                      : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'
-                  }`,
-                  background: activeFilterCount > 0
-                    ? 'rgba(99,102,241,0.1)'
-                    : 'transparent',
-                  color: activeFilterCount > 0
+            <button
+              type="button"
+              onClick={filterOpen ? () => setFilterOpen(false) : handleOpenFilter}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 16px',
+                borderRadius: '10px',
+                border: `1px solid ${
+                  activeFilterCount > 0
                     ? '#6366f1'
-                    : isDark ? '#94a3b8' : '#64748b',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
+                    : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'
+                }`,
+                background: activeFilterCount > 0
+                  ? 'rgba(99,102,241,0.1)'
+                  : 'transparent',
+                color: activeFilterCount > 0
+                  ? '#6366f1'
+                  : isDark ? '#94a3b8' : '#64748b',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                tune
+              </span>
+              Filters
+              {activeFilterCount > 0 && (
+                <span style={{
+                  background: '#6366f1',
+                  color: 'white',
+                  borderRadius: '10px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '1px 7px',
                 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                  tune
+                  {activeFilterCount}
                 </span>
-                Filters
-                {activeFilterCount > 0 && (
-                  <span style={{
-                    background: '#6366f1',
-                    color: 'white',
-                    borderRadius: '10px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '1px 7px',
-                  }}>
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
+              )}
+            </button>
           </div>
 
           {/* QUICK STATS CARDS — 2-col mobile, 4-col desktop */}
@@ -805,6 +800,50 @@ export default function TasksPage() {
                   </p>
                 </div>
               </div>
+            ))}
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            background: isDark
+              ? 'rgba(255,255,255,0.04)' : '#f1f5f9',
+            borderRadius: '12px',
+            padding: '4px',
+            width: 'fit-content',
+            marginBottom: '16px',
+          }}>
+            {[
+              { key: 'all', label: `All Tasks (${allTasks.length})` },
+              { key: 'me', label: `Assigned to Me (${myTasks.length})` },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setAssignedFilter(tab.key)}
+                style={{
+                  padding: '7px 14px',
+                  borderRadius: '9px',
+                  border: 'none',
+                  background:
+                    assignedFilter === tab.key
+                      ? isDark ? '#1e293b' : 'white'
+                      : 'transparent',
+                  color:
+                    assignedFilter === tab.key
+                      ? isDark ? '#f1f5f9' : '#0f172a'
+                      : isDark ? '#475569' : '#94a3b8',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow:
+                    assignedFilter === tab.key
+                      ? '0 1px 3px rgba(0,0,0,0.1)'
+                      : 'none',
+                  transition: 'all 150ms',
+                }}>
+                {tab.label}
+              </button>
             ))}
           </div>
 
@@ -1029,6 +1068,7 @@ export default function TasksPage() {
                   WebkitOverflowScrolling: 'touch',
                 }}>
                   <FilterPanel
+                    formOnly
                     isDark={isDark}
                     pendingSearch={pendingSearch}
                     setPendingSearch={setPendingSearch}
@@ -1042,6 +1082,51 @@ export default function TasksPage() {
                     onReset={handleResetFilters}
                     onApply={handleApplyFilters}
                   />
+                </div>
+                <div style={{
+                  flexShrink: 0,
+                  padding: '12px 20px',
+                  paddingBottom:
+                    'max(12px, env(safe-area-inset-bottom))',
+                  borderTop: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+                  background: isDark ? '#111' : 'white',
+                  display: 'flex',
+                  gap: '10px',
+                }}>
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    style={{
+                      flex: 1,
+                      padding: '13px',
+                      borderRadius: '12px',
+                      border: `1px solid ${isDark
+                        ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                      background: 'transparent',
+                      color: isDark ? '#64748b' : '#94a3b8',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}>
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyFilters}
+                    style={{
+                      flex: 2,
+                      padding: '13px',
+                      borderRadius: '12px',
+                      background: '#6366f1',
+                      color: 'white',
+                      border: 'none',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}>
+                    Apply Filters
+                  </button>
                 </div>
               </div>
             </div>

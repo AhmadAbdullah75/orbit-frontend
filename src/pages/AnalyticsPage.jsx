@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
 
           {/* PROJECT METRICS */}
           <div className="p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
-            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Project Performance</h3>
+            <h2 className="orbit-section-title text-slate-900 dark:text-slate-100 mb-1">Project Performance</h2>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-6">Deliverable status metrics for each project workspace.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -344,9 +344,7 @@ export default function AnalyticsPage() {
               borderBottom: `1px solid ${isDark
                 ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
             }}>
-              <h2 style={{
-                fontSize: '16px',
-                fontWeight: 700,
+              <h2 className="orbit-section-title" style={{
                 color: isDark ? '#f1f5f9' : '#0f172a',
                 margin: '0 0 4px',
               }}>

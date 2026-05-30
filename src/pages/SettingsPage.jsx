@@ -318,7 +318,7 @@ export default function SettingsPage() {
         <p className="text-sm text-slate-500 dark:text-slate-400">Manage your account and workspace preferences.</p>
       </div>
 
-      <div className="space-y-6">
+      <div>
         {/* Profile Card */}
         <div
           ref={profileRef}
@@ -501,7 +501,19 @@ export default function SettingsPage() {
         </div>
 
         {/* Workspace Section */}
-        <section ref={workspaceRef} className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
+        <section
+          ref={workspaceRef}
+          className="settings-card overflow-hidden"
+          style={{
+            background: isDark ? '#111' : 'white',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)'
+              : 'rgba(99,102,241,0.1)'}`,
+            borderRadius: '16px',
+            marginBottom: '16px',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}>
           <div className="px-6 py-4 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Workspace</h2>
             <p className="text-xs text-slate-500 dark:text-slate-500">Configure your organization</p>
@@ -522,17 +534,21 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <div style={{
-          padding: '20px',
-          borderRadius: '14px',
-          background: isDark
-            ? 'rgba(99,102,241,0.08)'
-            : 'rgba(99,102,241,0.05)',
-          border: `1px solid ${isDark
-            ? 'rgba(99,102,241,0.2)'
-            : 'rgba(99,102,241,0.15)'}`,
-          marginTop: '24px',
-        }}>
+        <div
+          className="settings-card"
+          style={{
+            padding: '20px',
+            borderRadius: '16px',
+            background: isDark
+              ? 'rgba(99,102,241,0.08)'
+              : 'rgba(99,102,241,0.05)',
+            border: `1px solid ${isDark
+              ? 'rgba(99,102,241,0.2)'
+              : 'rgba(99,102,241,0.15)'}`,
+            marginBottom: '16px',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -598,7 +614,18 @@ export default function SettingsPage() {
         </div>
 
         {/* Notifications Section */}
-        <section className="rounded-xl overflow-hidden bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
+        <section
+          className="settings-card overflow-hidden"
+          style={{
+            background: isDark ? '#111' : 'white',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)'
+              : 'rgba(99,102,241,0.1)'}`,
+            borderRadius: '16px',
+            marginBottom: '16px',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}>
           <div className="px-6 py-4 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</h2>
             <p className="text-xs text-slate-500 dark:text-slate-500">Choose what to be notified about</p>
@@ -659,7 +686,20 @@ export default function SettingsPage() {
 
         {/* Danger Zone */}
         {getPermissions(currentOrg?.role || currentOrg?.userRole || 'viewer').canDeleteOrg && (
-          <section className="rounded-xl overflow-hidden bg-red-50/30 dark:bg-[rgba(239,68,68,0.04)] border border-red-100 dark:border-[rgba(239,68,68,0.1)] shadow-sm">
+          <section
+            className="settings-card overflow-hidden"
+            style={{
+              background: isDark
+                ? 'rgba(239,68,68,0.04)'
+                : 'rgba(254,242,242,0.5)',
+              border: `1px solid ${isDark
+                ? 'rgba(239,68,68,0.1)'
+                : 'rgba(254,226,226,1)'}`,
+              borderRadius: '16px',
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}>
             <div className="px-6 py-4 border-b border-red-50 dark:border-[rgba(239,68,68,0.05)]">
               <h2 className="text-sm font-semibold text-red-600 dark:text-red-400">Danger Zone</h2>
               <p className="text-xs text-red-500/60 dark:text-red-400/50">Irreversible and destructive actions</p>

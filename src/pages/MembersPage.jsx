@@ -78,20 +78,6 @@ const MembersPage = () => {
   const userRole = currentUserMembership?.role || 'viewer'
   const perms = getPermissions(userRole)
 
-  const canShowActions = (m) => {
-    // Member role: zero actions → hide action menu entirely
-    if (userRole === 'member') return false
-
-    // Admin cannot act on their own row
-    if (userRole === 'admin' &&
-        m.user?._id === user?._id) return false
-
-    // Nobody can act on the owner row
-    if (m.role === 'owner') return false
-
-    return true
-  }
-
   useEffect(() => {
     if (orgId) fetchMembers()
     else setLoading(false)
@@ -427,74 +413,77 @@ const MembersPage = () => {
         </td>
 
         <td className="px-6 py-4 text-right">
-          {canShowActions(m) && (
-            <div style={{ position: 'relative' }}
-              className="relative inline-block">
-              <button
-                type="button"
-                onClick={e => {
-                  e.stopPropagation()
-                  setOpenMenuId(
-                    openMenuId === m._id
-                      ? null : m._id
-                  )
-                }}
-                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ fontSize: '18px' }}>
-                  more_vert
-                </span>
-              </button>
+          {(() => {
+            if (userRole === 'member') return null
+            if (userRole === 'admin' &&
+                m.user?._id === user?._id) return null
+            if (m.role === 'owner') return null
 
-              {openMenuId === m._id && (
-                <div className="orbit-action-menu absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
-                  {perms.canChangeRoles &&
-                   ['admin', 'member']
-                    .filter(r => r !== m.role)
-                    .map(role => (
+            return (
+              <div style={{ position: 'relative' }}
+                className="relative inline-block">
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setOpenMenuId(
+                      openMenuId === m._id
+                        ? null : m._id
+                    )
+                  }}
+                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '18px' }}>
+                    more_vert
+                  </span>
+                </button>
+
+                {openMenuId === m._id && (
+                  <div className="orbit-action-menu absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
+                    {perms.canChangeRoles &&
+                     ['admin', 'member']
+                      .filter(r => r !== m.role)
+                      .map(role => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleChangeRole(
+                              m.user?._id, role
+                            )
+                          }}
+                          className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors capitalize"
+                        >
+                          Make {role.charAt(0).toUpperCase()
+                            + role.slice(1)}
+                        </button>
+                      ))}
+                    {perms.canRemoveMembers && (
                       <button
-                        key={role}
                         type="button"
                         onClick={e => {
                           e.stopPropagation()
-                          handleChangeRole(
-                            m.user?._id, role
+                          handleRemoveMember(
+                            m._id, m.user?._id
                           )
                         }}
-                        className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors capitalize"
+                        disabled={
+                          removing === m.user?._id
+                        }
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                        style={{ color: '#ef4444' }}
                       >
-                        Make {role.charAt(0).toUpperCase()
-                          + role.slice(1)}
+                        Remove
                       </button>
-                    ))}
-                  {perms.canRemoveMembers && (
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation()
-                        handleRemoveMember(
-                          m._id, m.user?._id
-                        )
-                      }}
-                      disabled={
-                        removing === m.user?._id
-                      }
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">
-                        person_remove
-                      </span>
-                      {removing === m.user?._id
-                        ? 'Removing...'
-                        : 'Remove'}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
         </td>
       </tr>
     ))
