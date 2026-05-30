@@ -86,7 +86,12 @@
             gap: '10px',
             marginBottom: '32px',
           }}>
-            <OrbitLogo size={48} textSize={22} />
+            <OrbitLogo size={48} showText={false} />
+            <span
+              className="orbit-wordmark"
+              style={{ fontSize: '22px' }}>
+              Orbit
+            </span>
           </div>
 
           {/* Card */}

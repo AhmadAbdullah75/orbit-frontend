@@ -407,7 +407,7 @@ function BoardColumn({
   const menuRef = useRef(null)
 
   return (
-    <div className="board-column flex flex-col shrink-0 rounded-xl
+    <div className="board-column orbit-board-column flex flex-col shrink-0 rounded-xl
              overflow-hidden"
       style={{
         width: width || '280px',
@@ -513,7 +513,8 @@ function BoardColumn({
       >
         <div
           ref={setNodeRef}
-          className={`flex-1 overflow-y-auto px-2
+          data-no-dnd="true"
+          className={`orbit-board-column-tasks flex-1 overflow-y-auto px-2
           py-1.5 space-y-2 min-h-[80px]
           custom-scrollbar
           ${isDark
@@ -524,6 +525,7 @@ function BoardColumn({
             flex: 1,
             overflowY: 'auto',
             overflowX: 'hidden',
+            padding: '4px 2px',
             minHeight: 0,
             overscrollBehavior: 'contain',
             WebkitOverflowScrolling: 'touch',
@@ -565,6 +567,10 @@ function BoardColumn({
                 key={task._id}
                 variants={taskCardVariant}
                 layoutId={`task-${task._id}`}
+                style={{
+                  touchAction: 'none',
+                  marginBottom: '8px',
+                }}
                 whileHover={{
                   y: -2,
                   boxShadow: isDark
@@ -2794,66 +2800,84 @@ function CreateTaskModal({
     }
   }
 
+  const isMobile =
+    typeof window !== 'undefined' &&
+    window.innerWidth < 768
+  const isNarrow =
+    typeof window !== 'undefined' &&
+    window.innerWidth < 480
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60
-                 backdrop-blur-sm z-[60] flex
-                 items-center justify-center p-4"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: isMobile ? 'flex-end' : 'center',
+        justifyContent: 'center',
+        padding: isMobile ? '0' : '20px',
+      }}
     >
-      <motion.div 
+      <motion.div
         variants={slideUp}
         initial="initial"
         animate="animate"
         exit="exit"
         style={{
           width: '100%',
-          maxWidth: '640px',
-          maxHeight: '92vh',
-          borderRadius: '24px',
-          boxShadow: isDark 
-            ? '0 25px 70px -12px rgba(0,0,0,0.8), 0 0 50px rgba(99,102,241,0.08)' 
-            : '0 25px 70px -12px rgba(0,0,0,0.18)',
-          backgroundColor: isDark ? '#111111' : '#fff',
-          border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0',
+          maxWidth: '560px',
+          maxHeight: isMobile
+            ? '92vh'
+            : 'calc(100vh - 40px)',
+          background: isDark ? '#111' : 'white',
+          borderRadius: isMobile
+            ? '20px 20px 0 0'
+            : '20px',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          boxShadow: isDark
+            ? '0 25px 70px -12px rgba(0,0,0,0.8)'
+            : '0 25px 70px -12px rgba(0,0,0,0.18)',
+          border: isDark
+            ? '1px solid rgba(255,255,255,0.08)'
+            : '1px solid #e2e8f0',
         }}
       >
-        <div className={`px-8 py-6 border-b flex
-          items-center justify-between
-          ${isDark
-            ? 'border-[rgba(255,255,255,0.06)] bg-white/[0.01]'
-            : 'border-slate-100 bg-slate-50/50'
-          }`}>
-          <div className="flex flex-col">
-            <h2 className={`text-xl font-bold
-              ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              New Task
-            </h2>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Fill in the details to create a new task
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-xl transition-all hover:scale-110 active:scale-95
-              ${isDark
-                ? 'text-slate-500 hover:text-slate-200 hover:bg-white/10'
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-              }`}
-          >
-            <span className="material-symbols-outlined
-                             text-[24px]">
-              close
-            </span>
-          </button>
+        <div style={{
+          padding: '20px 20px 0',
+          flexShrink: 0,
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: 700,
+            color: isDark ? '#f1f5f9' : '#0f172a',
+            margin: '0 0 4px',
+          }}>
+            New Task
+          </h2>
+          <p style={{
+            fontSize: '13px',
+            margin: '0 0 20px',
+            color: isDark ? '#475569' : '#94a3b8',
+          }}>
+            Fill in the details to create a new task.
+          </p>
         </div>
 
-        <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '0 20px',
+          WebkitOverflowScrolling: 'touch',
+        }}
+        className="space-y-6 custom-scrollbar">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -2909,7 +2933,12 @@ function CreateTaskModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isNarrow ? '1fr' : '1fr 1fr',
+            gap: '12px',
+            marginBottom: '14px',
+          }}>
             <div>
               <label className={`block text-xs font-bold
                 uppercase tracking-wider mb-1.5
@@ -3098,7 +3127,12 @@ function CreateTaskModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isNarrow ? '1fr' : '1fr 1fr',
+            gap: '12px',
+            marginBottom: '14px',
+          }}>
             <div>
               <label className={`block text-xs font-bold
                 uppercase tracking-wider mb-1.5
@@ -3226,35 +3260,57 @@ function CreateTaskModal({
             </div>
           </div>
 
-          <div className="pt-6 flex justify-end gap-4 mt-8 border-t border-[rgba(255,255,255,0.06)]">
-            <button
-              type="button"
-              onClick={onClose}
-              className={`px-6 py-3 rounded-2xl text-sm
-                font-bold border transition-all active:scale-95
-                ${isDark
-                  ? 'border-[rgba(255,255,255,0.1)] text-slate-400 hover:bg-white/5 hover:text-white'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleCreate}
-              disabled={submitting}
-              className="px-8 py-3 rounded-2xl text-sm
-                         font-bold bg-indigo-600
-                         hover:bg-indigo-700 text-white
-                         shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)]
-                         hover:shadow-[0_15px_30px_-5px_rgba(79,70,229,0.4)]
-                         transition-all active:scale-95
-                         disabled:opacity-50 flex items-center gap-2"
-            >
-              {submitting && <div className="size-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}
-              {submitting ? 'Creating...' : 'Create Task'}
-            </button>
-          </div>
+          <div style={{ height: '8px' }} />
+        </div>
+
+        <div style={{
+          flexShrink: 0,
+          padding: '14px 20px',
+          paddingBottom:
+            'max(14px, env(safe-area-inset-bottom))',
+          borderTop: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          background: isDark ? '#111' : 'white',
+          display: 'flex',
+          gap: '10px',
+        }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: '13px',
+              borderRadius: '12px',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+              background: 'transparent',
+              color: isDark ? '#94a3b8' : '#64748b',
+              fontSize: '15px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={submitting}
+            style={{
+              flex: 2,
+              padding: '13px',
+              borderRadius: '12px',
+              background: submitting
+                ? '#818cf8' : '#6366f1',
+              color: 'white',
+              border: 'none',
+              fontSize: '15px',
+              fontWeight: 700,
+              cursor: submitting
+                ? 'not-allowed' : 'pointer',
+              opacity: submitting ? 0.8 : 1,
+            }}>
+            {submitting ? 'Creating...' : 'Create Task'}
+          </button>
         </div>
       </motion.div>
     </motion.div>

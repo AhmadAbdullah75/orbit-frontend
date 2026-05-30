@@ -306,7 +306,15 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 pb-12">
+    <div
+      className="settings-page-wrap"
+      style={{
+        maxWidth: '760px',
+        margin: '0 auto',
+        padding: '24px',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">Manage your account and workspace preferences.</p>
@@ -314,7 +322,20 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         {/* Profile Card */}
-        <div ref={profileRef} className={`p-6 rounded-2xl border ${isDark ? 'bg-[#141414] border-[rgba(255,255,255,0.06)]' : 'bg-white border-slate-200'}`}>
+        <div
+          ref={profileRef}
+          className="settings-card"
+          style={{
+            background: isDark ? '#111' : 'white',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)'
+              : 'rgba(99,102,241,0.1)'}`,
+            borderRadius: '16px',
+            padding: '24px',
+            marginBottom: '16px',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}>
           <h2 className="text-lg font-bold mb-4 text-slate-900 dark:text-white flex items-center gap-2">
             <span className="material-symbols-outlined text-indigo-500">person</span>
             Profile Information
@@ -447,12 +468,23 @@ export default function SettingsPage() {
                     placeholder="Enter your name"
                     className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border-none outline-none transition-all ${isDark ? 'bg-white/5 text-white focus:ring-2 focus:ring-indigo-500/20' : 'bg-slate-100 text-slate-900 focus:ring-2 focus:ring-indigo-500/20'}`}
                   />
-                  <button 
+                  <button
+                    type="button"
                     onClick={handleSaveName}
                     disabled={savingName || profileName === user?.name}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 ${isDark ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20'}`}
-                  >
-                    {savingName ? '...' : (nameSaved ? 'Saved!' : 'Save')}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '10px',
+                      background: '#6366f1',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      cursor: savingName ? 'not-allowed' : 'pointer',
+                      opacity: savingName ? 0.7 : 1,
+                      minWidth: '80px',
+                    }}>
+                    {savingName ? 'Saving...' : (nameSaved ? 'Saved!' : 'Save')}
                   </button>
                 </div>
                 {nameError && <p className="mt-1.5 text-xs text-red-500 font-medium px-1">{nameError}</p>}

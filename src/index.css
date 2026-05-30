@@ -1,6 +1,21 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+/* ══ ORBIT BRAND TEXT — use class everywhere ═ */
+.orbit-wordmark {
+  font-weight: 900 !important;
+  letter-spacing: -1px !important;
+  font-size: inherit !important;
+  background: linear-gradient(
+    135deg, #6366f1 0%, #8b5cf6 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  display: inline-block !important;
+  line-height: 1.1 !important;
+}
+
 /* ── Global smooth transitions ── */
 *,
 *::before,
@@ -506,15 +521,22 @@ html, body, #root {
     width: 100% !important;
   }
 
-  /* Notification dropdown: full width on mobile */
+  /* Notification panel: FULL width, anchored to top */
   .orbit-notification-dropdown {
     position: fixed !important;
-    top: 56px !important;
-    left: var(--mobile-pad) !important;
-    right: var(--mobile-pad) !important;
+    top: 60px !important;
+    left: 12px !important;
+    right: 12px !important;
     width: auto !important;
-    max-height: 70vh !important;
+    min-width: auto !important;
+    max-width: none !important;
+    max-height: calc(100vh - 80px) !important;
     overflow-y: auto !important;
+    z-index: 999 !important;
+  }
+
+  .notif-bell-wrap {
+    position: static !important;
   }
 
   /* Avatar dropdown: anchor under avatar */
@@ -1272,16 +1294,38 @@ body:not(.dark) .orbit-nav-item[data-active="true"] {
     }
   }
 
+  @media (max-width: 768px) {
+    .settings-card {
+      border-radius: 12px !important;
+      padding: 16px !important;
+      margin-bottom: 12px !important;
+    }
+
+    .orbit-board-column {
+      height: calc(100vh - 180px) !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .orbit-board-column-tasks {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+  }
+
   @media (max-width: 480px) {
     /* Settings profile name stack */
     .settings-name-row {
       flex-direction: column !important;
-      gap: 12px !important;
+      gap: 10px !important;
     }
     .settings-name-row button {
       width: 100% !important;
-      padding-top: 10px !important;
-      padding-bottom: 10px !important;
+    }
+
+    .settings-page-wrap {
+      padding: 12px !important;
     }
 
     /* 360-480px: everything single column */

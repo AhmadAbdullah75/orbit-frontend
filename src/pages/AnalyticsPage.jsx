@@ -5,9 +5,11 @@ import api from '../services/axios'
 import Toast from '../components/Toast'
 import EmptyOrg from '../components/EmptyOrg'
 import useAutoRefresh from '../hooks/useAutoRefresh'
+import { useTheme } from '../context/ThemeContext'
 
 export default function AnalyticsPage() {
   const navigate = useNavigate()
+  const { isDark } = useTheme()
   const { activeOrgId } = useSelector(s => s.auth)
 
   const [loading, setLoading] = useState(true)
@@ -328,146 +330,118 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* TEAM MEMBERS CONTRIBUTION */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#161616] border border-slate-200/80 dark:border-[rgba(255,255,255,0.07)] shadow-sm">
-            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Contributor Output</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-6">Assigned work counts and completion logs for organization members.</p>
-            
-            {/* Desktop: table view */}
-            <div className="overflow-x-auto hidden sm:block">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                    <th className="pb-3 font-semibold">Team Member</th>
-                    <th className="pb-3 font-semibold text-center">Assigned Tasks</th>
-                    <th className="pb-3 font-semibold text-center">Completed</th>
-                    <th className="pb-3 font-semibold text-center">Active</th>
-                    <th className="pb-3 font-semibold text-right">Completion Rate</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100/50 dark:divide-[rgba(255,255,255,0.03)] text-sm">
-                  {membersAnalytics.map((member) => (
-                    <tr key={member._id} className="hover:bg-slate-50/50 dark:hover:bg-white/1 transition-colors">
-                      <td className="py-3.5 flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
-                          {(member.user?.avatar || member.avatar) ? (
-                            <img src={member.user?.avatar || member.avatar} className="size-full object-cover" alt="" />
-                          ) : (
-                            ((member.user?.name || member.name || '?').charAt(0)).toUpperCase()
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-800 dark:text-slate-200">{member.user?.name || member.name}</p>
-                          <p className="text-xs text-slate-400">{member.user?.email || member.email}</p>
-                        </div>
-                      </td>
-                      <td className="py-3.5 text-center font-bold text-slate-700 dark:text-slate-300">
-                        {member.assigned}
-                      </td>
-                      <td className="py-3.5 text-center font-bold text-emerald-500">
-                        {member.done}
-                      </td>
-                      <td className="py-3.5 text-center font-bold text-indigo-500">
-                        {member.active}
-                      </td>
-                      <td className="py-3.5 text-right font-black text-slate-800 dark:text-slate-100">
-                        {member.assigned > 0 ? (
-                          <div className="flex items-center justify-end gap-2">
-                            <span>{member.rate}%</span>
-                            <div className="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                              <div
-                                className="h-full bg-emerald-500"
-                                style={{ width: `${member.rate}%` }}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* Contributor Output — cards only */}
+          <div style={{ marginTop: '24px' }}>
+            <h2 style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#94a3b8' : '#64748b',
+              marginBottom: '12px',
+            }}>
+              Contributor Output
+            </h2>
+            <p style={{
+              fontSize: '13px',
+              color: isDark ? '#475569' : '#94a3b8',
+              marginBottom: '16px',
+            }}>
+              Assigned work counts and completion logs.
+            </p>
 
-            {/* Mobile: card view */}
-            <div className="sm:hidden" style={{
+            <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr',
+              gridTemplateColumns:
+                typeof window !== 'undefined' &&
+                window.innerWidth >= 768
+                  ? '1fr 1fr'
+                  : '1fr',
               gap: '10px',
             }}>
               {membersAnalytics.map(m => (
-                <div key={m._id} style={{
-                  padding: '14px 16px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-                className="bg-white dark:bg-[#111] border border-slate-200/80 dark:border-[rgba(255,255,255,0.06)]"
-                >
-                  {/* Avatar */}
+                <div
+                  key={m._id || m.user?._id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    background: isDark ? '#111' : 'white',
+                    border: `1px solid ${isDark
+                      ? 'rgba(255,255,255,0.06)'
+                      : 'rgba(99,102,241,0.1)'}`,
+                  }}>
                   <div style={{
-                    width: '36px', height: '36px',
+                    width: '38px',
+                    height: '38px',
                     borderRadius: '50%',
                     background: '#6366f1',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '14px', fontWeight: 700,
-                    color: 'white', flexShrink: 0,
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: 'white',
+                    flexShrink: 0,
                     overflow: 'hidden',
                   }}>
-                    {(m.user?.avatar || m.avatar)
-                      ? <img src={m.user?.avatar || m.avatar}
-                          style={{ width: '100%',
-                                   height: '100%',
-                                   objectFit: 'cover' }}
-                          alt="" />
-                      : ((m.user?.name || m.name || '?').charAt(0)).toUpperCase()
-                    }
+                    {m.user?.avatar
+                      ? (
+                        <img
+                          src={m.user.avatar}
+                          alt=""
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      )
+                      : (m.user?.name || '?')
+                        .charAt(0).toUpperCase()}
                   </div>
-
-                  {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
-                      fontSize: '13px', fontWeight: 600,
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: isDark ? '#f1f5f9' : '#0f172a',
                       margin: '0 0 2px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                    }}
-                    className="text-slate-900 dark:text-slate-100"
-                    >
-                      {m.user?.name || m.name || 'Unknown'}
+                    }}>
+                      {m.user?.name || 'Unknown'}
                     </p>
                     <p style={{
-                      fontSize: '11px', margin: 0,
-                    }}
-                    className="text-slate-400 dark:text-slate-500"
-                    >
-                      {m.assigned} assigned · {m.done} done
+                      fontSize: '11px',
+                      margin: 0,
+                      color: isDark ? '#475569' : '#94a3b8',
+                    }}>
+                      {m.assigned} assigned ·{' '}
+                      {m.done} done
                     </p>
                   </div>
-
-                  {/* Completion rate */}
                   <div style={{
-                    textAlign: 'right', flexShrink: 0,
+                    textAlign: 'right',
+                    flexShrink: 0,
                   }}>
                     <p style={{
-                      fontSize: '16px', fontWeight: 800,
+                      fontSize: '18px',
+                      fontWeight: 800,
                       color: m.assigned > 0
                         ? '#10b981' : '#94a3b8',
                       margin: 0,
+                      lineHeight: 1,
                     }}>
                       {m.assigned > 0 ? `${m.rate}%` : '—'}
                     </p>
                     <p style={{
-                      fontSize: '10px', margin: 0,
-                    }}
-                    className="text-slate-400 dark:text-slate-500"
-                    >
+                      fontSize: '10px',
+                      margin: '2px 0 0',
+                      color: isDark ? '#475569' : '#94a3b8',
+                    }}>
                       completion
                     </p>
                   </div>

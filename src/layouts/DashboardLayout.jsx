@@ -373,6 +373,115 @@ export default function DashboardLayout() {
     }
   };
 
+  const handleNotificationClick = async (notif) => {
+    handleMarkRead(notif._id)
+
+    const isInvitation =
+      notif.type === 'invitation' ||
+      notif.message?.toLowerCase()
+        .includes('invited')
+
+    if (!isInvitation) return
+
+    const orgId = notif.metadata?.orgId
+    const orgName = notif.metadata?.orgName
+
+    const alreadyInOrg = orgs.find(
+      o => o._id === orgId ||
+           o.name === orgName
+    )
+
+    if (alreadyInOrg) {
+      setInviteModal({
+        ...notif,
+        alreadyAccepted: true,
+        acceptedOrg: alreadyInOrg,
+      })
+      setShowNotifications(false)
+      return
+    }
+
+    let token = notif.metadata?.invitationToken
+
+    if (!token) {
+      try {
+        const res = await api.get(
+          '/organizations/my-invitations'
+        )
+        const pending =
+          res.data?.data?.invitations || []
+        const match = pending.find(inv =>
+          inv.organization?._id === orgId ||
+          inv.organization?.name === orgName
+        )
+        if (match) {
+          token = match.token
+        } else {
+          setInviteModal({
+            ...notif,
+            alreadyAccepted: true,
+            acceptedOrg: null,
+          })
+          setShowNotifications(false)
+          return
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    setInviteModal({
+      ...notif,
+      alreadyAccepted: false,
+      metadata: {
+        ...notif.metadata,
+        invitationToken: token,
+      },
+    })
+    setShowNotifications(false)
+  }
+
+  const handleAcceptInvite = async () => {
+    setAcceptingInvite(true)
+    try {
+      const token = inviteModal.metadata?.invitationToken
+      const acceptRes = await api.post(
+        '/organizations/invite/accept',
+        { token }
+      )
+
+      const res = await api.get('/organizations')
+      const freshOrgs = res.data?.data?.organizations || []
+      setOrgs(freshOrgs)
+
+      const acceptedOrgId = acceptRes.data?.data?.orgId
+      const newOrg = freshOrgs.find(
+        o => o._id === acceptedOrgId
+      ) || freshOrgs.find(
+        o => o.name === inviteModal.metadata?.orgName
+      )
+      if (newOrg) {
+        dispatch(setActiveOrg(newOrg._id))
+        localStorage.setItem('orbit_last_org_id', newOrg._id)
+      }
+
+      setInviteModal(null)
+      showToast(
+        `Joined ${inviteModal.metadata?.orgName || 'organization'}!`,
+        'success'
+      )
+      navigate('/dashboard')
+    } catch (err) {
+      showToast(
+        err.response?.data?.message ||
+          'Failed to accept invitation',
+        'error'
+      )
+    } finally {
+      setAcceptingInvite(false)
+    }
+  }
+
   const handleCreateOrg = async () => {
     if (!newOrgName.trim()) {
       setCreateOrgError('Name is required');
@@ -1352,7 +1461,11 @@ export default function DashboardLayout() {
             </button>
 
             {/* Notifications */}
-            <div className="relative" ref={notifRef}>
+            <div
+              className="notif-bell-wrap"
+              style={{ position: 'relative' }}
+              ref={notifRef}
+            >
               <motion.button
                 animate={unreadCount > 0
                   ? { rotate: [0, -12, 12, -8, 8, 0] }
@@ -1399,7 +1512,21 @@ export default function DashboardLayout() {
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  className="absolute right-0 top-10 w-80 rounded-xl shadow-xl z-50 bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)] overflow-hidden"
+                  className="orbit-notification-dropdown rounded-xl shadow-xl overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]"
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '44px',
+                    width: '360px',
+                    maxHeight: '480px',
+                    overflowY: 'auto',
+                    background: isDark ? '#111' : 'white',
+                    borderRadius: '16px',
+                    border: `1px solid ${isDark
+                      ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                    zIndex: 90,
+                  }}
                 >
                   <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</h3>
@@ -1418,57 +1545,7 @@ export default function DashboardLayout() {
                         <div
                           key={notif._id}
                           className="orbit-notif-item"
-                          onClick={async () => {
-                            console.log('[NOTIF CLICK]', notif)
-                            handleMarkRead(notif._id)
-
-                            const isInvitation =
-                              notif.type === 'invitation' ||
-                              notif.message?.toLowerCase()
-                                .includes('invited') ||
-                              notif.metadata?.invitationToken
-
-                            if (!isInvitation) return
-
-                            let token = notif.metadata?.invitationToken
-
-                            if (!token) {
-                              try {
-                                const res = await api.get(
-                                  '/organizations/my-invitations'
-                                )
-                                const pending =
-                                  res.data?.data?.invitations || []
-                                const match = pending.find(inv =>
-                                  inv.organization?.name ===
-                                    notif.metadata?.orgName ||
-                                  inv.status === 'pending'
-                                )
-                                if (match) {
-                                  token = match.token
-                                }
-                              } catch (e) {
-                                console.error(
-                                  'Could not fetch invite:', e
-                                )
-                              }
-                            }
-
-                            if (token) {
-                              setInviteModal({
-                                ...notif,
-                                metadata: {
-                                  ...notif.metadata,
-                                  invitationToken: token,
-                                  orgName: notif.metadata?.orgName ||
-                                    notif.message,
-                                  role: notif.metadata?.role ||
-                                    'member',
-                                },
-                              })
-                            }
-                            setShowNotifications(false)
-                          }}
+                          onClick={() => handleNotificationClick(notif)}
                           style={{
                             padding: '12px 16px',
                             cursor: notif.type === 'invitation'
@@ -1916,160 +1993,203 @@ export default function DashboardLayout() {
             padding: '32px',
             border: `1px solid ${isDark
               ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
           }}>
-            {/* Icon */}
-            <div style={{
-              width: '60px', height: '60px',
-              borderRadius: '16px',
-              background: 'rgba(99,102,241,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 20px',
-            }}>
-              <span className="material-symbols-outlined"
-                style={{ fontSize: '30px',
-                         color: '#6366f1' }}>
-                group_add
-              </span>
-            </div>
 
-            <h3 style={{
-              fontSize: '18px',
-              fontWeight: 700,
-              color: isDark ? '#f1f5f9' : '#0f172a',
-              textAlign: 'center',
-              marginBottom: '8px',
-            }}>
-              Team Invitation
-            </h3>
-
-            <p style={{
-              fontSize: '14px',
-              color: isDark ? '#64748b' : '#94a3b8',
-              textAlign: 'center',
-              lineHeight: 1.6,
-              marginBottom: '8px',
-            }}>
-              <strong style={{
-                color: isDark ? '#e2e8f0' : '#1e293b',
-              }}>
-                {inviteModal.sender?.name || 'Someone'}
-              </strong>
-              {' '}has invited you to join
-            </p>
-
-            <p style={{
-              fontSize: '20px',
-              fontWeight: 800,
-              color: '#6366f1',
-              textAlign: 'center',
-              marginBottom: '6px',
-            }}>
-              {inviteModal.metadata?.orgName ||
-               'their organization'}
-            </p>
-
-            <p style={{
-              fontSize: '13px',
-              color: isDark ? '#475569' : '#94a3b8',
-              textAlign: 'center',
-              marginBottom: '28px',
-            }}>
-              as{' '}
-              <span style={{
-                fontWeight: 600,
-                color: isDark ? '#94a3b8' : '#64748b',
-                textTransform: 'capitalize',
-              }}>
-                {inviteModal.metadata?.role || 'member'}
-              </span>
-            </p>
-
-            {/* Buttons */}
-            <div style={{
-              display: 'flex',
-              gap: '10px',
-            }}>
-              <button
-                type="button"
-                onClick={() => setInviteModal(null)}
-                disabled={acceptingInvite}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: `1px solid ${isDark
-                    ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-                  background: 'transparent',
-                  color: isDark ? '#94a3b8' : '#64748b',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
+            {inviteModal.alreadyAccepted ? (
+              <>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  background: 'rgba(16,185,129,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
                 }}>
-                Decline
-              </button>
-              <button
-                type="button"
-                disabled={acceptingInvite}
-                onClick={async () => {
-                  setAcceptingInvite(true)
-                  try {
-                    const token = inviteModal.metadata?.invitationToken
-                    const acceptRes = await api.post(
-                      '/organizations/invite/accept',
-                      { token }
-                    )
-                    
-                    // Refresh orgs to show new org
-                    const res = await api.get('/organizations')
-                    const orgs = res.data?.data?.organizations || []
-                    setOrgs(orgs)
-
-                    const acceptedOrgId = acceptRes.data?.data?.orgId
-                    // Switch to accepted org
-                    const newOrg = orgs.find(
-                      o => o._id === acceptedOrgId
-                    ) || orgs.find(
-                      o => o.name === inviteModal.metadata?.orgName
-                    )
-                    if (newOrg) {
-                      dispatch(setActiveOrg(newOrg._id))
-                      localStorage.setItem('orbit_last_org_id', newOrg._id)
-                    }
-                    
-                    setInviteModal(null)
-                    // Show success toast
-                    showToast(`Joined ${inviteModal.metadata?.orgName || 'organization'}!`, 'success')
-                    // Navigate to dashboard
-                    navigate('/dashboard')
-                  } catch (err) {
-                    showToast(
-                      err.response?.data?.message || 'Failed to accept invitation',
-                      'error'
-                    )
-                  } finally {
-                    setAcceptingInvite(false)
-                  }
-                }}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: '#6366f1',
-                  color: 'white',
-                  fontSize: '14px',
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '30px', color: '#10b981' }}>
+                    check_circle
+                  </span>
+                </div>
+                <h3 style={{
+                  textAlign: 'center',
+                  fontSize: '18px',
                   fontWeight: 700,
-                  cursor: acceptingInvite
-                    ? 'not-allowed' : 'pointer',
-                  opacity: acceptingInvite ? 0.7 : 1,
+                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  marginBottom: '8px',
                 }}>
-                {acceptingInvite
-                  ? 'Joining...' : 'Accept ✓'}
-              </button>
-            </div>
+                  Already Joined!
+                </h3>
+                <p style={{
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  color: isDark ? '#64748b' : '#94a3b8',
+                  lineHeight: 1.6,
+                  marginBottom: '24px',
+                }}>
+                  You&apos;re already a member of{' '}
+                  <strong style={{ color: '#6366f1' }}>
+                    {inviteModal.acceptedOrg?.name
+                      || inviteModal.metadata?.orgName
+                      || 'this workspace'}
+                  </strong>.
+                  This invitation was already accepted.
+                </p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {inviteModal.acceptedOrg && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        dispatch(setActiveOrg(
+                          inviteModal.acceptedOrg._id
+                        ))
+                        setInviteModal(null)
+                        navigate('/dashboard')
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        borderRadius: '12px',
+                        background: '#6366f1',
+                        color: 'white',
+                        border: 'none',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                      }}>
+                      Go to Workspace
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setInviteModal(null)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      border: `1px solid ${isDark
+                        ? 'rgba(255,255,255,0.1)'
+                        : '#e2e8f0'}`,
+                      background: 'transparent',
+                      color: isDark ? '#64748b' : '#94a3b8',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                    }}>
+                    Close
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  background: 'rgba(99,102,241,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                }}>
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: '30px', color: '#6366f1' }}>
+                    group_add
+                  </span>
+                </div>
+                <h3 style={{
+                  textAlign: 'center',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  marginBottom: '8px',
+                }}>
+                  Team Invitation
+                </h3>
+                <p style={{
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  color: isDark ? '#64748b' : '#94a3b8',
+                  lineHeight: 1.6,
+                  marginBottom: '6px',
+                }}>
+                  <strong style={{
+                    color: isDark ? '#e2e8f0' : '#1e293b',
+                  }}>
+                    {inviteModal.sender?.name || 'Someone'}
+                  </strong>{' '}
+                  invited you to join
+                </p>
+                <p style={{
+                  textAlign: 'center',
+                  fontSize: '20px',
+                  fontWeight: 800,
+                  color: '#6366f1',
+                  marginBottom: '6px',
+                }}>
+                  {inviteModal.metadata?.orgName
+                    || 'a workspace'}
+                </p>
+                <p style={{
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  color: isDark ? '#475569' : '#94a3b8',
+                  marginBottom: '24px',
+                }}>
+                  as{' '}
+                  <span style={{
+                    fontWeight: 600,
+                    textTransform: 'capitalize',
+                  }}>
+                    {inviteModal.metadata?.role || 'member'}
+                  </span>
+                </p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setInviteModal(null)}
+                    disabled={acceptingInvite}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      border: `1px solid ${isDark
+                        ? 'rgba(255,255,255,0.1)'
+                        : '#e2e8f0'}`,
+                      background: 'transparent',
+                      color: isDark ? '#94a3b8' : '#64748b',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                    }}>
+                    Decline
+                  </button>
+                  <button
+                    type="button"
+                    disabled={acceptingInvite}
+                    onClick={handleAcceptInvite}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      background: '#6366f1',
+                      color: 'white',
+                      border: 'none',
+                      cursor: acceptingInvite
+                        ? 'not-allowed' : 'pointer',
+                      opacity: acceptingInvite ? 0.7 : 1,
+                      fontSize: '14px',
+                      fontWeight: 700,
+                    }}>
+                    {acceptingInvite
+                      ? 'Joining...' : 'Accept ✓'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

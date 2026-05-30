@@ -147,35 +147,15 @@ const LoginPage = () => {
                         }}>
                             <OrbitLogo size={52} showText={false} />
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            marginBottom: '4px',
-                        }}>
-                          <div style={{
-                            textAlign: 'center',
-                            marginBottom: '4px',
-                            position: 'relative',
-                            display: 'inline-block',
-                          }}>
-                            <h1 style={{
-                              fontSize: '28px',
-                              fontWeight: 900,
-                              letterSpacing: '-1.5px',
-                              margin: 0,
-                              lineHeight: 1,
-                              background:
-                                'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text',
-                              filter:
-                                'drop-shadow(0 2px 4px rgba(99,102,241,0.25))',
+                        <h1
+                            className="orbit-wordmark"
+                            style={{
+                                fontSize: '26px',
+                                margin: '6px 0 4px',
+                                textAlign: 'center',
                             }}>
-                              Orbit
-                            </h1>
-                          </div>
-                        </div>
+                            Orbit
+                        </h1>
                         <p style={{
                             textAlign: 'center',
                             fontSize: '14px',

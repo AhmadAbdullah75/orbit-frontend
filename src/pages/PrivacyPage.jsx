@@ -100,7 +100,12 @@
               background: isDark
                 ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
             }} />
-            <OrbitLogo size={28} textSize={16} />
+            <OrbitLogo size={28} showText={false} />
+            <span
+              className="orbit-wordmark"
+              style={{ fontSize: '16px' }}>
+              Orbit
+            </span>
           </div>
         </div>
 

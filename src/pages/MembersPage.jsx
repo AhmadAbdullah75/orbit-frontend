@@ -78,6 +78,14 @@ const MembersPage = () => {
   const userRole = currentUserMembership?.role || 'viewer'
   const perms = getPermissions(userRole)
 
+  const canShowActions = (m) => {
+    if (m.role === 'owner') return false
+    if (userRole === 'admin' &&
+        m.user?._id === user?._id) return false
+    if (userRole === 'member') return false
+    return true
+  }
+
   useEffect(() => {
     if (orgId) fetchMembers()
     else setLoading(false)
@@ -410,10 +418,11 @@ const MembersPage = () => {
         </td>
 
         <td className="px-6 py-4 text-right">
-          {m.role !== 'owner' &&
-           perms.canManageMembers ? (
-            <div className="relative inline-block">
+          {canShowActions(m) && (
+            <div style={{ position: 'relative' }}
+              className="relative inline-block">
               <button
+                type="button"
                 onClick={e => {
                   e.stopPropagation()
                   setOpenMenuId(
@@ -423,54 +432,37 @@ const MembersPage = () => {
                 }}
                 className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
               >
-                <span className="material-symbols-outlined text-[20px]">
-                  more_horiz
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '18px' }}>
+                  more_vert
                 </span>
               </button>
 
               {openMenuId === m._id && (
                 <div className="orbit-action-menu absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
-                  {/* Show role change ONLY if:
-                      - Current user has canChangeRoles permission
-                      - Target is not the owner (already filtered by m.role !== 'owner' above)
-                      - Target is not the current user (if admin) */}
                   {perms.canChangeRoles &&
-                   m.role !== 'owner' &&
-                   !(userRole === 'admin' && m.user?._id === user?._id) && (
-                    <>
-                      <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        Change Role
-                      </div>
-                      {['admin', 'member'].map(r => (
-                        <button
-                          key={r}
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleChangeRole(
-                              m.user?._id, r
-                            )
-                          }}
-                          className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors ${
-                            m.role === r
-                              ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/10'
-                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
-                          }`}
-                        >
-                          <span className="capitalize">
-                            {r}
-                          </span>
-                          {m.role === r && (
-                            <span className="material-symbols-outlined text-[14px]">
-                              check
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                      <div className="border-t border-slate-100 dark:border-[rgba(255,255,255,0.06)]" />
-                    </>
-                  )}
-                  {m.user?._id !== user?._id && (
+                   ['admin', 'member']
+                    .filter(r => r !== m.role)
+                    .map(role => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleChangeRole(
+                            m.user?._id, role
+                          )
+                        }}
+                        className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors capitalize"
+                      >
+                        Make {role.charAt(0).toUpperCase()
+                          + role.slice(1)}
+                      </button>
+                    ))}
+                  {perms.canRemoveMembers && (
                     <button
+                      type="button"
                       onClick={e => {
                         e.stopPropagation()
                         handleRemoveMember(
@@ -487,14 +479,12 @@ const MembersPage = () => {
                       </span>
                       {removing === m.user?._id
                         ? 'Removing...'
-                        : 'Revoke Access'}
+                        : 'Remove'}
                     </button>
                   )}
                 </div>
               )}
             </div>
-          ) : (
-            <span />
           )}
         </td>
       </tr>
