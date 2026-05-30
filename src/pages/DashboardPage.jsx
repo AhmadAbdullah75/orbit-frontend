@@ -544,7 +544,7 @@ const DashboardPage = () => {
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3 text-slate-900 dark:text-white">
+              <h1 className="orbit-page-title">
                 Welcome back, {firstName}! 👋
               </h1>
               <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2">

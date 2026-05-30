@@ -353,7 +353,7 @@ const ActivityPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Log</h1>
+          <h1 className="orbit-page-title">Activity Log</h1>
           <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">
             Real-time trail of events across your organization.
           </p>

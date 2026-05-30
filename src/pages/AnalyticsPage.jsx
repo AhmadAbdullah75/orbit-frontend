@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="orbit-page-title">
             Workspace Analytics
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -330,33 +330,44 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Contributor Output — cards only */}
-          <div style={{ marginTop: '24px' }}>
-            <h2 style={{
-              fontSize: '15px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              color: isDark ? '#94a3b8' : '#64748b',
-              marginBottom: '12px',
+          {/* Contributor Output */}
+          <div style={{
+            background: isDark ? '#111' : 'white',
+            borderRadius: '16px',
+            border: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.1)'}`,
+            overflow: 'hidden',
+            marginBottom: '24px',
+          }}>
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
             }}>
-              Contributor Output
-            </h2>
-            <p style={{
-              fontSize: '13px',
-              color: isDark ? '#475569' : '#94a3b8',
-              marginBottom: '16px',
-            }}>
-              Assigned work counts and completion logs.
-            </p>
+              <h2 style={{
+                fontSize: '16px',
+                fontWeight: 700,
+                color: isDark ? '#f1f5f9' : '#0f172a',
+                margin: '0 0 4px',
+              }}>
+                Contributor Output
+              </h2>
+              <p style={{
+                fontSize: '13px',
+                margin: 0,
+                color: isDark ? '#475569' : '#94a3b8',
+              }}>
+                Assigned work counts and completion logs for team members.
+              </p>
+            </div>
 
             <div style={{
+              padding: '16px',
               display: 'grid',
               gridTemplateColumns:
                 typeof window !== 'undefined' &&
                 window.innerWidth >= 768
-                  ? '1fr 1fr'
-                  : '1fr',
+                  ? '1fr 1fr' : '1fr',
               gap: '10px',
             }}>
               {membersAnalytics.map(m => (

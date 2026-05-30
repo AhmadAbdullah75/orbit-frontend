@@ -79,10 +79,16 @@ const MembersPage = () => {
   const perms = getPermissions(userRole)
 
   const canShowActions = (m) => {
-    if (m.role === 'owner') return false
+    // Member role: zero actions → hide action menu entirely
+    if (userRole === 'member') return false
+
+    // Admin cannot act on their own row
     if (userRole === 'admin' &&
         m.user?._id === user?._id) return false
-    if (userRole === 'member') return false
+
+    // Nobody can act on the owner row
+    if (m.role === 'owner') return false
+
     return true
   }
 
@@ -374,7 +380,10 @@ const MembersPage = () => {
               <span className="material-symbols-outlined text-[14px] text-purple-500">
                 workspace_premium
               </span>
-              <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400">
+              <span
+                title="Organization owner — only one per workspace"
+                className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400"
+              >
                 Owner
               </span>
               {m.user?._id === user?._id && (
@@ -505,7 +514,7 @@ const MembersPage = () => {
       {/* HEADER */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Members</h1>
+          <h1 className="orbit-page-title">Members</h1>
           <p className="text-sm text-slate-500">Manage your team and their permissions.</p>
         </div>
         {perms.canInviteMembers && (

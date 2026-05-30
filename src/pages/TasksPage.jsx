@@ -8,18 +8,14 @@ import EmptyOrg from '../components/EmptyOrg'
 import useAutoRefresh from '../hooks/useAutoRefresh'
 
 function FilterPanel({
-  isDark, search, setSearch,
-  selectedProject, setSelectedProject,
-  filterPriority, setFilterPriority,
-  filterStatus, setFilterStatus,
+  isDark, pendingSearch, setPendingSearch,
+  pendingProject, setPendingProject,
+  pendingPriority, setPendingPriority,
+  pendingStatus, setPendingStatus,
   projects,
+  onReset,
+  onApply,
 }) {
-  const [open, setOpen] = useState(
-    () => typeof window !== 'undefined'
-      ? window.innerWidth >= 768
-      : true
-  )
-
   const inputStyle = {
     padding: '9px 14px',
     borderRadius: '10px',
@@ -33,94 +29,198 @@ function FilterPanel({
   }
 
   return (
-    <div style={{ marginBottom: '12px' }}>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setOpen(p => !p)}
-        className="mobile-filter-toggle"
-        style={{
-          display: 'none',
-          alignItems: 'center', gap: '6px',
-          padding: '8px 14px',
-          borderRadius: '10px',
-          border: `1px solid ${isDark
-            ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
-          background: isDark
-            ? 'rgba(255,255,255,0.04)' : '#f8fafc',
-          color: isDark ? '#94a3b8' : '#64748b',
-          fontSize: '13px', fontWeight: 600,
-          cursor: 'pointer',
-          width: '100%',
-          justifyContent: 'center',
-          marginBottom: open ? '8px' : '0',
+    <div style={{ width: '100%', boxSizing: 'border-box' }}>
+      <div style={{
+        background: isDark ? '#111' : 'white',
+        borderRadius: '16px',
+        border: `1px solid ${isDark
+          ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.1)'}`,
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '20px 24px',
+          borderBottom: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
         }}>
-        <span className="material-symbols-outlined"
-          style={{ fontSize: '16px' }}>
-          tune
-        </span>
-        {open ? 'Hide Filters' : 'Show Filters'}
-      </button>
+          <h2 style={{
+            fontSize: '16px',
+            fontWeight: 700,
+            color: isDark ? '#f1f5f9' : '#0f172a',
+            margin: '0 0 4px',
+          }}>
+            Filter Tasks
+          </h2>
+          <p style={{
+            fontSize: '13px',
+            margin: 0,
+            color: isDark ? '#475569' : '#94a3b8',
+          }}>
+            Refine task results before applying the view.
+          </p>
+        </div>
 
-      {open && (
-        <div className="p-4 sm:p-5 rounded-2xl"
-          style={{
-            background: isDark ? '#101010' : 'white',
-            border: `1px solid ${isDark
-              ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.1)'}`,
-          }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '8px',
-          }}>
-            <div style={{ position: 'relative' }}>
-              <span className="material-symbols-outlined"
-                style={{
-                  position: 'absolute', left: '10px', top: '50%',
-                  transform: 'translateY(-50%)',
-                  fontSize: '16px',
-                  color: isDark ? '#475569' : '#94a3b8',
-                  pointerEvents: 'none',
-                }}>
-                search
-              </span>
-              <input
-                placeholder="Search tasks..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{ ...inputStyle, paddingLeft: '34px' }}
-              />
-            </div>
+        <div style={{ padding: '16px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{
+              fontSize: '11px', fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#64748b' : '#94a3b8',
+              display: 'block', marginBottom: '8px',
+            }}>
+              Search
+            </label>
+            <input
+              placeholder="Search tasks..."
+              value={pendingSearch}
+              onChange={e => setPendingSearch(e.target.value)}
+              style={{ ...inputStyle, width: '100%' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{
+              fontSize: '11px', fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#64748b' : '#94a3b8',
+              display: 'block', marginBottom: '8px',
+            }}>
+              Project
+            </label>
             <select
-              value={selectedProject}
-              onChange={e => setSelectedProject(e.target.value)}
-              style={inputStyle}>
+              value={pendingProject}
+              onChange={e => setPendingProject(e.target.value)}
+              style={inputStyle}
+            >
               <option value="all">All Projects</option>
               {projects.map(p => (
                 <option key={p._id} value={p._id}>{p.name}</option>
               ))}
             </select>
-            <select
-              value={filterPriority}
-              onChange={e => setFilterPriority(e.target.value)}
-              style={inputStyle}>
-              <option value="all">All Priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-            <select
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-              style={inputStyle}>
-              <option value="all">All Statuses</option>
-              <option value="open">Open</option>
-              <option value="done">Done</option>
-            </select>
+          </div>
+
+          <div style={{ marginBottom: '14px' }}>
+            <label style={{
+              fontSize: '11px', fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#64748b' : '#94a3b8',
+              display: 'block', marginBottom: '8px',
+            }}>
+              Priority
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {[
+                { v: 'all', l: 'All', c: '#6366f1' },
+                { v: 'urgent', l: 'Urgent', c: '#ef4444' },
+                { v: 'high', l: 'High', c: '#f97316' },
+                { v: 'medium', l: 'Medium', c: '#eab308' },
+                { v: 'low', l: 'Low', c: '#94a3b8' },
+              ].map(p => (
+                <button
+                  key={p.v}
+                  type="button"
+                  onClick={() => setPendingPriority(p.v)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '20px',
+                    border: `1.5px solid ${pendingPriority === p.v ? p.c : 'transparent'}`,
+                    background: pendingPriority === p.v
+                      ? `${p.c}18`
+                      : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                    color: pendingPriority === p.v
+                      ? p.c
+                      : isDark ? '#64748b' : '#94a3b8',
+                    fontSize: '12px', fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 150ms',
+                  }}
+                >
+                  {p.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              fontSize: '11px', fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#64748b' : '#94a3b8',
+              display: 'block', marginBottom: '8px',
+            }}>
+              Status
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {[
+                { v: 'all', l: 'All' },
+                { v: 'open', l: 'Open' },
+                { v: 'done', l: 'Done' },
+              ].map(s => (
+                <button
+                  key={s.v}
+                  type="button"
+                  onClick={() => setPendingStatus(s.v)}
+                  style={{
+                    padding: '5px 14px',
+                    borderRadius: '20px',
+                    border: `1.5px solid ${pendingStatus === s.v ? '#6366f1' : 'transparent'}`,
+                    background: pendingStatus === s.v
+                      ? 'rgba(99,102,241,0.1)'
+                      : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                    color: pendingStatus === s.v
+                      ? '#6366f1'
+                      : isDark ? '#64748b' : '#94a3b8',
+                    fontSize: '12px', fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 150ms',
+                  }}
+                >
+                  {s.l}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      )}
+
+        <div style={{
+          padding: '12px 16px',
+          borderTop: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          display: 'flex', gap: '8px',
+        }}>
+          <button
+            type="button"
+            onClick={onReset}
+            style={{
+              flex: 1, padding: '10px',
+              borderRadius: '10px',
+              border: `1px solid ${isDark
+                ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+              background: 'transparent',
+              color: isDark ? '#64748b' : '#94a3b8',
+              fontSize: '13px', fontWeight: 600,
+              cursor: 'pointer',
+            }}>
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={onApply}
+            style={{
+              flex: 2, padding: '10px',
+              borderRadius: '10px',
+              background: '#6366f1',
+              color: 'white', border: 'none',
+              fontSize: '13px', fontWeight: 700,
+              cursor: 'pointer',
+            }}>
+            Apply Filters
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -141,12 +241,61 @@ export default function TasksPage() {
   const [newComment, setNewComment] = useState('')
   const [postingComment, setPostingComment] = useState(false)
 
-  // Filters state
-  const [search, setSearch] = useState('')
-  const [selectedProject, setSelectedProject] = useState('all')
+  // ACTIVE filters — what tasks are filtered by
+  const [filterProject, setFilterProject] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [search, setSearch] = useState('')
+
+  // PENDING filters — what user has selected
+  // but not yet applied
+  const [pendingProject, setPendingProject] = useState('all')
+  const [pendingPriority, setPendingPriority] = useState('all')
+  const [pendingStatus, setPendingStatus] = useState('all')
+  const [pendingSearch, setPendingSearch] = useState('')
+
   const [assignedFilter, setAssignedFilter] = useState('me') // 'all' or 'me'
+  const [filterOpen, setFilterOpen] = useState(false)
+
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type })
+  }, [])
+
+  const activeFilterCount = [
+    filterProject !== 'all',
+    filterPriority !== 'all',
+    filterStatus !== 'all',
+    search !== '',
+  ].filter(Boolean).length
+
+  const handleApplyFilters = () => {
+    setFilterProject(pendingProject)
+    setFilterPriority(pendingPriority)
+    setFilterStatus(pendingStatus)
+    setSearch(pendingSearch)
+    setFilterOpen(false)
+  }
+
+  const handleResetFilters = () => {
+    setPendingProject('all')
+    setPendingPriority('all')
+    setPendingStatus('all')
+    setPendingSearch('')
+    setFilterProject('all')
+    setFilterPriority('all')
+    setFilterStatus('all')
+    setSearch('')
+  }
+
+  const handleOpenFilter = () => {
+    setPendingProject(filterProject)
+    setPendingPriority(filterPriority)
+    setPendingStatus(filterStatus)
+    setPendingSearch(search)
+    setFilterOpen(true)
+  }
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type })
@@ -320,7 +469,7 @@ export default function TasksPage() {
     }
 
     // Project filter
-    if (selectedProject !== 'all' && t.projectId !== selectedProject) {
+    if (filterProject !== 'all' && t.projectId !== filterProject) {
       return false
     }
 
@@ -518,35 +667,78 @@ export default function TasksPage() {
               ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
           }}>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="orbit-page-title">
                 Workspace Tasks
               </h1>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Manage, filter, and track all deliverables across your active organization projects.
               </p>
             </div>
-            
-            {/* Toggle Assignee Filter */}
-            <div className="flex bg-slate-100 dark:bg-[rgba(255,255,255,0.04)] p-1 rounded-xl border border-slate-200/60 dark:border-[rgba(255,255,255,0.06)]">
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <div className="flex bg-slate-100 dark:bg-[rgba(255,255,255,0.04)] p-1 rounded-xl border border-slate-200/60 dark:border-[rgba(255,255,255,0.06)]">
+                <button
+                  onClick={() => setAssignedFilter('me')}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    assignedFilter === 'me'
+                      ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Assigned to Me ({myTasksCount})
+                </button>
+                <button
+                  onClick={() => setAssignedFilter('all')}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    assignedFilter === 'all'
+                      ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  All Tasks ({allTasks.length})
+                </button>
+              </div>
+
               <button
-                onClick={() => setAssignedFilter('me')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  assignedFilter === 'me'
-                    ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                }`}
-              >
-                Assigned to Me ({myTasksCount})
-              </button>
-              <button
-                onClick={() => setAssignedFilter('all')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  assignedFilter === 'all'
-                    ? 'bg-white dark:bg-[#1f1f1f] text-indigo-600 dark:text-indigo-400 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                }`}
-              >
-                All Tasks ({allTasks.length})
+                type="button"
+                onClick={filterOpen ? () => setFilterOpen(false) : handleOpenFilter}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 16px',
+                  borderRadius: '10px',
+                  border: `1px solid ${
+                    activeFilterCount > 0
+                      ? '#6366f1'
+                      : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'
+                  }`,
+                  background: activeFilterCount > 0
+                    ? 'rgba(99,102,241,0.1)'
+                    : 'transparent',
+                  color: activeFilterCount > 0
+                    ? '#6366f1'
+                    : isDark ? '#94a3b8' : '#64748b',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  tune
+                </span>
+                Filters
+                {activeFilterCount > 0 && (
+                  <span style={{
+                    background: '#6366f1',
+                    color: 'white',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '1px 7px',
+                  }}>
+                    {activeFilterCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -616,139 +808,244 @@ export default function TasksPage() {
             ))}
           </div>
 
-          {/* FILTER PANEL — collapsible on mobile */}
-          <FilterPanel
-            isDark={isDark}
-            search={search}
-            setSearch={setSearch}
-            selectedProject={selectedProject}
-            setSelectedProject={setSelectedProject}
-            filterPriority={filterPriority}
-            setFilterPriority={setFilterPriority}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            projects={projects}
-          />
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            {filterOpen && !isMobile && (
+              <div style={{
+                width: '260px',
+                flexShrink: 0,
+                background: isDark ? '#111' : 'white',
+                borderRadius: '16px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.1)'}`,
+                overflow: 'hidden',
+                position: 'sticky',
+                top: '80px',
+                alignSelf: 'flex-start',
+              }}>
+                <FilterPanel
+                  isDark={isDark}
+                  pendingSearch={pendingSearch}
+                  setPendingSearch={setPendingSearch}
+                  pendingProject={pendingProject}
+                  setPendingProject={setPendingProject}
+                  pendingPriority={pendingPriority}
+                  setPendingPriority={setPendingPriority}
+                  pendingStatus={pendingStatus}
+                  setPendingStatus={setPendingStatus}
+                  projects={projects}
+                  onReset={handleResetFilters}
+                  onApply={handleApplyFilters}
+                />
+              </div>
+            )}
 
-          {/* TASKS LIST */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-slate-400">Loading tasks from workspace...</p>
-              </div>
-            ) : filteredTasks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-2xl p-6">
-                <div className="size-16 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-[32px] text-slate-300 dark:text-slate-700">task_alt</span>
-                </div>
-                <h3 className="font-bold text-lg text-slate-900 dark:text-white">No tasks found</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-                  We couldn't find any tasks matching your filters.
-                </p>
-              </div>
-            ) : (
-              filteredTasks.map((task) => {
-                const prioInfo = getPriorityColor(task.priority)
-                const overdue = isOverdue(task.dueDate, task.column)
-                return (
-                  <div
-                    key={task._id}
-                    className="orbit-card orbit-task-list-item"
-                    onClick={() => openTaskDetail(task)}
-                    style={{
-                      padding: '14px 16px',
-                      borderRadius: '12px',
-                      background: isDark ? '#111' : 'white',
-                      border: `1px solid ${isDark
-                        ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      gap: '12px',
-                      alignItems: 'flex-start',
-                    }}>
-                    {/* Priority bar */}
-                    <div style={{
-                      width: '4px', height: '44px',
-                      borderRadius: '2px', flexShrink: 0,
-                      marginTop: '2px',
-                      background:
-                        task.priority === 'urgent' ? '#ef4444'
-                        : task.priority === 'high' ? '#f97316'
-                        : task.priority === 'low' ? '#94a3b8'
-                        : '#eab308',
-                    }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontSize: '14px', fontWeight: 600,
-                        color: isDark ? '#f1f5f9' : '#0f172a',
-                        margin: '0 0 4px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        {task.title}
-                      </p>
-                      <div style={{
-                        display: 'flex',
-                        flexWrap: 'wrap', gap: '6px',
-                        alignItems: 'center',
-                      }}>
-                        <span style={{
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm text-slate-400">Loading tasks from workspace...</p>
+                  </div>
+                ) : filteredTasks.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-2xl p-6">
+                    <div className="size-16 rounded-full bg-slate-50 dark:bg-[#111] flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-[32px] text-slate-300 dark:text-slate-700">task_alt</span>
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">No tasks found</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                      We couldn't find any tasks matching your filters.
+                    </p>
+                  </div>
+                ) : (
+                  filteredTasks.map((task) => {
+                    const prioInfo = getPriorityColor(task.priority)
+                    const overdue = isOverdue(task.dueDate, task.column)
+                    return (
+                      <div
+                        key={task._id}
+                        className="orbit-card orbit-task-list-item"
+                        onClick={() => openTaskDetail(task)}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: '12px',
+                          background: isDark ? '#111' : 'white',
+                          border: `1px solid ${isDark
+                            ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+                          cursor: 'pointer',
                           display: 'flex',
-                          alignItems: 'center', gap: '4px',
-                          fontSize: '11px',
-                          color: isDark ? '#475569' : '#94a3b8',
+                          gap: '12px',
+                          alignItems: 'flex-start',
                         }}>
-                          <div style={{
-                            width: '6px', height: '6px',
-                            borderRadius: '50%',
-                            background: task.projectColor || '#6366f1',
-                          }} />
-                          {task.projectName}
-                        </span>
-                        {task.dueDate && (
-                          <span style={{
-                            fontSize: '11px',
-                            color: overdue ? '#ef4444' : '#94a3b8',
-                            display: 'flex',
-                            alignItems: 'center', gap: '3px',
+                        {/* Priority bar */}
+                        <div style={{
+                          width: '4px', height: '44px',
+                          borderRadius: '2px', flexShrink: 0,
+                          marginTop: '2px',
+                          background:
+                            task.priority === 'urgent' ? '#ef4444'
+                            : task.priority === 'high' ? '#f97316'
+                            : task.priority === 'low' ? '#94a3b8'
+                            : '#eab308',
+                        }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{
+                            fontSize: '14px', fontWeight: 600,
+                            color: isDark ? '#f1f5f9' : '#0f172a',
+                            margin: '0 0 4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}>
-                            <span className="material-symbols-outlined"
-                              style={{ fontSize: '12px' }}>
-                              schedule
+                            {task.title}
+                          </p>
+                          <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap', gap: '6px',
+                            alignItems: 'center',
+                          }}>
+                            <span style={{
+                              display: 'flex',
+                              alignItems: 'center', gap: '4px',
+                              fontSize: '11px',
+                              color: isDark ? '#475569' : '#94a3b8',
+                            }}>
+                              <div style={{
+                                width: '6px', height: '6px',
+                                borderRadius: '50%',
+                                background: task.projectColor || '#6366f1',
+                              }} />
+                              {task.projectName}
                             </span>
-                            {new Date(task.dueDate)
-                              .toLocaleDateString('en-US', {
-                                month: 'short', day: 'numeric',
-                              })}
-                            {overdue && ' (OVERDUE)'}
-                          </span>
-                        )}
-                        <span style={{
-                          fontSize: '10px', fontWeight: 700,
-                          padding: '2px 7px',
-                          borderRadius: '6px',
-                          background: prioInfo.bg,
-                          color: prioInfo.text,
-                        }}>
-                          {prioInfo.label}
+                            {task.dueDate && (
+                              <span style={{
+                                fontSize: '11px',
+                                color: overdue ? '#ef4444' : '#94a3b8',
+                                display: 'flex',
+                                alignItems: 'center', gap: '3px',
+                              }}>
+                                <span className="material-symbols-outlined"
+                                  style={{ fontSize: '12px' }}>
+                                  schedule
+                                </span>
+                                {new Date(task.dueDate)
+                                  .toLocaleDateString('en-US', {
+                                    month: 'short', day: 'numeric',
+                                  })}
+                                {overdue && ' (OVERDUE)'}
+                              </span>
+                            )}
+                            <span style={{
+                              fontSize: '10px', fontWeight: 700,
+                              padding: '2px 7px',
+                              borderRadius: '6px',
+                              background: prioInfo.bg,
+                              color: prioInfo.text,
+                            }}>
+                              {prioInfo.label}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined"
+                          style={{
+                            fontSize: '16px',
+                            color: isDark ? '#334155' : '#cbd5e1',
+                            flexShrink: 0, marginTop: '2px',
+                          }}>
+                          chevron_right
                         </span>
                       </div>
-                    </div>
-                    <span className="material-symbols-outlined"
-                      style={{
-                        fontSize: '16px',
-                        color: isDark ? '#334155' : '#cbd5e1',
-                        flexShrink: 0, marginTop: '2px',
-                      }}>
-                      chevron_right
-                    </span>
-                  </div>
-                )
-              })
-            )}
+                    )
+                  })
+                )}
+              </div>
+            </div>
           </div>
+
+          {filterOpen && isMobile && (
+            <div style={{
+              position: 'fixed', inset: 0, zIndex: 100,
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'flex-end',
+            }}
+            onClick={() => setFilterOpen(false)}>
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  width: '100%',
+                  background: isDark ? '#111' : 'white',
+                  borderRadius: '20px 20px 0 0',
+                  maxHeight: '88vh',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}>
+                <div style={{
+                  flexShrink: 0,
+                  padding: '12px 20px 0',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}>
+                  <div style={{
+                    width: '36px', height: '4px',
+                    borderRadius: '2px',
+                    background: isDark
+                      ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
+                  }} />
+                </div>
+                <div style={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '14px 20px',
+                  borderBottom: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+                }}>
+                  <span style={{
+                    fontSize: '16px', fontWeight: 700,
+                    color: isDark ? '#f1f5f9' : '#0f172a',
+                  }}>
+                    Filter Tasks
+                  </span>
+                  <button
+                    onClick={() => setFilterOpen(false)}
+                    style={{
+                      background: 'none', border: 'none',
+                      cursor: 'pointer',
+                      color: isDark ? '#64748b' : '#94a3b8',
+                    }}>
+                    <span className="material-symbols-outlined"
+                      style={{ fontSize: '20px' }}>
+                      close
+                    </span>
+                  </button>
+                </div>
+                <div style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  padding: '16px 20px',
+                  WebkitOverflowScrolling: 'touch',
+                }}>
+                  <FilterPanel
+                    isDark={isDark}
+                    pendingSearch={pendingSearch}
+                    setPendingSearch={setPendingSearch}
+                    pendingProject={pendingProject}
+                    setPendingProject={setPendingProject}
+                    pendingPriority={pendingPriority}
+                    setPendingPriority={setPendingPriority}
+                    pendingStatus={pendingStatus}
+                    setPendingStatus={setPendingStatus}
+                    projects={projects}
+                    onReset={handleResetFilters}
+                    onApply={handleApplyFilters}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
