@@ -26,9 +26,9 @@ export default function Footer({ minimal = false }) {
       background: 'transparent',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       flexWrap: 'wrap',
-      gap: '8px',
+      gap: '12px',
     }}>
       <span style={{
         fontSize: '11px',
@@ -44,17 +44,22 @@ export default function Footer({ minimal = false }) {
         . All rights reserved.
       </span>
 
-      <div style={{
-        display: 'flex',
-        gap: '14px',
-      }}>
-        {[
-          { l: 'Privacy', h: '/privacy' },
-          { l: 'Terms', h: '/terms' },
-          { l: 'Support', h: 'mailto:iamahmad3027@gmail.com' },
-        ].map(link => (
+      <span style={{
+        color: isDark ? '#1e293b' : '#e2e8f0',
+        fontSize: '11px',
+      }}>·</span>
+
+      {[
+        { l: 'Privacy', h: '/privacy' },
+        { l: 'Terms', h: '/terms' },
+        { l: 'Support', h: 'mailto:iamahmad3027@gmail.com' },
+      ].map((link, i) => (
+        <span key={link.l} style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }}>
           <a
-            key={link.l}
             href={link.h}
             style={{
               fontSize: '11px',
@@ -70,8 +75,14 @@ export default function Footer({ minimal = false }) {
             }}>
             {link.l}
           </a>
-        ))}
-      </div>
+          {i < 2 && (
+            <span style={{
+              color: isDark ? '#1e293b' : '#e2e8f0',
+              fontSize: '11px',
+            }}>·</span>
+          )}
+        </span>
+      ))}
     </footer>
   )
 }
