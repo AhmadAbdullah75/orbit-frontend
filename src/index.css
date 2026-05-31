@@ -359,26 +359,109 @@ html, body, #root {
   pointer-events: auto;  /* only blocks when open */
 }
 
-/* Consistent page headings */
+/* Page titles — correct colors both themes */
 .orbit-page-title {
   font-size: 24px !important;
   font-weight: 800 !important;
   letter-spacing: -0.3px !important;
   line-height: 1.2 !important;
   margin-bottom: 4px !important;
+  color: #f1f5f9;
 }
 
+body:not(.dark) .orbit-page-title {
+  color: #0f172a;
+}
+
+/* Sub-section titles */
 .orbit-section-title {
   font-size: 16px !important;
   font-weight: 700 !important;
   line-height: 1.3 !important;
   margin-bottom: 4px !important;
+  color: #f1f5f9;
+}
+
+body:not(.dark) .orbit-section-title {
+  color: #1e293b;
+}
+
+/* Body text / descriptions */
+.orbit-body-text {
+  font-size: 14px;
+  color: #64748b;
+}
+
+body:not(.dark) .orbit-body-text {
+  color: #94a3b8;
+}
+
+/* ══ ORBIT TYPOGRAPHY SYSTEM ══════════════ */
+
+.text-hero {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.5px !important;
+}
+
+.text-page-title {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.text-section {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+.text-card-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.text-body {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+
+.text-meta {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.text-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+.dark .text-primary {
+  color: #f1f5f9 !important;
+}
+.dark .text-secondary {
+  color: #64748b !important;
+}
+.dark .text-muted {
+  color: #334155 !important;
+}
+
+body:not(.dark) .text-primary {
+  color: #0f172a !important;
+}
+body:not(.dark) .text-secondary {
+  color: #64748b !important;
+}
+body:not(.dark) .text-muted {
+  color: #94a3b8 !important;
 }
 
 .settings-page-wrap {
-  padding: 24px !important;
-  max-width: 100% !important;
-  margin: 0 !important;
+  padding: 24px 20px !important;
+  max-width: 1000px !important;
+  margin: 0 auto !important;
 }
 
 .settings-card {
@@ -393,12 +476,33 @@ html, body, #root {
   .orbit-section-title {
     font-size: 15px !important;
   }
+  .text-hero {
+    font-size: 22px !important;
+  }
+  .text-page-title {
+    font-size: 20px !important;
+  }
+  .text-section {
+    font-size: 15px !important;
+  }
   .settings-page-wrap {
     padding: 12px !important;
   }
   .settings-card {
     border-radius: 12px !important;
     padding: 16px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .tasks-filter-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .tasks-filter-row {
+    grid-template-columns: 1fr 1fr !important;
   }
 }
 

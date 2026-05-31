@@ -309,13 +309,24 @@ export default function SettingsPage() {
     <div
       className="settings-page-wrap"
       style={{
-        padding: '24px',
+        padding: '24px 20px',
+        maxWidth: '1000px',
+        margin: '0 auto',
         width: '100%',
         boxSizing: 'border-box',
       }}>
       <div className="mb-8">
-        <h1 className="orbit-page-title">Settings</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Manage your account and workspace preferences.</p>
+        <h1
+          className="orbit-page-title"
+          style={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
+          Settings
+        </h1>
+        <p style={{
+          fontSize: '14px',
+          color: isDark ? '#64748b' : '#94a3b8',
+        }}>
+          Manage your account and workspace preferences.
+        </p>
       </div>
 
       <div>

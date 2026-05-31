@@ -2,6 +2,7 @@
   import { useTheme } from '../context/ThemeContext'
   import AuthBackground from '../components/AuthBackground'
   import OrbitLogo from '../components/OrbitLogo'
+  import Footer from '../components/Footer'
 
   export default function TermsPage() {
     const navigate = useNavigate()
@@ -51,6 +52,7 @@
     ]
 
     return (
+      <>
       <div style={{ position: 'relative', minHeight: '100vh' }}>
         <AuthBackground />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -280,7 +282,9 @@
           </div>
         </div>
       </div>
-        </div>
       </div>
+      </div>
+      <Footer />
+      </>
     )
   }

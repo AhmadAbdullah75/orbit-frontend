@@ -3572,6 +3572,265 @@ function FilterPanel({
   isDark, filters, setFilters,
   members, onClose
 }) {
+  const isMobile =
+    typeof window !== 'undefined' &&
+    window.innerWidth < 768
+
+  const handleClearFilters = () => {
+    setFilters({
+      assignee: '', priority: '',
+      dueDateFrom: '', dueDateTo: '', label: '',
+    })
+  }
+
+  const handleApplyFilters = () => {
+    onClose()
+  }
+
+  const filterContent = (
+    <div className="p-4 space-y-4">
+      {/* Priority filter */}
+      <div>
+        <label className={`text-xs font-semibold
+          uppercase tracking-wider block mb-2
+          ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+          Priority
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {['', 'urgent', 'high', 'medium', 'low']
+            .map(p => {
+              const isActive = filters.priority === p
+              return (
+                <button
+                  key={p || 'all'}
+                  type="button"
+                  onClick={() => {
+                    setFilters(f => ({ ...f, priority: p }))
+                    if (!isMobile) onClose()
+                  }}
+                  className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-all
+                    ${isActive
+                      ? 'bg-indigo-600 text-white'
+                      : isDark
+                        ? 'bg-white/5 text-slate-500 hover:bg-white/10'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                >
+                  {p || 'All'}
+                </button>
+              )
+            })}
+        </div>
+      </div>
+
+      {/* Assignee filter */}
+      <div>
+        <label className={`text-xs font-semibold uppercase tracking-wider block mb-2
+          ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+          Assignee
+        </label>
+        <div className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+          <button
+            type="button"
+            onClick={() => {
+              setFilters(f => ({ ...f, assignee: '' }))
+              if (!isMobile) onClose()
+            }}
+            className={`w-full flex items-center px-3 py-2 rounded-lg text-xs transition-all
+              ${!filters.assignee 
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                : isDark ? 'hover:bg-white/5 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
+          >
+            All Members
+          </button>
+          {members.map(m => {
+            const id = m._id || m.user?._id
+            const name = m.name || m.user?.name
+            const isActive = filters.assignee === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  setFilters(f => ({ ...f, assignee: id }))
+                  if (!isMobile) onClose()
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
+                  ${isActive 
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                    : isDark ? 'hover:bg-white/5 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
+              >
+                <div className={`size-5 rounded-full flex items-center justify-center text-[8px] font-bold
+                  ${isActive ? 'bg-white/20' : 'bg-indigo-500 text-white'}`}>
+                  {name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="truncate">{name}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Label Search */}
+      <div>
+        <label className={`text-xs font-semibold uppercase tracking-wider block mb-2
+          ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+          Label
+        </label>
+        <input
+          type="text"
+          placeholder="Filter by label..."
+          value={filters.label}
+          onChange={e => setFilters(f => ({ ...f, label: e.target.value }))}
+          className={`w-full px-3 py-2 rounded-lg text-xs outline-none border
+            ${isDark 
+              ? 'bg-white/5 border-white/10 text-slate-300' 
+              : 'bg-slate-50 border-slate-200 text-slate-700'}`}
+        />
+      </div>
+
+      {!isMobile && (
+        <div className="pt-2 border-t border-white/5 flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all"
+          >
+            Apply & Close
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              handleClearFilters()
+              onClose()
+            }}
+            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all
+              ${isDark 
+                ? 'border-white/10 text-slate-400 hover:bg-white/5' 
+                : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 100,
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'flex-end',
+        }}
+        onClick={onClose}>
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{
+            width: '100%',
+            background: isDark ? '#111' : 'white',
+            borderRadius: '20px 20px 0 0',
+            maxHeight: 'calc(88vh - 64px)',
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: '64px',
+            overflow: 'hidden',
+          }}>
+          <div style={{
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '14px 20px',
+            borderBottom: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+          }}>
+            <span style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: isDark ? '#f1f5f9' : '#0f172a',
+            }}>
+              Filter Tasks
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: isDark ? '#64748b' : '#94a3b8',
+              }}>
+              <span className="material-symbols-outlined"
+                style={{ fontSize: '20px' }}>
+                close
+              </span>
+            </button>
+          </div>
+
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px 20px',
+            WebkitOverflowScrolling: 'touch',
+          }}>
+            {filterContent}
+          </div>
+
+          <div style={{
+            flexShrink: 0,
+            padding: '12px 20px',
+            paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+            borderTop: `1px solid ${isDark
+              ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
+            background: isDark ? '#111' : 'white',
+            display: 'flex',
+            gap: '10px',
+          }}>
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              style={{
+                flex: 1,
+                padding: '13px',
+                borderRadius: '12px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                background: 'transparent',
+                color: isDark ? '#94a3b8' : '#64748b',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}>
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyFilters}
+              style={{
+                flex: 2,
+                padding: '13px',
+                borderRadius: '12px',
+                background: '#6366f1',
+                color: 'white',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}>
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{
       position: 'fixed',
@@ -3589,29 +3848,31 @@ function FilterPanel({
       scrollbarWidth: 'thin',
       WebkitOverflowScrolling: 'touch',
     }}>
-
-      {/* Header */}
       <div className={`flex items-center justify-between
         px-4 py-3 border-b
         ${isDark
           ? 'border-[rgba(255,255,255,0.06)]'
           : 'border-slate-100'
         }`}>
-        <h3 className={`text-sm font-semibold
-          ${isDark ? 'text-white' : 'text-slate-900'}`}>
+        <h3 style={{
+          fontSize: '16px',
+          fontWeight: 700,
+          color: isDark ? '#f1f5f9' : '#1e293b',
+          margin: 0,
+        }}>
           Filter Tasks
         </h3>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setFilters({
-              assignee: '', priority: '',
-              dueDateFrom: '', dueDateTo: '', label: '',
-            })}
+            type="button"
+            onClick={handleClearFilters}
             className="text-xs text-indigo-500
               hover:underline cursor-pointer">
             Clear all
           </button>
-          <button onClick={onClose}
+          <button
+            type="button"
+            onClick={onClose}
             className={`p-1 rounded cursor-pointer
               ${isDark
                 ? 'text-slate-500 hover:text-slate-300'
@@ -3622,133 +3883,7 @@ function FilterPanel({
           </button>
         </div>
       </div>
-
-      <div className="p-4 space-y-4">
-        {/* Priority filter */}
-        <div>
-          <label className={`text-xs font-semibold
-            uppercase tracking-wider block mb-2
-            ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-            Priority
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {['', 'urgent', 'high', 'medium', 'low']
-              .map(p => {
-                const isActive = filters.priority === p
-                return (
-                  <button
-                    key={p || 'all'}
-                    onClick={() => {
-                      setFilters(f => ({ ...f, priority: p }))
-                      // Simple priority filter usually auto-closes if people want
-                      // but we'll leave it for now or add onClose() if requested.
-                      // The user said: "when selecting priority, it should call onClose()"
-                      onClose()
-                    }}
-                    className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-all
-                      ${isActive
-                        ? 'bg-indigo-600 text-white'
-                        : isDark
-                          ? 'bg-white/5 text-slate-500 hover:bg-white/10'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                  >
-                    {p || 'All'}
-                  </button>
-                )
-              })}
-          </div>
-        </div>
-
-        {/* Assignee filter */}
-        <div>
-          <label className={`text-xs font-semibold uppercase tracking-wider block mb-2
-            ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-            Assignee
-          </label>
-          <div className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar pr-1">
-            <button
-              onClick={() => {
-                setFilters(f => ({ ...f, assignee: '' }))
-                onClose()
-              }}
-              className={`w-full flex items-center px-3 py-2 rounded-lg text-xs transition-all
-                ${!filters.assignee 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                  : isDark ? 'hover:bg-white/5 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              All Members
-            </button>
-            {members.map(m => {
-              const id = m._id || m.user?._id
-              const name = m.name || m.user?.name
-              const isActive = filters.assignee === id
-              return (
-                <button
-                  key={id}
-                  onClick={() => {
-                    setFilters(f => ({ ...f, assignee: id }))
-                    onClose()
-                  }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all
-                    ${isActive 
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
-                      : isDark ? 'hover:bg-white/5 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
-                >
-                  <div className={`size-5 rounded-full flex items-center justify-center text-[8px] font-bold
-                    ${isActive ? 'bg-white/20' : 'bg-indigo-500 text-white'}`}>
-                    {name?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="truncate">{name}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Label Search */}
-        <div>
-          <label className={`text-xs font-semibold uppercase tracking-wider block mb-2
-            ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-            Label
-          </label>
-          <input
-            type="text"
-            placeholder="Filter by label..."
-            value={filters.label}
-            onChange={e => setFilters(f => ({ ...f, label: e.target.value }))}
-            className={`w-full px-3 py-2 rounded-lg text-xs outline-none border
-              ${isDark 
-                ? 'bg-white/5 border-white/10 text-slate-300' 
-                : 'bg-slate-50 border-slate-200 text-slate-700'}`}
-          />
-        </div>
-
-        {/* Footer actions */}
-        <div className="pt-2 border-t border-white/5 flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all"
-          >
-            Apply & Close
-          </button>
-          <button
-            onClick={() => {
-              setFilters({
-                assignee: '', priority: '',
-                dueDateFrom: '', dueDateTo: '', label: '',
-              })
-              onClose()
-            }}
-            className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all
-              ${isDark 
-                ? 'border-white/10 text-slate-400 hover:bg-white/5' 
-                : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-          >
-            Clear all
-          </button>
-        </div>
-      </div>
+      {filterContent}
     </div>
   )
 }
@@ -4482,16 +4617,25 @@ export default function BoardPage() {
             </span>
           </button>
           <div style={{ minWidth: 0, overflow: 'hidden' }}>
-            <h1 className={`text-lg font-bold
-              ${isDark ? 'text-white' : 'text-slate-900'}`}
+            <h1
+              className="text-page-title"
               style={{
+                fontSize: '24px',
+                fontWeight: 800,
+                color: isDark ? '#f1f5f9' : '#0f172a',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
+                margin: 0,
               }}>
               {board?.name || project?.name || 'Project Board'}
             </h1>
-            <p className="text-xs text-slate-500 font-medium">
+            <p style={{
+              fontSize: '12px',
+              color: isDark ? '#64748b' : '#94a3b8',
+              fontWeight: 500,
+              margin: 0,
+            }}>
               {members.length} members • {totalTasks} tasks
             </p>
           </div>
@@ -4523,15 +4667,6 @@ export default function BoardPage() {
                 </span>
               )}
             </button>
-            {showFilterPanel && (
-              <FilterPanel
-                isDark={isDark}
-                filters={filters}
-                setFilters={setFilters}
-                members={members}
-                onClose={() => setShowFilterPanel(false)}
-              />
-            )}
           </div>
 
           <button
@@ -4891,6 +5026,16 @@ export default function BoardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {showFilterPanel && (
+        <FilterPanel
+          isDark={isDark}
+          filters={filters}
+          setFilters={setFilters}
+          members={members}
+          onClose={() => setShowFilterPanel(false)}
+        />
       )}
     </div>
   )

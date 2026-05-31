@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext.jsx';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import OrbitLogo from '../components/OrbitLogo';
 import AuthBackground from '../components/AuthBackground';
+import Footer from '../components/Footer';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -627,6 +628,7 @@ const LoginPage = () => {
                     </div>
                 </div>
             )}
+            <Footer minimal />
     </div>
   );
 };

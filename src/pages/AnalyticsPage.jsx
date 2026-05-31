@@ -151,10 +151,16 @@ export default function AnalyticsPage() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="orbit-page-title">
+          <h1
+            className="orbit-page-title"
+            style={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
             Workspace Analytics
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p style={{
+            fontSize: '14px',
+            marginTop: '4px',
+            color: isDark ? '#64748b' : '#94a3b8',
+          }}>
             Real-time insight into project completion rates, priority distribution, and contributor performance.
           </p>
         </div>

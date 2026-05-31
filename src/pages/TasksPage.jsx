@@ -7,245 +7,6 @@ import Toast from '../components/Toast'
 import EmptyOrg from '../components/EmptyOrg'
 import useAutoRefresh from '../hooks/useAutoRefresh'
 
-function FilterPanel({
-  isDark, pendingSearch, setPendingSearch,
-  pendingProject, setPendingProject,
-  pendingPriority, setPendingPriority,
-  pendingStatus, setPendingStatus,
-  projects,
-  onReset,
-  onApply,
-  formOnly = false,
-}) {
-  const inputStyle = {
-    padding: '9px 14px',
-    borderRadius: '10px',
-    border: `1px solid ${isDark
-      ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
-    background: isDark ? '#1e293b' : '#f8fafc',
-    color: isDark ? '#f1f5f9' : '#0f172a',
-    fontSize: '16px',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box',
-  }
-
-  const formFields = (
-    <div style={{ padding: formOnly ? 0 : '16px' }}>
-      <div style={{ marginBottom: '14px' }}>
-        <label style={{
-          fontSize: '11px', fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: isDark ? '#64748b' : '#94a3b8',
-          display: 'block', marginBottom: '8px',
-        }}>
-          Search
-        </label>
-        <input
-          placeholder="Search tasks..."
-          value={pendingSearch}
-          onChange={e => setPendingSearch(e.target.value)}
-          style={inputStyle}
-        />
-      </div>
-
-      <div style={{ marginBottom: '14px' }}>
-        <label style={{
-          fontSize: '11px', fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: isDark ? '#64748b' : '#94a3b8',
-          display: 'block', marginBottom: '8px',
-        }}>
-          Project
-        </label>
-        <select
-          value={pendingProject}
-          onChange={e => setPendingProject(e.target.value)}
-          style={inputStyle}
-        >
-          <option value="all">All Projects</option>
-          {projects.map(p => (
-            <option key={p._id} value={p._id}>{p.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ marginBottom: '14px' }}>
-        <label style={{
-          fontSize: '11px', fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: isDark ? '#64748b' : '#94a3b8',
-          display: 'block', marginBottom: '8px',
-        }}>
-          Priority
-        </label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {[
-            { v: 'all', l: 'All', c: '#6366f1' },
-            { v: 'urgent', l: 'Urgent', c: '#ef4444' },
-            { v: 'high', l: 'High', c: '#f97316' },
-            { v: 'medium', l: 'Medium', c: '#eab308' },
-            { v: 'low', l: 'Low', c: '#94a3b8' },
-          ].map(p => (
-            <button
-              key={p.v}
-              type="button"
-              onClick={() => setPendingPriority(p.v)}
-              style={{
-                padding: '5px 12px',
-                borderRadius: '20px',
-                border: `1.5px solid ${pendingPriority === p.v ? p.c : 'transparent'}`,
-                background: pendingPriority === p.v
-                  ? `${p.c}18`
-                  : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
-                color: pendingPriority === p.v
-                  ? p.c
-                  : isDark ? '#64748b' : '#94a3b8',
-                fontSize: '12px', fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 150ms',
-              }}
-            >
-              {p.l}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: formOnly ? 0 : '20px' }}>
-        <label style={{
-          fontSize: '11px', fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: isDark ? '#64748b' : '#94a3b8',
-          display: 'block', marginBottom: '8px',
-        }}>
-          Status
-        </label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {[
-            { v: 'all', l: 'All' },
-            { v: 'open', l: 'Open' },
-            { v: 'done', l: 'Done' },
-          ].map(s => (
-            <button
-              key={s.v}
-              type="button"
-              onClick={() => setPendingStatus(s.v)}
-              style={{
-                padding: '5px 14px',
-                borderRadius: '20px',
-                border: `1.5px solid ${pendingStatus === s.v ? '#6366f1' : 'transparent'}`,
-                background: pendingStatus === s.v
-                  ? 'rgba(99,102,241,0.1)'
-                  : isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
-                color: pendingStatus === s.v
-                  ? '#6366f1'
-                  : isDark ? '#64748b' : '#94a3b8',
-                fontSize: '12px', fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 150ms',
-              }}
-            >
-              {s.l}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-
-  const actionButtons = (
-    <div style={{
-      padding: formOnly ? 0 : '12px 16px',
-      borderTop: formOnly ? 'none' : `1px solid ${isDark
-        ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-      display: 'flex', gap: formOnly ? '10px' : '8px',
-    }}>
-      <button
-        type="button"
-        onClick={onReset}
-        style={{
-          flex: 1,
-          padding: formOnly ? '13px' : '10px',
-          borderRadius: formOnly ? '12px' : '10px',
-          border: `1px solid ${isDark
-            ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-          background: 'transparent',
-          color: isDark ? '#64748b' : '#94a3b8',
-          fontSize: formOnly ? '14px' : '13px',
-          fontWeight: 600,
-          cursor: 'pointer',
-        }}>
-        Reset
-      </button>
-      <button
-        type="button"
-        onClick={onApply}
-        style={{
-          flex: 2,
-          padding: formOnly ? '13px' : '10px',
-          borderRadius: formOnly ? '12px' : '10px',
-          background: '#6366f1',
-          color: 'white',
-          border: 'none',
-          fontSize: formOnly ? '14px' : '13px',
-          fontWeight: 700,
-          cursor: 'pointer',
-        }}>
-        Apply Filters
-      </button>
-    </div>
-  )
-
-  if (formOnly) {
-    return formFields
-  }
-
-  return (
-    <div style={{ width: '100%', boxSizing: 'border-box' }}>
-      <div style={{
-        background: isDark ? '#111' : 'white',
-        borderRadius: '16px',
-        border: `1px solid ${isDark
-          ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.1)'}`,
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          padding: '16px',
-          borderBottom: `1px solid ${isDark
-            ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span style={{
-            fontSize: '14px', fontWeight: 700,
-            color: isDark ? '#f1f5f9' : '#0f172a',
-          }}>
-            Filter Tasks
-          </span>
-          <button
-            type="button"
-            onClick={onReset}
-            style={{
-              background: 'none', border: 'none',
-              cursor: 'pointer', fontSize: '12px',
-              color: '#6366f1', fontWeight: 600,
-            }}>
-            Reset all
-          </button>
-        </div>
-        {formFields}
-        {actionButtons}
-      </div>
-    </div>
-  )
-}
-
 export default function TasksPage() {
   const navigate = useNavigate()
   const { user, activeOrgId } = useSelector(s => s.auth)
@@ -262,61 +23,16 @@ export default function TasksPage() {
   const [newComment, setNewComment] = useState('')
   const [postingComment, setPostingComment] = useState(false)
 
-  // ACTIVE filters — what tasks are filtered by
   const [filterProject, setFilterProject] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [search, setSearch] = useState('')
 
-  // PENDING filters — what user has selected
-  // but not yet applied
-  const [pendingProject, setPendingProject] = useState('all')
-  const [pendingPriority, setPendingPriority] = useState('all')
-  const [pendingStatus, setPendingStatus] = useState('all')
-  const [pendingSearch, setPendingSearch] = useState('')
-
   const [assignedFilter, setAssignedFilter] = useState('me') // 'all' or 'me'
-  const [filterOpen, setFilterOpen] = useState(false)
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type })
   }, [])
-
-  const activeFilterCount = [
-    filterProject !== 'all',
-    filterPriority !== 'all',
-    filterStatus !== 'all',
-    search !== '',
-  ].filter(Boolean).length
-
-  const handleApplyFilters = () => {
-    setFilterProject(pendingProject)
-    setFilterPriority(pendingPriority)
-    setFilterStatus(pendingStatus)
-    setSearch(pendingSearch)
-    setFilterOpen(false)
-  }
-
-  const handleResetFilters = () => {
-    setPendingProject('all')
-    setPendingPriority('all')
-    setPendingStatus('all')
-    setPendingSearch('')
-    setFilterProject('all')
-    setFilterPriority('all')
-    setFilterStatus('all')
-    setSearch('')
-  }
-
-  const handleOpenFilter = () => {
-    setPendingProject(filterProject)
-    setPendingPriority(filterPriority)
-    setPendingStatus(filterStatus)
-    setPendingSearch(search)
-    setFilterOpen(true)
-  }
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   const fetchAllTasks = async () => {
     if (!activeOrgId) {
@@ -677,65 +393,28 @@ export default function TasksPage() {
         /* Normal full-width list view */
         <>
           {/* HEADER SECTION */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" style={{
+          <div style={{
             marginBottom: '24px',
-            paddingBottom: '16px',
+            paddingBottom: '20px',
             borderBottom: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
           }}>
-            <div>
-              <h1 className="orbit-page-title">
-                Workspace Tasks
-              </h1>
-              <p style={{
-                fontSize: '14px', margin: 0,
-                color: isDark ? '#475569' : '#94a3b8',
-              }}>
-                Manage, filter, and track all deliverables across your projects.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={filterOpen ? () => setFilterOpen(false) : handleOpenFilter}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '9px 16px',
-                borderRadius: '10px',
-                border: `1px solid ${
-                  activeFilterCount > 0
-                    ? '#6366f1'
-                    : isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0'
-                }`,
-                background: activeFilterCount > 0
-                  ? 'rgba(99,102,241,0.1)'
-                  : 'transparent',
-                color: activeFilterCount > 0
-                  ? '#6366f1'
-                  : isDark ? '#94a3b8' : '#64748b',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                tune
-              </span>
-              Filters
-              {activeFilterCount > 0 && (
-                <span style={{
-                  background: '#6366f1',
-                  color: 'white',
-                  borderRadius: '10px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '1px 7px',
-                }}>
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 800,
+              color: isDark ? '#f1f5f9' : '#0f172a',
+              margin: '0 0 6px',
+              letterSpacing: '-0.3px',
+            }}>
+              Workspace Tasks
+            </h1>
+            <p style={{
+              fontSize: '14px',
+              margin: 0,
+              color: isDark ? '#64748b' : '#94a3b8',
+            }}>
+              Manage, filter, and track all deliverables across your projects.
+            </p>
           </div>
 
           {/* QUICK STATS CARDS — 2-col mobile, 4-col desktop */}
@@ -811,7 +490,7 @@ export default function TasksPage() {
             borderRadius: '12px',
             padding: '4px',
             width: 'fit-content',
-            marginBottom: '16px',
+            marginBottom: '20px',
           }}>
             {[
               { key: 'all', label: `All Tasks (${allTasks.length})` },
@@ -822,7 +501,7 @@ export default function TasksPage() {
                 type="button"
                 onClick={() => setAssignedFilter(tab.key)}
                 style={{
-                  padding: '7px 14px',
+                  padding: '7px 16px',
                   borderRadius: '9px',
                   border: 'none',
                   background:
@@ -847,39 +526,123 @@ export default function TasksPage() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-            {filterOpen && !isMobile && (
-              <div style={{
-                width: '260px',
-                flexShrink: 0,
-                background: isDark ? '#111' : 'white',
-                borderRadius: '16px',
-                border: `1px solid ${isDark
-                  ? 'rgba(255,255,255,0.06)' : 'rgba(99,102,241,0.1)'}`,
-                overflow: 'hidden',
-                position: 'sticky',
-                top: '80px',
-                alignSelf: 'flex-start',
-              }}>
-                <FilterPanel
-                  isDark={isDark}
-                  pendingSearch={pendingSearch}
-                  setPendingSearch={setPendingSearch}
-                  pendingProject={pendingProject}
-                  setPendingProject={setPendingProject}
-                  pendingPriority={pendingPriority}
-                  setPendingPriority={setPendingPriority}
-                  pendingStatus={pendingStatus}
-                  setPendingStatus={setPendingStatus}
-                  projects={projects}
-                  onReset={handleResetFilters}
-                  onApply={handleApplyFilters}
-                />
-              </div>
-            )}
+          {/* Inline filters */}
+          <div
+            className="tasks-filter-row"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto auto auto',
+              gap: '10px',
+              marginBottom: '20px',
+              alignItems: 'center',
+            }}>
+            <div style={{ position: 'relative' }}>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: '18px',
+                  color: isDark ? '#475569' : '#94a3b8',
+                  pointerEvents: 'none',
+                }}>
+                search
+              </span>
+              <input
+                placeholder="Search tasks..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px 10px 40px',
+                  borderRadius: '10px',
+                  border: `1px solid ${isDark
+                    ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                  background: isDark ? '#111' : 'white',
+                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <select
+              value={filterProject}
+              onChange={e => setFilterProject(e.target.value)}
+              style={{
+                padding: '10px 32px 10px 12px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: isDark ? '#111' : 'white',
+                color: isDark ? '#e2e8f0' : '#374151',
+                fontSize: '13px',
+                cursor: 'pointer',
+                outline: 'none',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+              }}>
+              <option value="all">All Projects</option>
+              {projects.map(p => (
+                <option key={p._id} value={p._id}>{p.name}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterPriority}
+              onChange={e => setFilterPriority(e.target.value)}
+              style={{
+                padding: '10px 32px 10px 12px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: isDark ? '#111' : 'white',
+                color: isDark ? '#e2e8f0' : '#374151',
+                fontSize: '13px',
+                cursor: 'pointer',
+                outline: 'none',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+              }}>
+              <option value="all">All Priorities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              style={{
+                padding: '10px 32px 10px 12px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: isDark ? '#111' : 'white',
+                color: isDark ? '#e2e8f0' : '#374151',
+                fontSize: '13px',
+                cursor: 'pointer',
+                outline: 'none',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+              }}>
+              <option value="all">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
                     <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -996,141 +759,7 @@ export default function TasksPage() {
                     )
                   })
                 )}
-              </div>
-            </div>
           </div>
-
-          {filterOpen && isMobile && (
-            <div style={{
-              position: 'fixed', inset: 0, zIndex: 100,
-              background: 'rgba(0,0,0,0.6)',
-              backdropFilter: 'blur(4px)',
-              display: 'flex',
-              alignItems: 'flex-end',
-            }}
-            onClick={() => setFilterOpen(false)}>
-              <div
-                onClick={e => e.stopPropagation()}
-                style={{
-                  width: '100%',
-                  background: isDark ? '#111' : 'white',
-                  borderRadius: '20px 20px 0 0',
-                  maxHeight: '88vh',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden',
-                }}>
-                <div style={{
-                  flexShrink: 0,
-                  padding: '12px 20px 0',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}>
-                  <div style={{
-                    width: '36px', height: '4px',
-                    borderRadius: '2px',
-                    background: isDark
-                      ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
-                  }} />
-                </div>
-                <div style={{
-                  flexShrink: 0,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '14px 20px',
-                  borderBottom: `1px solid ${isDark
-                    ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-                }}>
-                  <span style={{
-                    fontSize: '16px', fontWeight: 700,
-                    color: isDark ? '#f1f5f9' : '#0f172a',
-                  }}>
-                    Filter Tasks
-                  </span>
-                  <button
-                    onClick={() => setFilterOpen(false)}
-                    style={{
-                      background: 'none', border: 'none',
-                      cursor: 'pointer',
-                      color: isDark ? '#64748b' : '#94a3b8',
-                    }}>
-                    <span className="material-symbols-outlined"
-                      style={{ fontSize: '20px' }}>
-                      close
-                    </span>
-                  </button>
-                </div>
-                <div style={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  padding: '16px 20px',
-                  WebkitOverflowScrolling: 'touch',
-                }}>
-                  <FilterPanel
-                    formOnly
-                    isDark={isDark}
-                    pendingSearch={pendingSearch}
-                    setPendingSearch={setPendingSearch}
-                    pendingProject={pendingProject}
-                    setPendingProject={setPendingProject}
-                    pendingPriority={pendingPriority}
-                    setPendingPriority={setPendingPriority}
-                    pendingStatus={pendingStatus}
-                    setPendingStatus={setPendingStatus}
-                    projects={projects}
-                    onReset={handleResetFilters}
-                    onApply={handleApplyFilters}
-                  />
-                </div>
-                <div style={{
-                  flexShrink: 0,
-                  padding: '12px 20px',
-                  paddingBottom:
-                    'max(12px, env(safe-area-inset-bottom))',
-                  borderTop: `1px solid ${isDark
-                    ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
-                  background: isDark ? '#111' : 'white',
-                  display: 'flex',
-                  gap: '10px',
-                }}>
-                  <button
-                    type="button"
-                    onClick={handleResetFilters}
-                    style={{
-                      flex: 1,
-                      padding: '13px',
-                      borderRadius: '12px',
-                      border: `1px solid ${isDark
-                        ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
-                      background: 'transparent',
-                      color: isDark ? '#64748b' : '#94a3b8',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}>
-                    Reset
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleApplyFilters}
-                    style={{
-                      flex: 2,
-                      padding: '13px',
-                      borderRadius: '12px',
-                      background: '#6366f1',
-                      color: 'white',
-                      border: 'none',
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}>
-                    Apply Filters
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </>
       )}
 

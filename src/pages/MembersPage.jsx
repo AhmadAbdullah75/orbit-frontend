@@ -78,6 +78,14 @@ const MembersPage = () => {
   const userRole = currentUserMembership?.role || 'viewer'
   const perms = getPermissions(userRole)
 
+  const shouldShowActions = (memberRow) => {
+    if (!perms.canChangeRoles && !perms.canRemoveMembers) return false
+    if (memberRow.role === 'owner') return false
+    if (userRole === 'admin' &&
+        memberRow.user?._id === user?._id) return false
+    return true
+  }
+
   useEffect(() => {
     if (orgId) fetchMembers()
     else setLoading(false)
@@ -413,77 +421,72 @@ const MembersPage = () => {
         </td>
 
         <td className="px-6 py-4 text-right">
-          {(() => {
-            if (userRole === 'member') return null
-            if (userRole === 'admin' &&
-                m.user?._id === user?._id) return null
-            if (m.role === 'owner') return null
+          {shouldShowActions(m) ? (
+            <div style={{ position: 'relative' }}
+              className="relative inline-block">
+              <button
+                type="button"
+                onClick={e => {
+                  e.stopPropagation()
+                  setOpenMenuId(
+                    openMenuId === m._id
+                      ? null : m._id
+                  )
+                }}
+                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '18px' }}>
+                  more_vert
+                </span>
+              </button>
 
-            return (
-              <div style={{ position: 'relative' }}
-                className="relative inline-block">
-                <button
-                  type="button"
-                  onClick={e => {
-                    e.stopPropagation()
-                    setOpenMenuId(
-                      openMenuId === m._id
-                        ? null : m._id
-                    )
-                  }}
-                  className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontSize: '18px' }}>
-                    more_vert
-                  </span>
-                </button>
-
-                {openMenuId === m._id && (
-                  <div className="orbit-action-menu absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
-                    {perms.canChangeRoles &&
-                     ['admin', 'member']
-                      .filter(r => r !== m.role)
-                      .map(role => (
-                        <button
-                          key={role}
-                          type="button"
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleChangeRole(
-                              m.user?._id, role
-                            )
-                          }}
-                          className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors capitalize"
-                        >
-                          Make {role.charAt(0).toUpperCase()
-                            + role.slice(1)}
-                        </button>
-                      ))}
-                    {perms.canRemoveMembers && (
+              {openMenuId === m._id && (
+                <div className="orbit-action-menu absolute right-0 top-8 w-44 rounded-xl shadow-xl z-20 overflow-hidden bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[rgba(255,255,255,0.08)]">
+                  {perms.canChangeRoles &&
+                   ['admin', 'member']
+                    .filter(r => r !== m.role)
+                    .map(role => (
                       <button
+                        key={role}
                         type="button"
                         onClick={e => {
                           e.stopPropagation()
-                          handleRemoveMember(
-                            m._id, m.user?._id
+                          handleChangeRole(
+                            m.user?._id, role
                           )
                         }}
-                        disabled={
-                          removing === m.user?._id
-                        }
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
-                        style={{ color: '#ef4444' }}
+                        className="w-full flex items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors capitalize"
                       >
-                        Remove
+                        Make {role.charAt(0).toUpperCase()
+                          + role.slice(1)}
                       </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
+                    ))}
+                  {perms.canRemoveMembers && (
+                    <button
+                      type="button"
+                      onClick={e => {
+                        e.stopPropagation()
+                        handleRemoveMember(
+                          m._id, m.user?._id
+                        )
+                      }}
+                      disabled={
+                        removing === m.user?._id
+                      }
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                      style={{ color: '#ef4444' }}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ width: '32px' }} />
+          )}
         </td>
       </tr>
     ))
@@ -503,8 +506,17 @@ const MembersPage = () => {
       {/* HEADER */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="orbit-page-title">Members</h1>
-          <p className="text-sm text-slate-500">Manage your team and their permissions.</p>
+          <h1
+            className="orbit-page-title"
+            style={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
+            Members
+          </h1>
+          <p style={{
+            fontSize: '14px',
+            color: isDark ? '#64748b' : '#94a3b8',
+          }}>
+            Manage your team and their permissions.
+          </p>
         </div>
         {perms.canInviteMembers && (
           <button 

@@ -5,6 +5,7 @@ import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import OrbitLogo from '../components/OrbitLogo';
 import AuthBackground from '../components/AuthBackground';
+import Footer from '../components/Footer';
 
 const RegisterPage = () => {
     const [name, setName] = useState('');
@@ -537,6 +538,7 @@ const RegisterPage = () => {
                     </a>
                 </div>
             </main>
+            <Footer minimal />
             </div>
         </div>
     );

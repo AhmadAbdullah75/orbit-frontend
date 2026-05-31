@@ -10,6 +10,7 @@ import { slideUp, scaleIn, scaleInRight, EASE } from '../utils/animations';
 import { io } from 'socket.io-client';
 import Toast from '../components/Toast';
 import OrbitLogo from '../components/OrbitLogo';
+import Footer from '../components/Footer';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -1878,6 +1879,7 @@ export default function DashboardLayout() {
             <Outlet context={{ userRole }} />
           </motion.main>
         </div>
+        <Footer />
       </main>
 
       {/* ── BOTTOM NAV (mobile only) ─────── */}

@@ -544,10 +544,24 @@ const DashboardPage = () => {
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <h1 className="orbit-page-title">
+              <h2
+                className="text-hero"
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 800,
+                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  letterSpacing: '-0.5px',
+                  marginBottom: '8px',
+                  lineHeight: 1.2,
+                }}>
                 Welcome back, {firstName}! 👋
-              </h1>
-              <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-2">
+              </h2>
+              <p style={{
+                fontSize: '15px',
+                color: isDark ? '#64748b' : '#94a3b8',
+                maxWidth: '24rem',
+                margin: '0 auto',
+              }}>
                 {statsLoading 
                   ? "Loading your workspace..." 
                   : stats.totalProjects > 0
@@ -726,8 +740,17 @@ const DashboardPage = () => {
           {/* Getting Started */}
           <div className="orbit-card col-span-1 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
-              <h2 className="font-bold text-slate-900 dark:text-white">Workspace Setup</h2>
-              <p className="text-xs text-slate-500">Complete steps to set up your workspace.</p>
+              <h2
+                className="orbit-section-title"
+                style={{ color: isDark ? '#f1f5f9' : '#1e293b' }}>
+                Workspace Setup
+              </h2>
+              <p style={{
+                fontSize: '12px',
+                color: isDark ? '#64748b' : '#94a3b8',
+              }}>
+                Complete steps to set up your workspace.
+              </p>
             </div>
             <div className="p-5 space-y-4 flex-1">
               {checklistItems.map((item) => (
@@ -794,7 +817,11 @@ const DashboardPage = () => {
           {/* Recent Activity */}
           <div className="orbit-card col-span-2 bg-white dark:bg-[#161616] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-sm flex flex-col">
             <div className="p-5 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] flex justify-between items-center">
-              <h2 className="font-bold text-slate-900 dark:text-white">Recent Activity Log</h2>
+              <h2
+                className="orbit-section-title"
+                style={{ color: isDark ? '#f1f5f9' : '#1e293b' }}>
+                Recent Activity Log
+              </h2>
               {recentActivity.length > 4 && (
                 <button
                   onClick={() => navigate('/activity')}
