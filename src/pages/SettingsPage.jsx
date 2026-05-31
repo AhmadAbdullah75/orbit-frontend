@@ -310,7 +310,7 @@ export default function SettingsPage() {
       className="settings-page-wrap"
       style={{
         padding: '24px 20px',
-        maxWidth: '1000px',
+        maxWidth: '800px',
         margin: '0 auto',
         width: '100%',
         boxSizing: 'border-box',
@@ -339,13 +339,21 @@ export default function SettingsPage() {
             border: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)'
               : 'rgba(99,102,241,0.1)'}`,
-            borderRadius: '16px',
-            padding: '24px',
-            marginBottom: '16px',
+            borderRadius: '14px',
+            padding: '20px',
+            marginBottom: '14px',
             width: '100%',
             boxSizing: 'border-box',
           }}>
-          <h2 className="text-lg font-bold mb-4 text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: isDark ? '#f1f5f9' : '#1e293b',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
             <span className="material-symbols-outlined text-indigo-500">person</span>
             Profile Information
           </h2>
@@ -520,13 +528,21 @@ export default function SettingsPage() {
             border: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)'
               : 'rgba(99,102,241,0.1)'}`,
-            borderRadius: '16px',
-            marginBottom: '16px',
+            borderRadius: '14px',
+            padding: '20px',
+            marginBottom: '14px',
             width: '100%',
             boxSizing: 'border-box',
           }}>
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Workspace</h2>
+          <div className="border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] pb-4 mb-0">
+            <h2 style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              color: isDark ? '#f1f5f9' : '#1e293b',
+              marginBottom: '14px',
+            }}>
+              Workspace
+            </h2>
             <p className="text-xs text-slate-500 dark:text-slate-500">Configure your organization</p>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-[rgba(255,255,255,0.04)]">
@@ -549,14 +565,14 @@ export default function SettingsPage() {
           className="settings-card"
           style={{
             padding: '20px',
-            borderRadius: '16px',
+            borderRadius: '14px',
             background: isDark
               ? 'rgba(99,102,241,0.08)'
               : 'rgba(99,102,241,0.05)',
             border: `1px solid ${isDark
               ? 'rgba(99,102,241,0.2)'
               : 'rgba(99,102,241,0.15)'}`,
-            marginBottom: '16px',
+            marginBottom: '14px',
             width: '100%',
             boxSizing: 'border-box',
           }}>
@@ -632,13 +648,21 @@ export default function SettingsPage() {
             border: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)'
               : 'rgba(99,102,241,0.1)'}`,
-            borderRadius: '16px',
-            marginBottom: '16px',
+            borderRadius: '14px',
+            padding: '20px',
+            marginBottom: '14px',
             width: '100%',
             boxSizing: 'border-box',
           }}>
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</h2>
+          <div className="border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)] pb-4">
+            <h2 style={{
+              fontSize: '15px',
+              fontWeight: 700,
+              color: isDark ? '#f1f5f9' : '#1e293b',
+              marginBottom: '14px',
+            }}>
+              Notifications
+            </h2>
             <p className="text-xs text-slate-500 dark:text-slate-500">Choose what to be notified about</p>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-[rgba(255,255,255,0.04)]">
@@ -706,13 +730,21 @@ export default function SettingsPage() {
               border: `1px solid ${isDark
                 ? 'rgba(239,68,68,0.1)'
                 : 'rgba(254,226,226,1)'}`,
-              borderRadius: '16px',
-              marginBottom: '16px',
+              borderRadius: '14px',
+              padding: '20px',
+              marginBottom: '14px',
               width: '100%',
               boxSizing: 'border-box',
             }}>
-            <div className="px-6 py-4 border-b border-red-50 dark:border-[rgba(239,68,68,0.05)]">
-              <h2 className="text-sm font-semibold text-red-600 dark:text-red-400">Danger Zone</h2>
+            <div className="border-b border-red-50 dark:border-[rgba(239,68,68,0.05)] pb-4">
+              <h2 style={{
+                fontSize: '15px',
+                fontWeight: 700,
+                color: '#ef4444',
+                marginBottom: '14px',
+              }}>
+                Danger Zone
+              </h2>
               <p className="text-xs text-red-500/60 dark:text-red-400/50">Irreversible and destructive actions</p>
             </div>
             <div className="px-6 py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

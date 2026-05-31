@@ -107,11 +107,15 @@ const LoginPage = () => {
     return (
         <div style={{
             minHeight: '100vh',
+            width: '100vw',
             position: 'relative',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '20px',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
         }}>
             <AuthBackground />
 
@@ -124,7 +128,38 @@ const LoginPage = () => {
                 zIndex: 1,
                 width: '100%',
                 maxWidth: '420px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
             }}>
+                <div style={{
+                    textAlign: 'center',
+                    marginBottom: '24px',
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        marginBottom: '12px',
+                    }}>
+                        <OrbitLogo size={52} showText={false} />
+                    </div>
+                    <h1 style={{
+                        fontSize: '38px',
+                        fontWeight: 900,
+                        letterSpacing: '-1.5px',
+                        margin: '0 0 6px',
+                        color: isDark ? '#f1f5f9' : '#1e293b',
+                    }}>
+                        Orbit
+                    </h1>
+                    <p style={{
+                        fontSize: '14px',
+                        color: isDark ? '#475569' : '#94a3b8',
+                        margin: 0,
+                    }}>
+                        Sign in to your project workspace
+                    </p>
+                </div>
+
                 <div style={{
                     background: isDark
                         ? 'rgba(17,17,27,0.88)'
@@ -135,48 +170,12 @@ const LoginPage = () => {
                     border: `1px solid ${isDark
                         ? 'rgba(255,255,255,0.08)'
                         : 'rgba(255,255,255,0.9)'}`,
+                    padding: '32px 28px',
                     boxShadow: isDark
-                        ? '0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
-                        : '0 24px 64px rgba(99,102,241,0.15), 0 0 0 1px rgba(255,255,255,0.5)',
-                    padding: '36px',
+                        ? '0 24px 64px rgba(0,0,0,0.5)'
+                        : '0 24px 64px rgba(99,102,241,0.1)',
                 }}>
                     <main className="w-full">
-                        {/* Logo + Title — centered block */}
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            marginBottom: '28px',
-                        }}>
-                            <div style={{
-                                marginBottom: '12px',
-                            }}>
-                                <OrbitLogo size={56} showText={false} />
-                            </div>
-
-                            <h1
-                                className="orbit-wordmark"
-                                style={{
-                                    fontSize: '42px',
-                                    margin: '0 0 6px',
-                                    letterSpacing: '-1.5px',
-                                    lineHeight: 1,
-                                }}>
-                                Orbit
-                            </h1>
-
-                            <p style={{
-                                fontSize: '14px',
-                                color: isDark ? '#475569' : '#94a3b8',
-                                margin: 0,
-                                fontWeight: 400,
-                            }}>
-                                Sign in to your project workspace
-                            </p>
-                        </div>
-
                         <section className="w-full">
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         {/* Email Field */}
@@ -353,84 +352,10 @@ const LoginPage = () => {
                         </p>
                     </div>
                 </section>
-            </main>
-        </div>
-
-                {/* Footer Links */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    marginTop: '24px',
-                }}>
-                    <a
-                        href="/privacy"
-                        style={{
-                            fontSize: '12px',
-                            color: isDark ? '#475569' : '#94a3b8',
-                            textDecoration: 'none',
-                            transition: 'color 150ms',
-                        }}
-                        onMouseEnter={e =>
-                            e.target.style.color = '#6366f1'
-                        }
-                        onMouseLeave={e =>
-                            e.target.style.color =
-                                isDark ? '#475569' : '#94a3b8'
-                        }
-                    >
-                        Privacy Policy
-                    </a>
-
-                    <span style={{
-                        color: isDark ? '#1e293b' : '#e2e8f0',
-                        fontSize: '12px',
-                    }}>·</span>
-
-                    <a
-                        href="/terms"
-                        style={{
-                            fontSize: '12px',
-                            color: isDark ? '#475569' : '#94a3b8',
-                            textDecoration: 'none',
-                            transition: 'color 150ms',
-                        }}
-                        onMouseEnter={e =>
-                            e.target.style.color = '#6366f1'
-                        }
-                        onMouseLeave={e =>
-                            e.target.style.color =
-                                isDark ? '#475569' : '#94a3b8'
-                        }
-                    >
-                        Terms of Service
-                    </a>
-
-                    <span style={{
-                        color: isDark ? '#1e293b' : '#e2e8f0',
-                        fontSize: '12px',
-                    }}>·</span>
-
-                    <a
-                        href="mailto:iamahmad3027@gmail.com"
-                        style={{
-                            fontSize: '12px',
-                            color: isDark ? '#475569' : '#94a3b8',
-                            textDecoration: 'none',
-                            transition: 'color 150ms',
-                        }}
-                        onMouseEnter={e =>
-                            e.target.style.color = '#6366f1'
-                        }
-                        onMouseLeave={e =>
-                            e.target.style.color =
-                                isDark ? '#475569' : '#94a3b8'
-                        }
-                    >
-                        Support
-                    </a>
+                    </main>
                 </div>
+
+                <Footer minimal />
             </div>
 
             {showForgot && (
@@ -628,9 +553,8 @@ const LoginPage = () => {
                     </div>
                 </div>
             )}
-            <Footer minimal />
-    </div>
-  );
+        </div>
+    );
 };
 
 export default LoginPage;

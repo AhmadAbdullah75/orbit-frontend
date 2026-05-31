@@ -155,14 +155,13 @@ const RegisterPage = () => {
                         <OrbitLogo size={56} showText={false} />
                     </div>
 
-                    <h1
-                        className="orbit-wordmark"
-                        style={{
-                            fontSize: '42px',
-                            margin: '0 0 6px',
-                            letterSpacing: '-1.5px',
-                            lineHeight: 1,
-                        }}>
+                    <h1 style={{
+                        fontSize: '38px',
+                        fontWeight: 900,
+                        letterSpacing: '-1.5px',
+                        margin: '0 0 6px',
+                        color: isDark ? '#f1f5f9' : '#1e293b',
+                    }}>
                         Orbit
                     </h1>
 

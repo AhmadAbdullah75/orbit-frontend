@@ -460,7 +460,7 @@ body:not(.dark) .text-muted {
 
 .settings-page-wrap {
   padding: 24px 20px !important;
-  max-width: 1000px !important;
+  max-width: 800px !important;
   margin: 0 auto !important;
 }
 
@@ -487,10 +487,12 @@ body:not(.dark) .text-muted {
   }
   .settings-page-wrap {
     padding: 12px !important;
+    max-width: 100% !important;
   }
   .settings-card {
+    padding: 14px !important;
     border-radius: 12px !important;
-    padding: 16px !important;
+    margin-bottom: 10px !important;
   }
 }
 
