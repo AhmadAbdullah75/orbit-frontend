@@ -514,6 +514,19 @@ body:not(.dark) .text-muted {
     display: flex !important;
   }
 
+  /* All bottom sheets must sit above bottom nav */
+  .orbit-bottom-sheet {
+    margin-bottom: 64px !important;
+  }
+
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .orbit-bottom-sheet {
+      margin-bottom: calc(
+        64px + env(safe-area-inset-bottom)
+      ) !important;
+    }
+  }
+
   /* Main content: no sidebar margin */
   .orbit-main-content {
     margin-left: 0 !important;

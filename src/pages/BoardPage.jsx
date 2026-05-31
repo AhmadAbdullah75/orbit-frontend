@@ -3730,28 +3730,44 @@ function FilterPanel({
         }}
         onClick={onClose}>
         <div
+          className="orbit-bottom-sheet"
           onClick={e => e.stopPropagation()}
           style={{
             width: '100%',
             background: isDark ? '#111' : 'white',
             borderRadius: '20px 20px 0 0',
-            maxHeight: 'calc(88vh - 64px)',
+            maxHeight: 'calc(85vh - 64px)',
             display: 'flex',
             flexDirection: 'column',
-            marginBottom: '64px',
             overflow: 'hidden',
+            marginBottom: '64px',
           }}>
           <div style={{
             flexShrink: 0,
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            padding: '10px 0 0',
+          }}>
+            <div style={{
+              width: '36px',
+              height: '4px',
+              borderRadius: '2px',
+              background: isDark
+                ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
+            }} />
+          </div>
+
+          <div style={{
+            flexShrink: 0,
+            display: 'flex',
             alignItems: 'center',
-            padding: '14px 20px',
+            justifyContent: 'space-between',
+            padding: '12px 20px',
             borderBottom: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
           }}>
             <span style={{
-              fontSize: '16px',
+              fontSize: '15px',
               fontWeight: 700,
               color: isDark ? '#f1f5f9' : '#0f172a',
             }}>
@@ -3765,6 +3781,7 @@ function FilterPanel({
                 border: 'none',
                 cursor: 'pointer',
                 color: isDark ? '#64748b' : '#94a3b8',
+                padding: '4px',
               }}>
               <span className="material-symbols-outlined"
                 style={{ fontSize: '20px' }}>
@@ -3784,8 +3801,7 @@ function FilterPanel({
 
           <div style={{
             flexShrink: 0,
-            padding: '12px 20px',
-            paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+            padding: '12px 20px 16px',
             borderTop: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
             background: isDark ? '#111' : 'white',
