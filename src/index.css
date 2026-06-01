@@ -514,16 +514,14 @@ body:not(.dark) .text-muted {
     display: flex !important;
   }
 
-  /* All bottom sheets must sit above bottom nav */
-  .orbit-bottom-sheet {
-    margin-bottom: 64px !important;
+  /* Any bottom sheet overlay stops above bottom nav */
+  .orbit-filter-overlay {
+    bottom: 64px !important;
   }
 
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .orbit-bottom-sheet {
-      margin-bottom: calc(
-        64px + env(safe-area-inset-bottom)
-      ) !important;
+    .orbit-filter-overlay {
+      bottom: calc(64px + env(safe-area-inset-bottom)) !important;
     }
   }
 

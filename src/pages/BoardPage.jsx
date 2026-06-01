@@ -3721,13 +3721,14 @@ function FilterPanel({
   if (isMobile) {
     return (
       <div
+        className="orbit-filter-overlay"
         onClick={onClose}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
+          bottom: '64px',
           zIndex: 100,
           background: 'rgba(0,0,0,0.6)',
           backdropFilter: 'blur(4px)',
@@ -3742,10 +3743,9 @@ function FilterPanel({
             width: '100%',
             background: isDark ? '#111' : 'white',
             borderRadius: '20px 20px 0 0',
+            maxHeight: 'calc(100vh - 120px)',
             display: 'flex',
             flexDirection: 'column',
-            maxHeight: 'calc(100vh - 120px)',
-            marginBottom: '64px',
             overflow: 'hidden',
           }}>
           <div style={{
@@ -4002,8 +4002,6 @@ function FilterPanel({
             background: isDark ? '#111' : 'white',
             display: 'flex',
             gap: '10px',
-            position: 'relative',
-            zIndex: 1,
           }}>
             <button
               type="button"
