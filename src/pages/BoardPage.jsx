@@ -3716,19 +3716,25 @@ function FilterPanel({
     </div>
   )
 
+  const filterPriority = filters.priority || 'all'
+
   if (isMobile) {
     return (
       <div
+        onClick={onClose}
         style={{
           position: 'fixed',
-          inset: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           zIndex: 100,
           background: 'rgba(0,0,0,0.6)',
           backdropFilter: 'blur(4px)',
           display: 'flex',
-          alignItems: 'flex-end',
-        }}
-        onClick={onClose}>
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+        }}>
         <div
           className="orbit-bottom-sheet"
           onClick={e => e.stopPropagation()}
@@ -3736,24 +3742,24 @@ function FilterPanel({
             width: '100%',
             background: isDark ? '#111' : 'white',
             borderRadius: '20px 20px 0 0',
-            maxHeight: 'calc(85vh - 64px)',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden',
+            maxHeight: 'calc(100vh - 120px)',
             marginBottom: '64px',
+            overflow: 'hidden',
           }}>
           <div style={{
             flexShrink: 0,
+            padding: '10px 0 0',
             display: 'flex',
             justifyContent: 'center',
-            padding: '10px 0 0',
           }}>
             <div style={{
               width: '36px',
               height: '4px',
               borderRadius: '2px',
               background: isDark
-                ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
+                ? 'rgba(255,255,255,0.15)' : '#e2e8f0',
             }} />
           </div>
 
@@ -3767,7 +3773,7 @@ function FilterPanel({
               ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
           }}>
             <span style={{
-              fontSize: '15px',
+              fontSize: '16px',
               fontWeight: 700,
               color: isDark ? '#f1f5f9' : '#0f172a',
             }}>
@@ -3781,7 +3787,6 @@ function FilterPanel({
                 border: 'none',
                 cursor: 'pointer',
                 color: isDark ? '#64748b' : '#94a3b8',
-                padding: '4px',
               }}>
               <span className="material-symbols-outlined"
                 style={{ fontSize: '20px' }}>
@@ -3796,21 +3801,216 @@ function FilterPanel({
             padding: '16px 20px',
             WebkitOverflowScrolling: 'touch',
           }}>
-            {filterContent}
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#475569' : '#94a3b8',
+              marginBottom: '10px',
+            }}>
+              Priority
+            </p>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              marginBottom: '20px',
+            }}>
+              {[
+                { v: 'all', l: 'All', c: '#6366f1' },
+                { v: 'urgent', l: 'Urgent', c: '#ef4444' },
+                { v: 'high', l: 'High', c: '#f97316' },
+                { v: 'medium', l: 'Medium', c: '#eab308' },
+                { v: 'low', l: 'Low', c: '#94a3b8' },
+              ].map(p => (
+                <button
+                  key={p.v}
+                  type="button"
+                  onClick={() => setFilters(f => ({
+                    ...f,
+                    priority: p.v === 'all' ? '' : p.v,
+                  }))}
+                  style={{
+                    padding: '7px 16px',
+                    borderRadius: '20px',
+                    border: `1.5px solid ${
+                      filterPriority === p.v
+                        ? p.c : 'transparent'
+                    }`,
+                    background: filterPriority === p.v
+                      ? `${p.c}20`
+                      : isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : '#f8fafc',
+                    color: filterPriority === p.v
+                      ? p.c
+                      : isDark ? '#64748b' : '#94a3b8',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}>
+                  {p.l}
+                </button>
+              ))}
+            </div>
+
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#475569' : '#94a3b8',
+              marginBottom: '10px',
+            }}>
+              Assignee
+            </p>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              marginBottom: '20px',
+            }}>
+              <button
+                type="button"
+                onClick={() => setFilters(f => ({ ...f, assignee: '' }))}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  background: !filters.assignee
+                    ? '#6366f1'
+                    : isDark
+                      ? 'rgba(255,255,255,0.05)'
+                      : '#f8fafc',
+                  color: !filters.assignee
+                    ? 'white'
+                    : isDark ? '#94a3b8' : '#64748b',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                }}>
+                All Members
+              </button>
+              {members.map(m => {
+                const id = m._id || m.user?._id
+                const name = m.name || m.user?.name
+                const isActive = filters.assignee === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setFilters(f => ({ ...f, assignee: id }))}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      background: isActive
+                        ? '#6366f1'
+                        : isDark
+                          ? 'rgba(255,255,255,0.05)'
+                          : '#f8fafc',
+                      color: isActive
+                        ? 'white'
+                        : isDark ? '#94a3b8' : '#64748b',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                    }}>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: isActive
+                        ? 'rgba(255,255,255,0.2)'
+                        : '#6366f1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: 'white',
+                      flexShrink: 0,
+                    }}>
+                      {name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {name}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: isDark ? '#475569' : '#94a3b8',
+              marginBottom: '10px',
+            }}>
+              Label
+            </p>
+            <input
+              type="text"
+              placeholder="Filter by label..."
+              value={filters.label}
+              onChange={e => setFilters(f => ({
+                ...f,
+                label: e.target.value,
+              }))}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '10px',
+                border: `1px solid ${isDark
+                  ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
+                background: isDark
+                  ? 'rgba(255,255,255,0.05)'
+                  : '#f8fafc',
+                color: isDark ? '#f1f5f9' : '#0f172a',
+                fontSize: '14px',
+                outline: 'none',
+                boxSizing: 'border-box',
+                marginBottom: '8px',
+              }}
+            />
+
+            <div style={{ height: '8px' }} />
           </div>
 
           <div style={{
             flexShrink: 0,
-            padding: '12px 20px 16px',
+            padding: '14px 20px',
             borderTop: `1px solid ${isDark
               ? 'rgba(255,255,255,0.06)' : '#f1f5f9'}`,
             background: isDark ? '#111' : 'white',
             display: 'flex',
             gap: '10px',
+            position: 'relative',
+            zIndex: 1,
           }}>
             <button
               type="button"
-              onClick={handleClearFilters}
+              onClick={() => {
+                handleClearFilters()
+                onClose()
+              }}
               style={{
                 flex: 1,
                 padding: '13px',
@@ -3822,12 +4022,13 @@ function FilterPanel({
                 fontSize: '14px',
                 fontWeight: 600,
                 cursor: 'pointer',
+                minHeight: '48px',
               }}>
-              Clear
+              Clear all
             </button>
             <button
               type="button"
-              onClick={handleApplyFilters}
+              onClick={onClose}
               style={{
                 flex: 2,
                 padding: '13px',
@@ -3838,8 +4039,9 @@ function FilterPanel({
                 fontSize: '14px',
                 fontWeight: 700,
                 cursor: 'pointer',
+                minHeight: '48px',
               }}>
-              Apply
+              Apply & Close
             </button>
           </div>
         </div>

@@ -44,7 +44,6 @@ export default function DashboardLayout() {
   const isDashboard = currentPath.pathname === '/dashboard' || currentPath.pathname === '/'
 
   // 3. useState calls
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [orgs, setOrgs] = useState(() => {
@@ -993,43 +992,180 @@ export default function DashboardLayout() {
           </div>
         )}
 
-        {/* User Profile */}
-        <div className="p-4 border-t border-slate-200 dark:border-[rgba(255,255,255,0.06)] relative">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-[rgba(255,255,255,0.04)] transition-colors duration-150"
-            style={{
-              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-            }}
-          >
-            <div className="w-8 h-8 rounded-full border border-slate-200 dark:border-[rgba(255,255,255,0.1)] bg-[#6764f2] flex items-center justify-center text-sm font-semibold text-white flex-shrink-0 overflow-hidden">
-              {user?.avatar
-                ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                : userInitial}
-            </div>
-            {!sidebarCollapsed && (
-              <>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate leading-tight">{user?.name || 'User'}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-500 truncate leading-tight">{user?.email || ''}</p>
-                </div>
-                <span className="material-symbols-outlined text-[18px] text-slate-400 dark:text-slate-600">more_vert</span>
-              </>
-            )}
-          </button>
-
-          {isMobileMenuOpen && (
-            <div className="absolute bottom-full left-4 right-4 mb-2 rounded-xl border shadow-2xl z-50 bg-white dark:bg-[#141414] border-slate-200 dark:border-[rgba(255,255,255,0.08)] overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 dark:border-[rgba(255,255,255,0.06)]">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user?.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-500 truncate">{user?.email}</p>
+        {/* Bottom user section */}
+        <div style={{
+          borderTop: `1px solid ${isDark
+            ? 'rgba(255,255,255,0.06)' : '#e8e6ff'}`,
+          padding: sidebarCollapsed ? '12px 8px' : '12px',
+          flexShrink: 0,
+          marginTop: 'auto',
+        }}>
+          {sidebarCollapsed ? (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px',
+            }}>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: '#6366f1',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: 'white',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                }}
+                title={user?.name}>
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                    alt="Profile"
+                  />
+                ) : (
+                  (user?.name || 'U').charAt(0).toUpperCase()
+                )}
               </div>
+
               <button
+                type="button"
                 onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-[rgba(239,68,68,0.08)] transition-colors duration-150"
-              >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
-                Sign out
+                title="Sign out"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: isDark ? '#475569' : '#94a3b8',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  transition: 'color 150ms',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = '#ef4444'
+                  e.currentTarget.style.background =
+                    'rgba(239,68,68,0.08)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color =
+                    isDark ? '#475569' : '#94a3b8'
+                  e.currentTarget.style.background =
+                    'transparent'
+                }}>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '18px' }}>
+                  logout
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: '#6366f1',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: 'white',
+                flexShrink: 0,
+              }}>
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                    alt="Profile"
+                  />
+                ) : (
+                  (user?.name || 'U').charAt(0).toUpperCase()
+                )}
+              </div>
+
+              <div style={{
+                flex: 1,
+                minWidth: 0,
+                overflow: 'hidden',
+              }}>
+                <p style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: isDark ? '#f1f5f9' : '#0f172a',
+                  margin: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {user?.name || 'User'}
+                </p>
+                <p style={{
+                  fontSize: '11px',
+                  margin: 0,
+                  color: isDark ? '#475569' : '#94a3b8',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {user?.email || ''}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Sign out"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: isDark ? '#475569' : '#94a3b8',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '6px',
+                  flexShrink: 0,
+                  transition: 'color 150ms',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = '#ef4444'
+                  e.currentTarget.style.background =
+                    'rgba(239,68,68,0.08)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color =
+                    isDark ? '#475569' : '#94a3b8'
+                  e.currentTarget.style.background =
+                    'transparent'
+                }}>
+                <span className="material-symbols-outlined"
+                  style={{ fontSize: '18px' }}>
+                  logout
+                </span>
               </button>
             </div>
           )}
